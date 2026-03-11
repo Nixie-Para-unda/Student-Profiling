@@ -1,326 +1,281 @@
 <template>
-  <div class="flex h-screen bg-gray-50 overflow-hidden">
+  <div class="dashboard-root">
+
     <!-- Sidebar -->
-    <div class="w-64 bg-[#1e1e2d] text-gray-300 flex flex-col transition-all duration-300">
-      <div class="p-6">
-        <div class="flex items-center space-x-3 mb-8">
-          <div class="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-xs">IS</div>
-          <span class="text-xs uppercase font-semibold tracking-wider text-gray-400">Information System</span>
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="#FF6B1A"/>
+            <path d="M8 20C8 13.373 13.373 8 20 8s12 5.373 12 12-5.373 12-12 12S8 26.627 8 20z" fill="white" fill-opacity="0.2"/>
+            <path d="M14 20h12M20 14v12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
         </div>
-        
-        <div class="mb-8">
-          <h1 class="text-sm font-bold text-white leading-tight">College of Computing Studies</h1>
-          <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-tighter">Academic Year 2026-2027</p>
+        <div class="brand-text" v-show="!sidebarCollapsed">
+          <span class="brand-name">DIS Portal</span>
+          <span class="brand-sub">CCS · AY 2026–2027</span>
         </div>
-
-        <div class="flex items-center space-x-3 p-3 bg-[#2b2b40] rounded-lg mb-8">
-          <div class="w-10 h-10 bg-orange-600 rounded flex items-center justify-center text-white font-bold text-lg">
-            {{ authStore.user?.name?.charAt(0) }}
-          </div>
-          <div class="overflow-hidden">
-            <p class="text-xs font-bold text-white truncate">{{ authStore.user?.name }}</p>
-            <p class="text-[9px] text-gray-400 uppercase">{{ authStore.user?.role }} / HEAD OF DEPT</p>
-          </div>
-        </div>
-
-        <nav class="space-y-1">
-          <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 mt-4">Overview</div>
-          <a href="#" class="flex items-center space-x-3 p-2 rounded-lg bg-orange-600/10 text-orange-500 border-r-4 border-orange-500">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            <span class="text-sm">Dashboard</span>
-          </a>
-          <a v-if="authStore.isDean" href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span class="text-sm">Reports</span>
-          </a>
-
-          <!-- Dean Academic Section -->
-          <template v-if="authStore.isDean">
-            <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 mt-6">Academic</div>
-            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <div class="flex items-center space-x-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <span class="text-sm">Students</span>
-              </div>
-              <span class="text-[10px] bg-gray-800 px-1.5 py-0.5 rounded text-gray-400">842</span>
-            </a>
-            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <div class="flex items-center space-x-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                <span class="text-sm">Faculty</span>
-              </div>
-              
-              <span class="text-[10px] bg-gray-800 px-1.5 py-0.5 rounded text-gray-400">38</span>
-            </a>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-              <span class="text-sm">Academic Performance</span>
-            </a>
-            <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <div class="flex items-center space-x-3">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span class="text-sm">Violations</span>
-              </div>
-              <span class="text-[10px] bg-red-900/40 px-1.5 py-0.5 rounded text-red-400 font-bold">12</span>
-            </a>
-          </template>
-
-          <!-- Faculty Academic Section -->
-          <template v-else>
-            <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 mt-6">My Classes</div>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
-              <span class="text-sm">My Schedule</span>
-            </a>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.082.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-              <span class="text-sm">My Subjects</span>
-            </a>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-              <span class="text-sm">My Classes</span>
-            </a>
-            <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 mt-6">Monitoring</div>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-              <span class="text-sm">Student Profiles</span>
-            </a>
-            <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              <span class="text-sm">Record Violation</span>
-            </a>
-          </template>
-
-          <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 mt-6">Management</div>
-          <a v-if="authStore.isDean" href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <span class="text-sm">Faculty Schedule</span>
-          </a>
-          <a v-if="authStore.isFaculty" href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-            <span class="text-sm">Recommend Award</span>
-          </a>
-          <a href="#" class="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-            <div class="flex items-center space-x-3">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-              <span class="text-sm">Awards & Recognition</span>
-            </div>
-            <span v-if="authStore.isDean" class="text-[10px] bg-orange-900/40 px-1.5 py-0.5 rounded text-orange-400 font-bold">3</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#2b2b40] hover:text-white transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span class="text-sm">Settings</span>
-          </a>
-        </nav>
-      </div>
-
-      <div class="mt-auto p-6 border-t border-[#2b2b40]">
-        <button @click="handleLogout" class="flex items-center space-x-3 text-sm text-gray-500 hover:text-white transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-          <span>Sign Out</span>
+        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M13 5l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
-    </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Header -->
-      <header class="bg-white border-b p-4 flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-bold text-gray-800">Dashboard</h2>
-          <p class="text-xs text-gray-400">Overview of department academic performance & activity</p>
+      <!-- User -->
+      <div class="sidebar-user" v-show="!sidebarCollapsed">
+        <div class="user-avatar">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
+        <div class="user-info">
+          <p class="user-name">{{ authStore.user?.name ?? 'User' }}</p>
+          <p class="user-role">{{ authStore.user?.role ?? 'Faculty' }} · Head of Dept</p>
         </div>
-        <div class="flex items-center space-x-4">
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </span>
-            <input type="text" placeholder="Search students, faculty..." class="pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all w-64" />
+      </div>
+      <div class="user-avatar-sm" v-show="sidebarCollapsed">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
+
+      <!-- Nav -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-label" v-show="!sidebarCollapsed">Overview</div>
+        <a href="#" class="nav-item active">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span v-show="!sidebarCollapsed">Dashboard</span>
+        </a>
+        <a v-if="authStore.isDean" href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span v-show="!sidebarCollapsed">Reports</span>
+        </a>
+
+        <template v-if="authStore.isDean">
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Students</span>
+            <span class="nav-badge" v-show="!sidebarCollapsed">842</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Faculty</span>
+            <span class="nav-badge" v-show="!sidebarCollapsed">38</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-show="!sidebarCollapsed">Academic Performance</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Violations</span>
+            <span class="nav-badge danger" v-show="!sidebarCollapsed">12</span>
+          </a>
+        </template>
+
+        <template v-else>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">My Classes</div>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Schedule</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4zM8 4v12M4 10h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Subjects</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M9 11a3 3 0 100-6 3 3 0 000 6zM2 18a7 7 0 0114 0M15 7a3 3 0 110 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Classes</span>
+          </a>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Monitoring</div>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Student Profiles</span>
+          </a>
+          <a href="#" class="nav-item">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Record Violation</span>
+          </a>
+        </template>
+
+        <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
+        <a v-if="authStore.isDean" href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span v-show="!sidebarCollapsed">Faculty Schedule</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span v-show="!sidebarCollapsed">Awards & Recognition</span>
+          <span class="nav-badge warning" v-show="!sidebarCollapsed && authStore.isDean">3</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span v-show="!sidebarCollapsed">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Logout -->
+      <div class="sidebar-footer">
+        <button class="logout-btn" @click="handleLogout">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M13 10H3m0 0l3-3m-3 3l3 3M8 5V4a2 2 0 012-2h5a2 2 0 012 2v12a2 2 0 01-2 2h-5a2 2 0 01-2-2v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span v-show="!sidebarCollapsed">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <div class="main-area">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="page-title-block">
+            <div class="page-breadcrumb">College of Computing Studies</div>
+            <h1 class="page-title">Dashboard</h1>
           </div>
-          <button class="p-2 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+        </div>
+        <div class="topbar-right">
+          <div class="search-box">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M9 17A8 8 0 109 1a8 8 0 000 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <input type="text" placeholder="Search students, faculty…" />
+          </div>
+          <button class="icon-btn">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6v2.5l-1.5 2.5h15L16 10.5V8a6 6 0 00-6-6zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="notif-dot"></span>
           </button>
-          <div class="text-xs font-bold bg-orange-100 text-orange-600 px-3 py-2 rounded-lg">March 10, 2026</div>
+          <div class="date-chip">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 7h12M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            March 10, 2026
+          </div>
         </div>
       </header>
 
-      <!-- Dashboard Content -->
-      <main class="flex-1 overflow-y-auto p-6 space-y-6">
+      <!-- Content -->
+      <main class="content">
+
         <!-- Hero Banner -->
-        <div class="bg-gradient-to-r from-orange-600 to-orange-400 rounded-3xl p-8 text-white relative overflow-hidden">
-          <div class="relative z-10">
-            <h3 class="text-2xl font-bold">Good morning, {{ authStore.user?.name?.split(' ')[1] }} 👋</h3>
-            <p class="mt-2 text-orange-50 max-w-md">You have 3 pending recognition approvals and 12 student violations requiring your attention this week.</p>
-            <div class="mt-6 flex space-x-3">
-              <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Generate Report</button>
-              <button class="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Pending Approvals (3)</button>
-            </div>
-          </div>
-          <!-- Decorative circle -->
-          <div class="absolute -right-20 -top-20 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
-          <div class="absolute right-10 bottom-10 flex space-x-2">
-            <button class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm transition-colors">+ New Report</button>
-            <button class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-semibold backdrop-blur-sm transition-colors">View All</button>
-          </div>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Total Students</span>
-              <div class="p-1.5 bg-orange-100 text-orange-600 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <div class="hero-banner">
+          <div class="hero-bg-shape shape-1"></div>
+          <div class="hero-bg-shape shape-2"></div>
+          <div class="hero-body">
+            <div class="hero-left">
+              <p class="hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                Academic Year 2026–2027 · 2nd Semester
+              </p>
+              <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Dean' }} 👋</h2>
+              <p class="hero-desc">You have <strong>3 pending recognition approvals</strong> and <strong>12 student violations</strong> requiring attention this week.</p>
+              <div class="hero-actions">
+                <button class="hero-btn-primary">Pending Approvals <span class="hero-btn-badge">3</span></button>
+                <button class="hero-btn-ghost">Generate Report</button>
               </div>
             </div>
-            <div class="flex items-end justify-between">
-              <h4 class="text-3xl font-bold text-gray-800">842</h4>
-              <div class="text-[10px] font-bold text-green-500 bg-green-50 px-1.5 py-0.5 rounded">↑ 4.2% vs last sem</div>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Total Faculty</span>
-              <div class="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            <div class="hero-right">
+              <div class="hero-stat-card">
+                <span class="hsc-label">This Week</span>
+                <span class="hsc-value">47</span>
+                <span class="hsc-sub">Activities logged</span>
               </div>
-            </div>
-            <div class="flex items-end justify-between">
-              <h4 class="text-3xl font-bold text-gray-800">38</h4>
-              <div class="text-[10px] font-bold text-green-500 bg-green-50 px-1.5 py-0.5 rounded">↑ 2 new this sem</div>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Dept. Avg GWA</span>
-              <div class="p-1.5 bg-purple-100 text-purple-600 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              <div class="hero-stat-card accent">
+                <span class="hsc-label">Pending</span>
+                <span class="hsc-value">3</span>
+                <span class="hsc-sub">Awaiting review</span>
               </div>
-            </div>
-            <div class="flex items-end justify-between">
-              <h4 class="text-3xl font-bold text-gray-800">1.87</h4>
-              <div class="text-[10px] font-bold text-green-500 bg-green-50 px-1.5 py-0.5 rounded">↑ 0.04 improvement</div>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">With Violations</span>
-              <div class="p-1.5 bg-red-100 text-red-600 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              </div>
-            </div>
-            <div class="flex items-end justify-between">
-              <h4 class="text-3xl font-bold text-gray-800">12</h4>
-              <div class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">↑ 3 this month</div>
-            </div>
-          </div>
-
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Award Nominations</span>
-              <div class="p-1.5 bg-yellow-100 text-yellow-600 rounded-lg">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-              </div>
-            </div>
-            <div class="flex items-end justify-between">
-              <h4 class="text-3xl font-bold text-gray-800">7</h4>
-              <div class="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">3 pending review</div>
             </div>
           </div>
         </div>
 
-        <!-- Charts and Lists -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Academic Performance Trends -->
-          <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-6">
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+          <div class="stat-card" v-for="stat in stats" :key="stat.label">
+            <div class="stat-top">
+              <span class="stat-label">{{ stat.label }}</span>
+              <div class="stat-icon" :style="{ background: stat.iconBg, color: stat.iconColor }">
+                <component :is="'svg'" viewBox="0 0 18 18" fill="none" v-html="stat.iconPath"></component>
+              </div>
+            </div>
+            <div class="stat-bottom">
+              <span class="stat-value">{{ stat.value }}</span>
+              <span class="stat-delta" :class="stat.deltaClass">{{ stat.delta }}</span>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-bar-fill" :style="{ width: stat.fill, background: stat.iconColor }"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom grid -->
+        <div class="bottom-grid">
+
+          <!-- Performance Chart -->
+          <div class="card chart-card">
+            <div class="card-header">
               <div>
-                <h5 class="text-sm font-bold text-gray-800">Academic Performance Trends</h5>
-                <p class="text-[10px] text-gray-400">Average GWA per semester - last 6 semesters</p>
+                <h3 class="card-title">Academic Performance Trends</h3>
+                <p class="card-sub">Average GWA per semester</p>
               </div>
-              <a href="#" class="text-[10px] text-orange-500 font-bold hover:underline">Details →</a>
+              <a href="#" class="card-link">Full report →</a>
             </div>
-            <div class="h-48 flex items-end space-x-2">
-              <div v-for="(h, i) in [40, 55, 45, 60, 65, 80]" :key="i" class="flex-1 flex flex-col items-center">
-                <div :class="`w-full rounded-t ${i === 5 ? 'bg-orange-500' : 'bg-orange-200'}`" :style="{ height: h + '%' }"></div>
-                <span class="text-[8px] text-gray-400 mt-2 uppercase">{{ ['1st \'22', '2nd \'22', '1st \'23', '2nd \'23', '1st \'24', '2nd \'24'][i] }}</span>
+            <div class="chart-bars">
+              <div class="chart-bar-col" v-for="(bar, i) in chartData" :key="i">
+                <div class="chart-bar-wrap">
+                  <div class="chart-bar-fill" :class="{ current: i === chartData.length - 1 }" :style="{ height: bar.pct + '%' }">
+                    <span class="chart-tooltip">{{ bar.label }}: {{ bar.gwa }}</span>
+                  </div>
+                </div>
+                <span class="chart-bar-label">{{ bar.sem }}</span>
               </div>
             </div>
-            <div class="mt-6 flex items-center space-x-4">
-              <div class="flex items-center space-x-1.5">
-                <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-                <span class="text-[9px] text-gray-500">Current Sem</span>
+            <div class="chart-legend">
+              <span class="legend-dot current"></span><span class="legend-text">Current sem</span>
+              <span class="legend-dot"></span><span class="legend-text">Previous</span>
+            </div>
+          </div>
+
+          <!-- Top Students -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Top Performing Students</h3>
+                <p class="card-sub">Ranked by GWA · current semester</p>
               </div>
-              <div class="flex items-center space-x-1.5">
-                <div class="w-2 h-2 rounded-full bg-orange-200"></div>
-                <span class="text-[9px] text-gray-500">Previous Sem</span>
+              <a href="#" class="card-link">View all →</a>
+            </div>
+            <div class="student-list">
+              <div class="student-row" v-for="(s, i) in topStudents" :key="i">
+                <span class="rank">{{ i + 1 }}</span>
+                <div class="student-avatar" :style="{ background: s.color }">{{ s.name.charAt(0) }}</div>
+                <div class="student-info">
+                  <p class="student-name">{{ s.name }}</p>
+                  <p class="student-course">{{ s.course }}</p>
+                </div>
+                <span class="student-tag" :class="s.tagClass">{{ s.tag }}</span>
+                <span class="student-gwa">{{ s.gwa }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Top Performing Students -->
-          <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-6">
+          <!-- Violations -->
+          <div class="card">
+            <div class="card-header">
               <div>
-                <h5 class="text-sm font-bold text-gray-800">Top Performing Students</h5>
-                <p class="text-[10px] text-gray-400">Ranked by GWA - current semester</p>
+                <h3 class="card-title">Student Violations</h3>
+                <p class="card-sub">Active cases this semester</p>
               </div>
-              <a href="#" class="text-[10px] text-orange-500 font-bold hover:underline">View all →</a>
+              <a href="#" class="card-link">View all →</a>
             </div>
-            <div class="space-y-4">
-              <div v-for="(s, i) in topStudents" :key="i" class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <span class="text-xs font-bold text-gray-300">{{ i + 1 }}</span>
-                  <div :class="`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs ${s.color}`">
-                    {{ s.name.charAt(0) }}
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-gray-800">{{ s.name }}</p>
-                    <p class="text-[9px] text-gray-400">{{ s.course }}</p>
-                  </div>
+            <div class="violation-list">
+              <div class="violation-row" v-for="(v, i) in violations" :key="i">
+                <div class="violation-avatar" :style="{ background: v.color }">{{ v.name.charAt(0) }}</div>
+                <div class="violation-info">
+                  <p class="violation-name">{{ v.name }}</p>
+                  <p class="violation-type">{{ v.type }}</p>
                 </div>
-                <div class="flex items-center space-x-4">
-                  <span :class="`text-[9px] font-bold px-1.5 py-0.5 rounded ${s.tagColor}`">{{ s.tag }}</span>
-                  <span class="text-xs font-bold text-gray-800">{{ s.gwa }}</span>
-                </div>
+                <span class="violation-badge" :class="v.severityClass">{{ v.severity }}</span>
               </div>
+            </div>
+            <div class="violation-alert">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 5v4M8 11.5v.5M2.5 14h11a1 1 0 00.87-1.5l-5.5-9.5a1 1 0 00-1.74 0l-5.5 9.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              <span>8 more cases need review</span>
+              <button>Review Now →</button>
             </div>
           </div>
 
-          <!-- Student Violations -->
-          <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h5 class="text-sm font-bold text-gray-800">Student Violations</h5>
-                <p class="text-[10px] text-gray-400">Active cases this semester</p>
-              </div>
-              <a href="#" class="text-[10px] text-orange-500 font-bold hover:underline">View all →</a>
-            </div>
-            <div class="space-y-4">
-              <div v-for="(v, i) in violations" :key="i" class="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                <div class="flex items-center space-x-3">
-                  <div :class="`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs ${v.color}`">
-                    {{ v.name.charAt(0) }}
-                  </div>
-                  <div>
-                    <p class="text-xs font-bold text-gray-800">{{ v.name }}</p>
-                    <p class="text-[9px] text-gray-400">{{ v.type }}</p>
-                  </div>
-                </div>
-                <span :class="`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter ${v.tagColor}`">{{ v.severity }}</span>
-              </div>
-            </div>
-            <div class="mt-6 p-3 bg-red-50 rounded-xl flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                <span class="text-[10px] font-bold text-red-700">8 more cases need review</span>
-              </div>
-              <button class="text-red-500 text-[10px] font-bold">Review Now</button>
-            </div>
-          </div>
         </div>
       </main>
     </div>
@@ -328,46 +283,781 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from '../store/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const sidebarCollapsed = ref(false)
 
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
 
+const stats = [
+  {
+    label: 'Total Students',
+    value: '842',
+    delta: '↑ 4.2% vs last sem',
+    deltaClass: 'positive',
+    fill: '72%',
+    iconBg: '#fff5ef',
+    iconColor: '#FF6B1A',
+    iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+  },
+  {
+    label: 'Total Faculty',
+    value: '38',
+    delta: '↑ 2 new this sem',
+    deltaClass: 'positive',
+    fill: '45%',
+    iconBg: '#eff6ff',
+    iconColor: '#3b82f6',
+    iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011 1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+  },
+  {
+    label: 'Dept. Avg GWA',
+    value: '1.87',
+    delta: '↑ 0.04 improved',
+    deltaClass: 'positive',
+    fill: '60%',
+    iconBg: '#f5f3ff',
+    iconColor: '#8b5cf6',
+    iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+  },
+  {
+    label: 'With Violations',
+    value: '12',
+    delta: '↑ 3 this month',
+    deltaClass: 'negative',
+    fill: '25%',
+    iconBg: '#fff1f2',
+    iconColor: '#ef4444',
+    iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+  },
+  {
+    label: 'Award Nominations',
+    value: '7',
+    delta: '3 pending review',
+    deltaClass: 'warning',
+    fill: '38%',
+    iconBg: '#fffbeb',
+    iconColor: '#f59e0b',
+    iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+  }
+]
+
+const chartData = [
+  { sem: "1st '22", gwa: 2.14, pct: 38 },
+  { sem: "2nd '22", gwa: 2.08, pct: 50 },
+  { sem: "1st '23", gwa: 2.01, pct: 60 },
+  { sem: "2nd '23", gwa: 1.96, pct: 68 },
+  { sem: "1st '24", gwa: 1.91, pct: 75 },
+  { sem: "2nd '24", gwa: 1.87, pct: 85 }
+]
+
 const topStudents = [
-  { name: 'Aira Mae Reyes', course: 'BSCS - 4th Year', tag: 'Dean\'s List', gwa: '1.21', color: 'bg-yellow-500', tagColor: 'text-green-600 bg-green-50' },
-  { name: 'Jose Miguel Cruz', course: 'BSIT - 3rd Year', tag: 'Dean\'s List', gwa: '1.34', color: 'bg-blue-500', tagColor: 'text-green-600 bg-green-50' },
-  { name: 'Katrina Villanueva', course: 'BSCS - 4th Year', tag: 'Dean\'s List', gwa: '1.38', color: 'bg-green-500', tagColor: 'text-green-600 bg-green-50' },
-  { name: 'Mark Daniel Lim', course: 'BSIT - 2nd Year', tag: 'Rising', gwa: '1.42', color: 'bg-orange-500', tagColor: 'text-orange-600 bg-orange-50' },
-  { name: 'Sofia Tan Garcia', course: 'BSCS - 3rd Year', tag: 'Rising', gwa: '1.47', color: 'bg-purple-500', tagColor: 'text-orange-600 bg-orange-50' }
+  { name: 'Aira Mae Reyes', course: 'BSCS · 4th Year', tag: "Dean's List", gwa: '1.21', color: '#f59e0b', tagClass: 'tag-green' },
+  { name: 'Jose Miguel Cruz', course: 'BSIT · 3rd Year', tag: "Dean's List", gwa: '1.34', color: '#3b82f6', tagClass: 'tag-green' },
+  { name: 'Katrina Villanueva', course: 'BSCS · 4th Year', tag: "Dean's List", gwa: '1.38', color: '#10b981', tagClass: 'tag-green' },
+  { name: 'Mark Daniel Lim', course: 'BSIT · 2nd Year', tag: 'Rising Star', gwa: '1.42', color: '#FF6B1A', tagClass: 'tag-orange' },
+  { name: 'Sofia Tan Garcia', course: 'BSCS · 3rd Year', tag: 'Rising Star', gwa: '1.47', color: '#8b5cf6', tagClass: 'tag-orange' }
 ]
 
 const violations = [
-  { name: 'Ryan Santos', type: 'Academic Dishonesty', severity: 'Major', color: 'bg-red-700', tagColor: 'text-red-600 bg-red-50' },
-  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', color: 'bg-orange-700', tagColor: 'text-orange-600 bg-orange-50' },
-  { name: 'Ana Bautista', type: 'Dress Code Violation', severity: 'Minor', color: 'bg-yellow-600', tagColor: 'text-yellow-600 bg-yellow-50' },
-  { name: 'Earl Mendoza', type: 'Misconduct (2nd offense)', severity: 'Major', color: 'bg-red-800', tagColor: 'text-red-600 bg-red-50' }
+  { name: 'Ryan Santos', type: 'Academic Dishonesty', severity: 'Major', color: '#b91c1c', severityClass: 'sev-major' },
+  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', color: '#c2410c', severityClass: 'sev-moderate' },
+  { name: 'Ana Bautista', type: 'Dress Code Violation', severity: 'Minor', color: '#b45309', severityClass: 'sev-minor' },
+  { name: 'Earl Mendoza', type: 'Misconduct (2nd offense)', severity: 'Major', color: '#991b1b', severityClass: 'sev-major' }
 ]
 </script>
 
 <style scoped>
-/* Custom scrollbar for main content */
-main::-webkit-scrollbar {
-  width: 6px;
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ======================== ROOT ======================== */
+.dashboard-root {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #f7f3f0;
+  font-family: 'DM Sans', sans-serif;
+  color: #1a0a00;
 }
-main::-webkit-scrollbar-track {
-  background: transparent;
+
+/* ======================== SIDEBAR ======================== */
+.sidebar {
+  width: 252px;
+  flex-shrink: 0;
+  background: #1a0a00;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
 }
-main::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 3px;
+.sidebar.collapsed { width: 68px; }
+
+/* Brand */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
 }
-main::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+.brand-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
+.brand-text { flex: 1; min-width: 0; }
+.brand-name {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+.brand-sub {
+  display: block;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 1px;
+  white-space: nowrap;
+}
+.collapse-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.collapse-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.collapse-btn svg { width: 16px; height: 16px; display: block; }
+.sidebar.collapsed .collapse-btn svg { transform: rotate(180deg); }
+
+/* User */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin: 12px 12px 0;
+  background: rgba(255,107,26,0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255,107,26,0.15);
+}
+.user-avatar {
+  width: 36px; height: 36px;
+  background: #FF6B1A;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.user-avatar-sm {
+  width: 36px; height: 36px;
+  background: #FF6B1A;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  margin: 12px auto 0;
+}
+.user-info { min-width: 0; }
+.user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-role {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 1px;
+}
+
+/* Nav */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sidebar-nav::-webkit-scrollbar { width: 0; }
+.nav-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 10px 8px 4px;
+  white-space: nowrap;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.nav-item.active {
+  background: rgba(255,107,26,0.12);
+  color: #FF6B1A;
+  font-weight: 500;
+}
+.nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.45);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+.nav-badge.danger { background: rgba(239,68,68,0.15); color: #f87171; }
+.nav-badge.warning { background: rgba(255,107,26,0.15); color: #FF6B1A; }
+
+/* Footer */
+.sidebar-footer {
+  padding: 14px 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+.logout-btn svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* ======================== MAIN ======================== */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #f0e8e0;
+  flex-shrink: 0;
+}
+.page-breadcrumb {
+  font-size: 11px;
+  color: #b89f90;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a0a00;
+  margin-top: 1px;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #faf8f6;
+  border: 1.5px solid #f0e8e0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  width: 240px;
+  transition: all 0.2s;
+}
+.search-box:focus-within {
+  border-color: #FF6B1A;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,107,26,0.08);
+}
+.search-box svg { width: 15px; height: 15px; color: #c0b0a5; flex-shrink: 0; }
+.search-box input {
+  border: none; background: none; outline: none;
+  font-size: 13px; color: #1a0a00; font-family: 'DM Sans', sans-serif;
+  width: 100%;
+}
+.search-box input::placeholder { color: #c0b0a5; }
+.icon-btn {
+  position: relative;
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid #f0e8e0;
+  background: #faf8f6;
+  display: flex; align-items: center; justify-content: center;
+  color: #9a8070; cursor: pointer;
+  transition: all 0.15s;
+}
+.icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
+.icon-btn svg { width: 17px; height: 17px; }
+.notif-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 6px; height: 6px;
+  background: #FF6B1A; border-radius: 50%;
+  border: 1.5px solid #fff;
+}
+.date-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: #fff5ef;
+  border: 1.5px solid #ffd5b0;
+  color: #c94000;
+  font-size: 12px; font-weight: 500;
+  padding: 7px 12px; border-radius: 10px;
+}
+.date-chip svg { width: 14px; height: 14px; }
+
+/* Content */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: #e8ddd6; border-radius: 3px; }
+
+/* Hero Banner */
+.hero-banner {
+  background: linear-gradient(130deg, #1a0a00 0%, #3d1500 55%, #FF6B1A 130%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.shape-1 {
+  width: 320px; height: 320px;
+  background: rgba(255,107,26,0.15);
+  top: -100px; right: -80px;
+  filter: blur(60px);
+}
+.shape-2 {
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.05);
+  bottom: -60px; left: 40%;
+  filter: blur(40px);
+}
+.hero-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+.eyebrow-dot {
+  width: 6px; height: 6px;
+  background: #FF6B1A;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FF6B1A;
+}
+.hero-greeting {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.hero-desc {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+.hero-desc strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+.hero-actions { display: flex; gap: 10px; }
+.hero-btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  background: #FF6B1A;
+  color: #fff;
+  border: none; border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 16px rgba(255,107,26,0.4);
+}
+.hero-btn-primary:hover { background: #e85500; transform: translateY(-1px); }
+.hero-btn-badge {
+  background: rgba(255,255,255,0.25);
+  padding: 1px 6px; border-radius: 6px;
+  font-size: 11px;
+}
+.hero-btn-ghost {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 13px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  backdrop-filter: blur(8px);
+}
+.hero-btn-ghost:hover { background: rgba(255,255,255,0.18); }
+.hero-right { display: flex; gap: 12px; flex-shrink: 0; }
+.hero-stat-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(8px);
+  min-width: 100px;
+}
+.hero-stat-card.accent {
+  background: rgba(255,107,26,0.2);
+  border-color: rgba(255,107,26,0.3);
+}
+.hsc-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.6px; }
+.hsc-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; line-height: 1; margin-top: 4px; }
+.hsc-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+.stat-card {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-radius: 16px;
+  padding: 18px 18px 14px;
+}
+.stat-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9a8070;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  line-height: 1.4;
+  max-width: 80px;
+}
+.stat-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.stat-icon svg { width: 16px; height: 16px; }
+.stat-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a0a00;
+  line-height: 1;
+}
+.stat-delta {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.stat-delta.positive { background: #f0fdf4; color: #16a34a; }
+.stat-delta.negative { background: #fff1f2; color: #e11d48; }
+.stat-delta.warning { background: #fff5ef; color: #c94000; }
+.stat-bar {
+  height: 3px;
+  background: #f0e8e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stat-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+/* Bottom grid */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-radius: 18px;
+  padding: 22px;
+}
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a0a00;
+}
+.card-sub {
+  font-size: 11px;
+  color: #b89f90;
+  margin-top: 3px;
+}
+.card-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #FF6B1A;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.card-link:hover { text-decoration: underline; }
+
+/* Chart */
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 140px;
+  padding-bottom: 4px;
+}
+.chart-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 4px;
+}
+.chart-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.chart-bar-fill {
+  width: 100%;
+  background: #fde8d8;
+  border-radius: 5px 5px 0 0;
+  transition: height 0.8s ease;
+  position: relative;
+  cursor: pointer;
+}
+.chart-bar-fill.current { background: #FF6B1A; }
+.chart-bar-fill:hover .chart-tooltip { opacity: 1; transform: translateY(0); }
+.chart-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1a0a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.15s;
+  pointer-events: none;
+}
+.chart-bar-label {
+  font-size: 8px;
+  color: #b89f90;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  text-align: center;
+  white-space: nowrap;
+}
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #fde8d8;
+}
+.legend-dot.current { background: #FF6B1A; }
+.legend-text { font-size: 10px; color: #b89f90; }
+
+/* Students */
+.student-list { display: flex; flex-direction: column; gap: 10px; }
+.student-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.student-row:hover { background: #faf8f6; }
+.rank { font-size: 11px; font-weight: 700; color: #ddd0c8; width: 14px; flex-shrink: 0; text-align: center; }
+.student-avatar {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.student-info { flex: 1; min-width: 0; }
+.student-name { font-size: 12px; font-weight: 600; color: #1a0a00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.student-course { font-size: 10px; color: #b89f90; }
+.student-tag {
+  font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 5px;
+  white-space: nowrap;
+}
+.tag-green { background: #f0fdf4; color: #16a34a; }
+.tag-orange { background: #fff5ef; color: #c94000; }
+.student-gwa { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #1a0a00; flex-shrink: 0; }
+
+/* Violations */
+.violation-list { display: flex; flex-direction: column; gap: 8px; }
+.violation-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.violation-row:hover { background: #faf8f6; }
+.violation-avatar {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.violation-info { flex: 1; min-width: 0; }
+.violation-name { font-size: 12px; font-weight: 600; color: #1a0a00; }
+.violation-type { font-size: 10px; color: #b89f90; }
+.violation-badge {
+  font-size: 9px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.sev-major { background: #fff1f2; color: #be123c; }
+.sev-moderate { background: #fff5ef; color: #c94000; }
+.sev-minor { background: #fefce8; color: #854d0e; }
+.violation-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+.violation-alert svg { width: 14px; height: 14px; color: #e11d48; flex-shrink: 0; }
+.violation-alert span { font-size: 11px; font-weight: 600; color: #be123c; flex: 1; }
+.violation-alert button {
+  background: none; border: none;
+  font-size: 11px; font-weight: 700; color: #e11d48;
+  cursor: pointer; padding: 0;
+  font-family: 'DM Sans', sans-serif;
+}
+.violation-alert button:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr 1fr; }
+  .bottom-grid .chart-card { grid-column: 1 / -1; }
+  .hero-right { display: none; }
+}
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
 }
 </style>
