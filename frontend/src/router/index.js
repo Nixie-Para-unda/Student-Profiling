@@ -1,6 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
+import MainLayout from '../layouts/MainLayout.vue'
+import DashboardHome from '../views/dashboard/DashboardHome.vue'
+import StudentsList from '../views/students/StudentsList.vue'
+import FacultyList from '../views/faculty/FacultyList.vue'
+import PerformanceOverview from '../views/academic-performance/PerformanceOverview.vue'
+import ViolationsList from '../views/violations/ViolationsList.vue'
 import { useAuthStore } from '../store/auth'
 
 const routes = [
@@ -12,9 +17,40 @@ const routes = [
   },
   {
     path: '/',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true }
+    component: MainLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard',
+        component: DashboardHome,
+        meta: { title: 'Dashboard' }
+      },
+      {
+        path: 'students',
+        name: 'Students',
+        component: StudentsList,
+        meta: { title: 'Students' }
+      },
+      {
+        path: 'faculty',
+        name: 'Faculty',
+        component: FacultyList,
+        meta: { title: 'Faculty' }
+      },
+      {
+        path: 'academic-performance',
+        name: 'AcademicPerformance',
+        component: PerformanceOverview,
+        meta: { title: 'Academic Performance' }
+      },
+      {
+        path: 'violations',
+        name: 'Violations',
+        component: ViolationsList,
+        meta: { title: 'Violations' }
+      }
+    ]
   }
 ]
 
