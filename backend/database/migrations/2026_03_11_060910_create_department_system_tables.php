@@ -13,12 +13,21 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->string('department_name');
+            $table->string('department_name'); // e.g., College of Computing Studies
+            $table->timestamps();
+        });
+
+        Schema::create('courses', function (Blueprint $table) {
+            $table->id();
+            $table->string('course_code')->unique(); // e.g., BSIT, BSCS
+            $table->string('course_name');
+            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             $table->timestamps();
         });
 
         Schema::create('faculty', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -41,24 +50,35 @@ return new class extends Migration
             $table->string('section_name');
             $table->string('year_level');
             $table->string('school_year');
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->foreignId('adviser_id')->nullable()->constrained('faculty')->onDelete('set null');
+            $table->timestamps();
+        });
+
+        Schema::create('subject_loads', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('faculty_id')->constrained('faculty')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
+            $table->foreignId('section_id')->constrained('sections')->onDelete('cascade');
+            $table->string('schedule')->nullable();
             $table->timestamps();
         });
 
         Schema::create('students', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('student_number')->unique();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name')->nullable();
-            $table->string('gender');
-            $table->date('birthdate');
-            $table->string('civil_status');
-            $table->string('contact_number');
+            $table->string('gender')->nullable();
+            $table->date('birthdate')->nullable();
+            $table->string('civil_status')->nullable();
+            $table->string('contact_number')->nullable();
             $table->string('email')->unique();
-            $table->string('address');
-            $table->foreignId('section_id')->constrained('sections')->onDelete('cascade');
-            $table->string('status');
+            $table->string('address')->nullable();
+            $table->foreignId('section_id')->nullable()->constrained('sections')->onDelete('cascade');
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
 

@@ -53,14 +53,40 @@
 </template>
 
 <script setup>
-const cases = [
-  { name: 'Ryan Santos', type: 'Academic Dishonesty', severity: 'Major', date: 'Mar 8, 2025', status: 'Under Review', color: '#ef4444', severityClass: 'sev-major', statusClass: 'st-review' },
-  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', date: 'Mar 6, 2025', status: 'Warned', color: '#f59e0b', severityClass: 'sev-moderate', statusClass: 'st-warned' },
-  { name: 'Ana Bautista', type: 'Dress Code Violation', severity: 'Minor', date: 'Mar 5, 2025', status: 'Resolved', color: '#3b82f6', severityClass: 'sev-minor', statusClass: 'st-resolved' },
-  { name: 'Earl Mendoza', type: 'Misconduct (2nd offense)', severity: 'Major', date: 'Mar 3, 2025', status: 'Under Review', color: '#b91c1c', severityClass: 'sev-major', statusClass: 'st-review' },
-  { name: 'Carlo Reyes', type: 'Late Submission (repeated)', severity: 'Minor', date: 'Mar 1, 2025', status: 'Resolved', color: '#f97316', severityClass: 'sev-minor', statusClass: 'st-resolved' },
-  { name: 'Diana Cruz', type: 'Unauthorized Device Usage', severity: 'Moderate', date: 'Feb 27, 2025', status: 'Warned', color: '#f43f5e', severityClass: 'sev-moderate', statusClass: 'st-warned' }
-]
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from '../../store/auth'
+import axios from 'axios'
+
+const authStore = useAuthStore()
+const loading = ref(true)
+const cases = ref([])
+
+const fetchViolations = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('/dean/violations')
+    cases.value = response.data.map(v => ({
+      name: `${v.student.first_name} ${v.student.last_name}`,
+      type: v.violation_type,
+      severity: v.severity,
+      date: v.date_filed,
+      status: v.status,
+      color: v.severity === 'Major' ? '#ef4444' : v.severity === 'Moderate' ? '#f59e0b' : '#3b82f6',
+      severityClass: v.severity === 'Major' ? 'sev-major' : v.severity === 'Moderate' ? 'sev-moderate' : 'sev-minor',
+      statusClass: v.status === 'Resolved' ? 'st-resolved' : v.status === 'Warned' ? 'st-warned' : 'st-review'
+    }))
+  } catch (err) {
+    console.error('Failed to fetch violations:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  if (authStore.isDean) {
+    fetchViolations()
+  }
+})
 </script>
 
 <style scoped>

@@ -80,20 +80,41 @@
 </template>
 
 <script setup>
-const summary = [
-  { label: "DEAN'S LIST", value: 127, tag: "Dean's List", tagBg: '#f0fdf4', tagColor: '#16a34a' },
-  { label: "SATISFACTORY", value: 583, tag: "Satisfactory", tagBg: '#eff6ff', tagColor: '#3b82f6' },
-  { label: "AT RISK", value: 98, tag: "At Risk", tagBg: '#fff7ed', tagColor: '#ea580c' },
-  { label: "FAILED SUBJECTS", value: 34, tag: "Failed Subjects", tagBg: '#fff1f2', tagColor: '#e11d48' }
-]
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from '../../store/auth'
+import axios from 'axios'
 
-const distribution = [
-  { range: '1.00–1.50', desc: 'Excellent', count: 127, pct: 15, color: '#065f46' },
-  { range: '1.51–2.00', desc: 'Very Good', count: 310, pct: 37, color: '#1e40af' },
-  { range: '2.01–2.50', desc: 'Good', count: 273, pct: 32, color: '#d97706' },
-  { range: '2.51–3.00', desc: 'Satisfactory', count: 98, pct: 12, color: '#ea580c' },
-  { range: 'Below 3.00', desc: 'At Risk', count: 34, pct: 4, color: '#b91c1c' }
-]
+const authStore = useAuthStore()
+const loading = ref(true)
+const summary = ref([])
+const distribution = ref([])
+
+const fetchPerformanceData = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('/dean/analytics/performance')
+    const data = response.data
+    
+    summary.value = [
+      { label: "DEAN'S LIST", value: data.summary.deans_list, tag: "Dean's List", tagBg: '#f0fdf4', tagColor: '#16a34a' },
+      { label: "SATISFACTORY", value: data.summary.satisfactory, tag: "Satisfactory", tagBg: '#eff6ff', tagColor: '#3b82f6' },
+      { label: "AT RISK", value: data.summary.at_risk, tag: "At Risk", tagBg: '#fff7ed', tagColor: '#ea580c' },
+      { label: "FAILED SUBJECTS", value: data.summary.failed, tag: "Failed Subjects", tagBg: '#fff1f2', tagColor: '#e11d48' }
+    ]
+    
+    distribution.value = data.distribution
+  } catch (err) {
+    console.error('Failed to fetch performance data:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  if (authStore.isDean) {
+    fetchPerformanceData()
+  }
+})
 
 const trend = [
   { sem: "1st '22", pct: 45 },

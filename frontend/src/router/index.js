@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
+import ActivateAccount from '../views/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import DashboardHome from '../views/dashboard/DashboardHome.vue'
 import StudentsList from '../views/students/StudentsList.vue'
+import StudentProfile from '../views/students/StudentProfile.vue'
 import FacultyList from '../views/faculty/FacultyList.vue'
 import PerformanceOverview from '../views/academic-performance/PerformanceOverview.vue'
 import ViolationsList from '../views/violations/ViolationsList.vue'
@@ -16,6 +18,12 @@ const routes = [
     meta: { guest: true }
   },
   {
+    path: '/activate',
+    name: 'ActivateAccount',
+    component: ActivateAccount,
+    meta: { guest: true }
+  },
+  {
     path: '/',
     component: MainLayout,
     meta: { requiresAuth: true },
@@ -25,6 +33,12 @@ const routes = [
         name: 'Dashboard',
         component: DashboardHome,
         meta: { title: 'Dashboard' }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: StudentProfile,
+        meta: { title: 'My Profile' }
       },
       {
         path: 'students',
@@ -49,7 +63,17 @@ const routes = [
         name: 'Violations',
         component: ViolationsList,
         meta: { title: 'Violations' }
-      }
+      },
+      // Placeholder routes to stop warnings
+      { path: 'reports', name: 'Reports', component: { template: '<div>Reports Page</div>' } },
+      { path: 'faculty-schedule', name: 'FacultySchedule', component: { template: '<div>Faculty Schedule Page</div>' } },
+      { path: 'awards', name: 'Awards', component: { template: '<div>Awards Page</div>' } },
+      { path: 'settings', name: 'Settings', component: { template: '<div>Settings Page</div>' } },
+      { path: 'schedule', name: 'MySchedule', component: { template: '<div>My Schedule Page</div>' } },
+      { path: 'subjects', name: 'MySubjects', component: { template: '<div>My Subjects Page</div>' } },
+      { path: 'classes', name: 'MyClasses', component: { template: '<div>My Classes Page</div>' } },
+      { path: 'profiles', name: 'StudentProfiles', component: { template: '<div>Student Profiles Page</div>' } },
+      { path: 'record-violation', name: 'RecordViolation', component: { template: '<div>Record Violation Page</div>' } }
     ]
   }
 ]
@@ -59,14 +83,13 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const authStore = useAuthStore()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else if (to.meta.guest && authStore.isAuthenticated) {
-    next('/')
-  } else {
-    next()
+    return '/login'
+  }
+  if (to.meta.guest && authStore.isAuthenticated) {
+    return '/'
   }
 })
 

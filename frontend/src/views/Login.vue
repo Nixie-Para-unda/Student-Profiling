@@ -130,6 +130,11 @@
                 <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
+
+            <div class="activation-link">
+              <span>First time here? </span>
+              <router-link to="/activate">Activate your Student Account</router-link>
+            </div>
           </form>
 
           <!-- <div class="demo-credentials">
@@ -488,7 +493,26 @@ const handleLogin = async () => {
 
 .btn-content { display: flex; align-items: center; gap: 8px; }
 .btn-arrow { width: 18px; height: 18px; transition: transform 0.2s; }
-.submit-btn:hover .btn-arrow { transform: translateX(3px); }
+.submit-btn:hover .btn-arrow { transform: translateX(4px); }
+
+.activation-link {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #b89f90;
+}
+
+.activation-link a {
+  color: #FF6B1A;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.activation-link a:hover {
+  text-decoration: underline;
+  color: #e85500;
+}
 
 .loading-state { display: flex; align-items: center; gap: 8px; }
 .spinner {

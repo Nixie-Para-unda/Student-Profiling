@@ -4,8 +4,20 @@
     <div class="hero-banner">
       <div class="hero-bg-shape shape-1"></div>
       <div class="hero-bg-shape shape-2"></div>
-      <div class="hero-body">
-        <div class="hero-left">
+    <div class="hero-body">
+      <!-- Incomplete Profile Banner for Students -->
+      <div v-if="authStore.isStudent && profileIncomplete" class="profile-warning-banner">
+        <div class="warning-content">
+          <svg viewBox="0 0 24 24" fill="none" class="warning-icon"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="warning-text">
+            <h4>Your profile is incomplete!</h4>
+            <p>Please provide your contact details and skills to complete your registration.</p>
+          </div>
+        </div>
+        <router-link to="/profile" class="complete-btn">Complete Profile</router-link>
+      </div>
+
+      <div class="hero-left">
           <p class="hero-eyebrow">
             <span class="eyebrow-dot"></span>
             Academic Year 2026–2027 · 2nd Semester
@@ -131,62 +143,95 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../store/auth'
+import axios from 'axios'
 
 const authStore = useAuthStore()
+const loading = ref(true)
+const stats = ref([])
+const profileIncomplete = ref(false)
 
-const stats = [
-  {
-    label: 'Total Students',
-    value: '842',
-    delta: '↑ 4.2% vs last sem',
-    deltaClass: 'positive',
-    fill: '72%',
-    iconBg: '#fff5ef',
-    iconColor: '#FF6B1A',
-    iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
-  },
-  {
-    label: 'Total Faculty',
-    value: '38',
-    delta: '↑ 2 new this sem',
-    deltaClass: 'positive',
-    fill: '45%',
-    iconBg: '#eff6ff',
-    iconColor: '#3b82f6',
-    iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
-  },
-  {
-    label: 'Dept. Avg GWA',
-    value: '1.87',
-    delta: '↑ 0.04 improved',
-    deltaClass: 'positive',
-    fill: '60%',
-    iconBg: '#f5f3ff',
-    iconColor: '#8b5cf6',
-    iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
-  },
-  {
-    label: 'With Violations',
-    value: '12',
-    delta: '↑ 3 this month',
-    deltaClass: 'negative',
-    fill: '25%',
-    iconBg: '#fff1f2',
-    iconColor: '#ef4444',
-    iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
-  },
-  {
-    label: 'Award Nominations',
-    value: '7',
-    delta: '3 pending review',
-    deltaClass: 'warning',
-    fill: '38%',
-    iconBg: '#fffbeb',
-    iconColor: '#f59e0b',
-    iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+const fetchSummary = async () => {
+  loading.value = true
+  try {
+    if (authStore.isDean) {
+      const response = await axios.get('/dean/analytics/summary')
+      const data = response.data
+      
+      stats.value = [
+        {
+          label: 'Total Students',
+          value: data.total_students.toString(),
+          delta: 'Real-time sync',
+          deltaClass: 'positive',
+          fill: '100%',
+          iconBg: '#fff5ef',
+          iconColor: '#FF6B1A',
+          iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+        },
+        {
+          label: 'Total Faculty',
+          value: data.total_faculty.toString(),
+          delta: 'Active members',
+          deltaClass: 'positive',
+          fill: '100%',
+          iconBg: '#eff6ff',
+          iconColor: '#3b82f6',
+          iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+        },
+        {
+          label: 'Dept. Avg GWA',
+          value: data.dept_avg_gwa.toFixed(2),
+          delta: 'Target: 1.75',
+          deltaClass: 'warning',
+          fill: '60%',
+          iconBg: '#f5f3ff',
+          iconColor: '#8b5cf6',
+          iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+        },
+        {
+          label: 'With Violations',
+          value: data.active_violations.toString(),
+          delta: 'Active cases',
+          deltaClass: 'negative',
+          fill: '25%',
+          iconBg: '#fff1f2',
+          iconColor: '#ef4444',
+          iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+        },
+        {
+          label: 'Awards Logged',
+          value: data.total_awards.toString(),
+          delta: 'Recognitions',
+          deltaClass: 'positive',
+          fill: '100%',
+          iconBg: '#fffbeb',
+          iconColor: '#f59e0b',
+          iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>'
+        }
+      ]
+    } else if (authStore.isStudent) {
+      const response = await axios.get('/student/profile')
+      const s = response.data
+      profileIncomplete.value = !s.gender || !s.contact_number || !s.address
+      
+      // Mock student stats
+      stats.value = [
+        { label: 'My GWA', value: s.gwa || '0.00', delta: 'Academic', deltaClass: 'positive', fill: '80%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
+        { label: 'Violations', value: '0', delta: 'Clear', deltaClass: 'positive', fill: '0%', iconBg: '#fff1f2', iconColor: '#ef4444', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
+      ]
+    }
+  } catch (err) {
+    console.error('Failed to fetch dashboard summary:', err)
+  } finally {
+    loading.value = false
   }
-]
+}
+
+onMounted(() => {
+  fetchSummary()
+})
 
 const chartData = [
   { sem: "1st '22", gwa: 2.14, pct: 38 },
@@ -198,18 +243,14 @@ const chartData = [
 ]
 
 const topStudents = [
-  { name: 'Aira Mae Reyes', course: 'BSCS · 4th Year', tag: "Dean's List", gwa: '1.21', color: '#f59e0b', tagClass: 'tag-green' },
-  { name: 'Jose Miguel Cruz', course: 'BSIT · 3rd Year', tag: "Dean's List", gwa: '1.34', color: '#3b82f6', tagClass: 'tag-green' },
-  { name: 'Katrina Villanueva', course: 'BSCS · 4th Year', tag: "Dean's List", gwa: '1.38', color: '#10b981', tagClass: 'tag-green' },
-  { name: 'Mark Daniel Lim', course: 'BSIT · 2nd Year', tag: 'Rising Star', gwa: '1.42', color: '#FF6B1A', tagClass: 'tag-orange' },
-  { name: 'Sofia Tan Garcia', course: 'BSCS · 3rd Year', tag: 'Rising Star', gwa: '1.47', color: '#8b5cf6', tagClass: 'tag-orange' }
+  { name: 'Aira Mae Reyes', course: 'BSCS', tag: "Dean's List", gwa: '1.21', color: '#f59e0b', tagClass: 'tag-green' },
+  { name: 'Jose Miguel Cruz', course: 'BSIT', tag: "Dean's List", gwa: '1.34', color: '#3b82f6', tagClass: 'tag-green' },
+  { name: 'Katrina Villanueva', course: 'BSCS', tag: "Dean's List", gwa: '1.38', color: '#10b981', tagClass: 'tag-green' }
 ]
 
 const violations = [
   { name: 'Ryan Santos', type: 'Academic Dishonesty', severity: 'Major', color: '#b91c1c', severityClass: 'sev-major' },
-  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', color: '#c2410c', severityClass: 'sev-moderate' },
-  { name: 'Ana Bautista', type: 'Dress Code Violation', severity: 'Minor', color: '#b45309', severityClass: 'sev-minor' },
-  { name: 'Earl Mendoza', type: 'Misconduct (2nd offense)', severity: 'Major', color: '#991b1b', severityClass: 'sev-major' }
+  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', color: '#c2410c', severityClass: 'sev-moderate' }
 ]
 </script>
 
@@ -221,6 +262,62 @@ const violations = [
   padding: 28px 32px;
   position: relative;
   overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.profile-warning-banner {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 20px;
+}
+
+.warning-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.warning-icon {
+  width: 32px;
+  height: 32px;
+  color: #FF6B1A;
+}
+
+.warning-text h4 {
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.warning-text p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.complete-btn {
+  background: #fff;
+  color: #1a0a00;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.complete-btn:hover {
+  background: #FF6B1A;
+  color: #fff;
+  transform: translateY(-1px);
 }
 .hero-bg-shape {
   position: absolute;

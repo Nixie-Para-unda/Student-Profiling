@@ -6,6 +6,22 @@
         <p class="section-desc">View all student records, GWA, violations, and organization memberships.</p>
       </div>
       <div class="header-right">
+        <!-- Import Button for Dean -->
+        <template v-if="authStore.isDean">
+          <input 
+            type="file" 
+            ref="fileInput" 
+            @change="handleFileUpload" 
+            accept=".csv" 
+            style="display: none" 
+          />
+          <button class="import-btn" @click="$refs.fileInput.click()" :disabled="importing">
+            <svg v-if="!importing" viewBox="0 0 20 20" fill="none"><path d="M4 16v1a2 2 0 002 2h8a2 2 0 002-2v-1m-4-8l-4-4-4 4m4-4v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-if="importing" class="spinner-sm"></span>
+            {{ importing ? 'Importing...' : 'Import CSV' }}
+          </button>
+        </template>
+
         <div class="search-container">
           <svg viewBox="0 0 20 20" fill="none" class="search-icon"><path d="M9 17A8 8 0 109 1a8 8 0 000 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Search students..." class="table-search" />
@@ -65,16 +81,76 @@
 </template>
 
 <script setup>
-const students = [
-  { name: 'Aira Mae Reyes', course: 'BSCS', year: '4th Year', gwa: '1.21', violations: 0, org: 'ACM Student Chapter', skills: ['Python', 'ML', 'UI/UX'], status: "Dean's List", statusClass: 'st-dean', color: '#f59e0b' },
-  { name: 'Jose Miguel Cruz', course: 'BSIT', year: '3rd Year', gwa: '1.34', violations: 0, org: 'Google Dev Group', skills: ['Web Dev', 'React', 'Node'], status: "Dean's List", statusClass: 'st-dean', color: '#3b82f6' },
-  { name: 'Katrina Villanueva', course: 'BSCS', year: '4th Year', gwa: '1.38', violations: 0, org: 'IEEE Student Branch', skills: ['Java', 'Databases', 'Algo'], status: "Dean's List", statusClass: 'st-dean', color: '#10b981' },
-  { name: 'Mark Daniel Lim', course: 'BSIT', year: '2nd Year', gwa: '1.42', violations: 0, org: 'Coding Club', skills: ['PHP', 'MySQL', 'HTML'], status: 'Rising', statusClass: 'st-rising', color: '#FF6B1A' },
-  { name: 'Sofia Tan Garcia', course: 'BSCS', year: '3rd Year', gwa: '1.47', violations: 0, org: 'ACM Student Chapter', skills: ['AI', 'Python', 'Research'], status: 'Rising', statusClass: 'st-rising', color: '#8b5cf6' },
-  { name: 'Ryan Santos', course: 'BSIT', year: '2nd Year', gwa: '2.1', violations: 2, org: '—', skills: ['HTML', 'CSS'], status: 'At Risk', statusClass: 'st-risk', color: '#ef4444' },
-  { name: 'Luis Pascual', course: 'BSCS', year: '1st Year', gwa: '1.9', violations: 1, org: '—', skills: ['Python', 'Scratch'], status: 'Monitor', statusClass: 'st-monitor', color: '#f97316' },
-  { name: 'Ana Bautista', course: 'BSIT', year: '3rd Year', gwa: '1.75', violations: 1, org: 'JPCS', skills: ['DB', 'SQL', 'Excel'], status: 'Good', statusClass: 'st-good', color: '#06b6d4' }
-]
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from '../../store/auth'
+import axios from 'axios'
+
+const authStore = useAuthStore()
+const importing = ref(false)
+const loadingStudents = ref(true)
+const fileInput = ref(null)
+const students = ref([])
+
+const fetchStudents = async () => {
+  loadingStudents.value = true
+  try {
+    const response = await axios.get('/dean/students')
+    students.value = response.data.map(s => ({
+      name: `${s.first_name} ${s.last_name}`,
+      course: s.section?.section_name?.split(' ')[0] || 'Unassigned',
+      year: s.section?.year_level ? `${s.section.year_level}${getYearSuffix(s.section.year_level)} Year` : 'N/A',
+      gwa: s.gwa || '0.00',
+      violations: s.violations_count || 0,
+      org: '—',
+      skills: [],
+      status: s.status === 'active' ? 'Active' : 'Pending',
+      statusClass: s.status === 'active' ? 'st-good' : 'st-monitor',
+      color: s.status === 'active' ? '#10b981' : '#94a3b8'
+    }))
+  } catch (err) {
+    console.error('Failed to fetch students:', err)
+  } finally {
+    loadingStudents.value = false
+  }
+}
+
+const getYearSuffix = (year) => {
+  if (year == 1) return 'st'
+  if (year == 2) return 'nd'
+  if (year == 3) return 'rd'
+  return 'th'
+}
+
+onMounted(() => {
+  if (authStore.isDean) {
+    fetchStudents()
+  }
+})
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  importing.value = true
+  try {
+    const response = await axios.post('/dean/students/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    alert(response.data.message || 'Students imported successfully!')
+    fetchStudents() // Refresh list
+  } catch (err) {
+    console.error('Import failed:', err)
+    alert(err.response?.data?.message || 'Failed to import students.')
+  } finally {
+    importing.value = false
+    if (fileInput.value) fileInput.value.value = '' // Clear input
+  }
+}
 </script>
 
 <style scoped>
@@ -108,6 +184,46 @@ const students = [
   gap: 12px;
   align-items: center;
 }
+
+.import-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid #f0e8e0;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a0a00;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  height: 40px;
+}
+
+.import-btn:hover:not(:disabled) {
+  border-color: #FF6B1A;
+  color: #FF6B1A;
+  background: #fff5ef;
+}
+
+.import-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.import-btn svg { width: 16px; height: 16px; }
+
+.spinner-sm {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255, 107, 26, 0.2);
+  border-top-color: #FF6B1A;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .search-container {
   position: relative;

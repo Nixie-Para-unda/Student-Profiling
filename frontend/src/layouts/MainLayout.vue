@@ -27,7 +27,7 @@
         <div class="user-avatar">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
         <div class="user-info">
           <p class="user-name">{{ authStore.user?.name ?? 'User' }}</p>
-          <p class="user-role">{{ authStore.user?.role ?? 'Faculty' }} · Head of Dept</p>
+          <p class="user-role">{{ userRoleDisplay }}</p>
         </div>
       </div>
       <div class="user-avatar-sm" v-show="sidebarCollapsed">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
@@ -67,7 +67,7 @@
           </router-link>
         </template>
 
-        <template v-else>
+        <template v-if="authStore.isFaculty">
           <!-- Faculty Specific Nav -->
           <div class="nav-section-label" v-show="!sidebarCollapsed">My Classes</div>
           <router-link to="/schedule" class="nav-item" active-class="active">
@@ -90,6 +90,23 @@
           <router-link to="/record-violation" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Record Violation</span>
+          </router-link>
+        </template>
+
+        <template v-if="authStore.isStudent">
+          <!-- Student Specific Nav -->
+          <div class="nav-section-label" v-show="!sidebarCollapsed">My Academic</div>
+          <router-link to="/profile" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Profile</span>
+          </router-link>
+          <router-link to="/academic-performance" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Performance</span>
+          </router-link>
+          <router-link to="/violations" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Violations</span>
           </router-link>
         </template>
 
@@ -153,7 +170,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '../store/auth'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -161,6 +178,15 @@ const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const sidebarCollapsed = ref(false)
+
+const userRoleDisplay = computed(() => {
+  if (!authStore.user) return 'User'
+  const role = authStore.user.role
+  if (role === 'dean') return 'Dean · Head of Dept'
+  if (role === 'faculty') return 'Faculty Member'
+  if (role === 'student') return 'Student'
+  return role.charAt(0).toUpperCase() + role.slice(1)
+})
 
 const handleLogout = () => {
   authStore.logout()
