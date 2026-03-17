@@ -51,7 +51,7 @@
       <div class="right-panel">
         <div class="form-card">
           <div class="form-header">
-            <h2>Welcome back</h2>
+            <h2>Faculty Login</h2>
             <p>Sign in to continue to your dashboard</p>
           </div>
 
@@ -66,7 +66,7 @@
                   v-model="email"
                   id="email-address"
                   name="email"
-                  type="email"
+                  type="text"
                   autocomplete="email"
                   required
                   placeholder="you@department.edu"
@@ -131,9 +131,8 @@
               </svg>
             </button>
 
-            <div class="activation-link">
-              <span>First time here? </span>
-              <router-link to="/activate">Activate your Student Account</router-link>
+            <div class="form-footer">
+              <p>Are you a student? <router-link to="/student/login">Student Login</router-link></p>
             </div>
           </form>
 

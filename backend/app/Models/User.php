@@ -23,8 +23,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'student_number',
         'password',
         'role',
+        'password_set_at',
+        'password_setup_token',
     ];
 
     public function student(): HasOne

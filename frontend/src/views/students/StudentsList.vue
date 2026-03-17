@@ -39,6 +39,7 @@
         <thead>
           <tr>
             <th class="col-rank">#</th>
+            <th class="col-student-id">STUDENT ID</th>
             <th class="col-student">STUDENT</th>
             <th class="col-course">COURSE</th>
             <th class="col-year">YEAR</th>
@@ -52,9 +53,11 @@
         <tbody>
           <tr v-for="(student, index) in students" :key="index">
             <td class="col-rank">{{ index + 1 }}</td>
+            <td class="col-student-id">
+              <span class="student-id-text">{{ student.studentNumber }}</span>
+            </td>
             <td class="col-student">
               <div class="student-cell">
-                <div class="avatar" :style="{ background: student.color }">{{ student.name.charAt(0) }}</div>
                 <span class="name">{{ student.name }}</span>
               </div>
             </td>
@@ -96,6 +99,7 @@ const fetchStudents = async () => {
   try {
     const response = await axios.get('/dean/students')
     students.value = response.data.map(s => ({
+      studentNumber: s.student_number,
       name: `${s.first_name} ${s.last_name}`,
       course: s.section?.section_name?.split(' ')[0] || 'Unassigned',
       year: s.section?.year_level ? `${s.section.year_level}${getYearSuffix(s.section.year_level)} Year` : 'N/A',
@@ -136,11 +140,7 @@ const handleFileUpload = async (event) => {
 
   importing.value = true
   try {
-    const response = await axios.post('/dean/students/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    const response = await axios.post('/dean/students/import', formData)
     alert(response.data.message || 'Students imported successfully!')
     fetchStudents() // Refresh list
   } catch (err) {
@@ -319,6 +319,8 @@ const handleFileUpload = async (event) => {
 }
 
 .col-rank { width: 50px; text-align: center; color: #b89f90; font-weight: 600; }
+.col-student-id { width: 130px; font-weight: 600; color: #64748b; }
+.col-student { min-width: 220px; }
 .student-cell { display: flex; align-items: center; gap: 12px; }
 .avatar {
   width: 32px; height: 32px;

@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Notifications\SetupPasswordNotification;
 
 class StudentController extends Controller
 {
@@ -139,21 +141,25 @@ class StudentController extends Controller
             }
 
             try {
-                // Check if we have enough columns (at least 5 for basic info)
-                if (count($data) < 5) {
-                    throw new \Exception("Insufficient columns. Expected at least 5 (student_number, first_name, last_name, middle_name, email). Found " . count($data));
+                // Check if we have enough columns (student_number, first_name, last_name, middle_name, email, course, year, section)
+                if (count($data) < 8) {
+                    throw new \Exception("Insufficient columns. Expected 8 (student_number, first_name, last_name, middle_name, email, course, year, section). Found " . count($data));
                 }
 
                 // student_number,first_name,last_name,middle_name,email,course,year,section
-                $studentNumber = trim($data[0]);
-                $firstName = trim($data[1]);
-                $lastName = trim($data[2]);
+                $studentNumber = isset($data[0]) ? trim($data[0]) : '';
+                $firstName = isset($data[1]) ? trim($data[1]) : '';
+                $lastName = isset($data[2]) ? trim($data[2]) : '';
                 $middleName = isset($data[3]) ? trim($data[3]) : null;
-                $email = trim($data[4]);
+                $email = isset($data[4]) ? trim($data[4]) : '';
                 
-                $courseCode = isset($data[5]) ? trim($data[5]) : null;
-                $year = isset($data[6]) ? trim($data[6]) : null;
-                $sectionChar = isset($data[7]) ? trim($data[7]) : null;
+                $courseCode = isset($data[5]) ? trim($data[5]) : '';
+                $year = isset($data[6]) ? trim($data[6]) : '';
+                $sectionChar = isset($data[7]) ? trim($data[7]) : '';
+
+                if (empty($studentNumber) || empty($firstName) || empty($lastName) || empty($email)) {
+                    throw new \Exception("Required fields are missing (Student Number, Name, or Email).");
+                }
                 
                 $sectionId = null;
                 if ($courseCode && $year && $sectionChar) {
@@ -192,17 +198,40 @@ class StudentController extends Controller
                     throw new \Exception("Email $email already exists.");
                 }
 
-                Student::create([
-                    'student_number' => $studentNumber,
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'middle_name' => $middleName,
-                    'email' => $email,
-                    'section_id' => $sectionId,
-                    'status' => 'pending',
-                ]);
+                DB::transaction(function () use ($studentNumber, $firstName, $lastName, $middleName, $email, $sectionId) {
+                    $initialPassword = $lastName . substr(preg_replace('/[^0-9]/', '', $studentNumber), -3);
+                    $setupToken = Str::random(60);
+
+                    // Create user account
+                    $user = User::create([
+                        'name' => $firstName . ' ' . $lastName,
+                        'email' => $email,
+                        'student_number' => $studentNumber,
+                        'password' => Hash::make($initialPassword), 
+                        'role' => 'student',
+                        'password_setup_token' => $setupToken,
+                        'password_set_at' => null, // explicitly null
+                    ]);
+
+                    // Create student record
+                    Student::create([
+                        'user_id' => $user->id,
+                        'student_number' => $studentNumber,
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
+                        'middle_name' => $middleName,
+                        'email' => $email,
+                        'section_id' => $sectionId,
+                        'status' => 'pending', // changed back to pending
+                    ]);
+
+                    // Send the setup email
+                    $user->notify(new SetupPasswordNotification($setupToken, $email));
+                });
+
                 $imported++;
             } catch (\Exception $e) {
+                \Log::error("Import error on row $row: " . $e->getMessage());
                 $errors[] = "Row $row: " . $e->getMessage();
             }
             $row++;

@@ -15,12 +15,13 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        const response = await axios.post('http://localhost:8000/api/login', { email, password })
+        const response = await axios.post('/login', { email, password })
         this.user = response.data.user
         this.token = response.data.token
         localStorage.setItem('user', JSON.stringify(this.user))
         localStorage.setItem('token', this.token)
         axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+        axios.defaults.headers.common['Accept'] = 'application/json'
         return true
       } catch (error) {
         console.error('Login failed:', error)

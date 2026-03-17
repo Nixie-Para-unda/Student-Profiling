@@ -13,6 +13,7 @@ app.use(router)
 
 // Set default base URL for Axios
 axios.defaults.baseURL = 'http://localhost:8000/api'
+axios.defaults.headers.common['Accept'] = 'application/json'
 
 // Set auth header if token exists
 const token = localStorage.getItem('token')

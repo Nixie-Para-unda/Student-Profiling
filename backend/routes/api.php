@@ -13,6 +13,7 @@ use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SubjectLoadController;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/setup-password', [AuthController::class, 'setupPassword']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // Activation (Guest access)

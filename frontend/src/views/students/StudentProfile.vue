@@ -29,6 +29,10 @@
           </div>
           <div class="card-body">
             <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Student Number</label>
+                <input v-model="profile.student_number" type="text" readonly class="readonly-input" />
+              </div>
               <div class="form-group">
                 <label>First Name</label>
                 <input v-model="profile.first_name" type="text" readonly class="readonly-input" />
