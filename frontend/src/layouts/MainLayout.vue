@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
       <!-- Brand -->
-      <div class="sidebar-brand">
+      <div class="sidebar-brand" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? 'Expand Sidebar' : ''">
         <div class="brand-icon">
           <svg viewBox="0 0 40 40" fill="none">
             <rect width="40" height="40" rx="10" fill="#FF6B1A"/>
@@ -15,7 +15,8 @@
           <span class="brand-name">DIS Portal</span>
           <span class="brand-sub">CCS · AY 2026–2027</span>
         </div>
-        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+        <!-- Collapse button visible only when expanded -->
+        <button v-if="!sidebarCollapsed" class="collapse-btn" @click.stop="sidebarCollapsed = true">
           <svg viewBox="0 0 20 20" fill="none">
             <path d="M13 5l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -30,7 +31,7 @@
           <p class="user-role">{{ userRoleDisplay }}</p>
         </div>
       </div>
-      <div class="user-avatar-sm" v-show="sidebarCollapsed">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
+      <div class="user-avatar-sm" v-show="sidebarCollapsed" @click="sidebarCollapsed = false" title="Expand Sidebar">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
 
       <!-- Nav -->
       <nav class="sidebar-nav">
@@ -217,11 +218,27 @@ const handleLogout = () => {
   display: flex;
   flex-direction: column;
   transition: width 0.25s ease;
-  overflow: hidden;
   position: relative;
   z-index: 10;
 }
 .sidebar.collapsed { width: 68px; }
+
+/* Toggle Button */
+.collapse-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.collapse-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.collapse-btn svg { width: 16px; height: 16px; display: block; }
 
 /* Brand */
 .sidebar-brand {
@@ -231,6 +248,16 @@ const handleLogout = () => {
   padding: 20px 16px 18px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.sidebar.collapsed .sidebar-brand {
+  padding: 20px 0;
+  justify-content: center;
+  cursor: pointer;
+}
+.sidebar.collapsed .sidebar-brand:hover {
+  background: rgba(255,255,255,0.04);
 }
 .brand-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
 .brand-text { flex: 1; min-width: 0; }
@@ -249,19 +276,6 @@ const handleLogout = () => {
   margin-top: 1px;
   white-space: nowrap;
 }
-.collapse-btn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.3);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-.collapse-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
-.collapse-btn svg { width: 16px; height: 16px; display: block; }
-.sidebar.collapsed .collapse-btn svg { transform: rotate(180deg); }
 
 /* User */
 .sidebar-user {
@@ -273,6 +287,7 @@ const handleLogout = () => {
   background: rgba(255,107,26,0.1);
   border-radius: 12px;
   border: 1px solid rgba(255,107,26,0.15);
+  overflow: hidden;
 }
 .user-avatar {
   width: 36px; height: 36px;
@@ -299,6 +314,12 @@ const handleLogout = () => {
   font-size: 14px;
   color: #fff;
   margin: 12px auto 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.user-avatar-sm:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255,107,26,0.3);
 }
 .user-info { min-width: 0; }
 .user-name {
@@ -321,6 +342,7 @@ const handleLogout = () => {
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
@@ -357,6 +379,43 @@ const handleLogout = () => {
   font-weight: 500;
 }
 .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+.sidebar.collapsed .sidebar-nav {
+  padding: 16px 8px;
+  align-items: center;
+}
+.sidebar.collapsed .nav-item {
+  padding: 10px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+}
+.sidebar.collapsed .nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+.sidebar.collapsed .nav-section-label {
+  display: none;
+}
+.sidebar.collapsed .nav-badge {
+  display: none;
+}
+.sidebar.collapsed .logout-btn {
+  padding: 10px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+}
+.sidebar.collapsed .logout-btn svg {
+  width: 20px;
+  height: 20px;
+}
+.sidebar.collapsed .sidebar-footer {
+  padding: 14px 8px;
+  display: flex;
+  justify-content: center;
+}
 .nav-badge {
   margin-left: auto;
   font-size: 10px;
@@ -374,6 +433,7 @@ const handleLogout = () => {
   padding: 14px 12px;
   border-top: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
+  overflow: hidden;
 }
 .logout-btn {
   display: flex;
