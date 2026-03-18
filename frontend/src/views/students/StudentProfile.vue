@@ -21,6 +21,7 @@
     <div v-else class="profile-grid">
       <!-- Left Column: Main Info -->
       <div class="profile-main">
+
         <!-- Personal Information -->
         <div class="profile-card">
           <div class="card-header">
@@ -95,6 +96,45 @@
             </div>
           </div>
         </div>
+
+        <!-- ✅ ADDED: Guardian Information -->
+        <div class="profile-card">
+          <div class="card-header">
+            <svg viewBox="0 0 24 24" fill="none" class="card-icon"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3>Guardian Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Guardian Name</label>
+                <input v-model="guardian.name" type="text" placeholder="Full name" />
+              </div>
+              <div class="form-group">
+                <label>Relationship</label>
+                <select v-model="guardian.relationship">
+                  <option value="">Select</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Sibling">Sibling</option>
+                  <option value="Relative">Relative</option>
+                  <option value="Guardian">Guardian</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Contact Number</label>
+                <input v-model="guardian.contact" type="tel" placeholder="09XX XXX XXXX" />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input v-model="guardian.email" type="email" placeholder="guardian@email.com" />
+              </div>
+              <div class="form-group full-width">
+                <label>Address</label>
+                <textarea v-model="guardian.address" rows="2" placeholder="Guardian's address"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Right Column: Academic & Skills -->
@@ -174,6 +214,15 @@ const profile = ref({
   gwa: ''
 })
 
+// ✅ ADDED: Guardian ref
+const guardian = ref({
+  name: '',
+  relationship: '',
+  contact: '',
+  email: '',
+  address: ''
+})
+
 const fetchProfile = async () => {
   loading.value = true
   try {
@@ -186,6 +235,11 @@ const fetchProfile = async () => {
     }
     // Mock skills for now
     skills.value = data.skills || []
+
+    // ✅ ADDED: Load guardian data if available
+    if (data.guardian) {
+      guardian.value = { ...data.guardian }
+    }
   } catch (err) {
     console.error('Failed to fetch profile:', err)
   } finally {
@@ -200,6 +254,8 @@ const saveProfile = async () => {
       ...profile.value,
       skills: skills.value
     })
+    // ✅ ADDED: Save guardian info alongside profile
+    await axios.post('/student/guardian', guardian.value)
     alert('Profile updated successfully!')
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to update profile.')

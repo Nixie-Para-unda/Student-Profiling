@@ -30,5 +30,21 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
             'role' => 'faculty',
         ]);
+        // Create Secretary
+        User::factory()->create([
+            'name' => 'Maria Clara Reyes',
+            'email' => 'secretary@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'secretary',
+            'password_set_at' => now(), // ← add this
+        ]);
+        // Create Department Chair
+        User::factory()->create([
+            'name' => 'Dr. Roberto Aquino',
+            'email' => 'chair@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'chair',
+            'password_set_at' => now(),
+        ]);
     }
 }
