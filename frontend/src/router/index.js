@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
-import StudentLogin from '../views/StudentLogin.vue'
+import FacultyLogin from '../views/auth/login/FacultyLogin.vue'
+import StudentLogin from '../views/auth/login/StudentLogin.vue'
 import SetupPassword from '../views/SetupPassword.vue'
 import ActivateAccount from '../views/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
@@ -38,14 +38,14 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login,
-    meta: { guest: true }
+    component: FacultyLogin,
+    meta: { guest: true, title: 'Faculty Login' }
   },
   {
     path: '/student/login',
     name: 'StudentLogin',
     component: StudentLogin,
-    meta: { guest: true }
+    meta: { guest: true, title: 'Student Login' }
   },
   {
     path: '/setup-password',
@@ -203,6 +203,11 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const authStore = useAuthStore()
+  
+  // Update document title
+  const baseTitle = 'CCS Student Profiling System'
+  document.title = to.meta.title ? `${to.meta.title} | ${baseTitle}` : baseTitle
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return '/login'
   }

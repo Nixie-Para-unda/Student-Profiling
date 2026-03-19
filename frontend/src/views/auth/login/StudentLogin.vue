@@ -16,8 +16,13 @@
         </div>
 
         <div class="brand">
-          <div class="brand-logo">
-            <img src="../assets/ccs-logo.jpg" alt="CCS Logo" />
+          <div class="brand-logos">
+            <div class="brand-logo pnc">
+              <img src="../../../assets/pnc-logo.png" alt="University Logo" />
+            </div>
+            <div class="brand-logo ccs">
+              <img src="../../../assets/ccs-logo.jpg" alt="CCS Logo" />
+            </div>
           </div>
           <div>
             <div class="brand-name">CCS Student Portal</div>
@@ -37,7 +42,7 @@
           </p>
         </div>
 
-        <p class="left-foot">© 2024 University of Cabuyao — College of Computing Studies</p>
+        <p class="left-foot">© 2026 University of Cabuyao — College of Computing Studies</p>
       </div>
 
       <!-- RIGHT PANEL -->
@@ -63,7 +68,7 @@
                 <input
                   v-model="studentId"
                   type="text"
-                  placeholder="e.g. 2021-12345"
+                  placeholder="e.g. 2026xxxx"
                   autocomplete="username"
                   required
                   @focus="idFocused = true"
@@ -75,7 +80,6 @@
             <div class="field">
               <div class="field-label-row">
                 <label class="field-label">Password</label>
-                <a href="#" class="forgot">Forgot password?</a>
               </div>
               <div class="inp-wrap" :class="{ focused: passwordFocused }">
                 <span class="inp-ico">
@@ -101,6 +105,9 @@
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
                 </button>
+              </div>
+              <div class="field-footer">
+                <a href="#" class="forgot">Forgot password?</a>
               </div>
             </div>
 
@@ -142,7 +149,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '../../../store/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -275,7 +282,13 @@ const handleLogin = async () => {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.brand-logos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .brand-logo {
@@ -284,6 +297,12 @@ const handleLogin = async () => {
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
+  background: white;
+  padding: 4px;
+}
+
+.brand-logo.pnc {
+  background: white;
 }
 
 .brand-logo img {
@@ -457,6 +476,12 @@ const handleLogin = async () => {
   text-transform: uppercase;
 }
 
+.field-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
 .forgot {
   font-size: 12px;
   font-weight: 500;
@@ -515,6 +540,12 @@ const handleLogin = async () => {
   font-weight: 500;
   height: 100%;
   display: block;
+}
+
+/* Hide browser's native password reveal button */
+.inp-wrap input::-ms-reveal,
+.inp-wrap input::-ms-clear {
+  display: none;
 }
 
 /* Fix for Chrome Autofill background color issues */
