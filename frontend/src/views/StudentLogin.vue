@@ -1,137 +1,140 @@
+
 <template>
   <div class="login-page">
-    <!-- Background decorative elements -->
-    <div class="bg-decoration">
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
-      <div class="grid-pattern"></div>
-    </div>
+    <div class="shell">
 
-    <div class="login-container">
-      <!-- Left panel -->
-      <div class="left-panel">
-        <div class="brand-mark">
-          <div class="logo-icon">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="10" fill="#4F46E5"/>
-              <path d="M8 20C8 13.373 13.373 8 20 8s12 5.373 12 12-5.373 12-12 12S8 26.627 8 20z" fill="white" fill-opacity="0.2"/>
-              <path d="M14 20h12M20 14v12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="brand-name">CCS Student Portal</span>
+      <!-- LEFT PANEL -->
+      <div class="left">
+
+        <!-- Floating icons -->
+        <div class="floating-icons">
+          <span class="ico ico-1"></span>
+          <span class="ico ico-2"></span>
+          <span class="ico ico-3"></span>
+          <span class="ico ico-4"></span>
+          <span class="ico ico-5"></span>
         </div>
 
-        <div class="left-content">
-          <h1 class="hero-text">Student<br/><span class="accent-blue">Self-Service</span><br/>Portal</h1>
-          <p class="hero-sub">Access your academic records, schedules, and departmental updates.</p>
-
-          <div class="feature-list">
-            <div class="feature-item">
-              <div class="feature-dot blue"></div>
-              <span>View grades and performance</span>
-            </div>
-            <div class="feature-item">
-              <div class="feature-dot blue"></div>
-              <span>Check class schedules</span>
-            </div>
-            <div class="feature-item">
-              <div class="feature-dot blue"></div>
-              <span>Track academic progress</span>
-            </div>
+        <div class="brand">
+          <div class="brand-logo">
+            <img src="../assets/ccs-logo.jpg" alt="CCS Logo" />
+          </div>
+          <div>
+            <div class="brand-name">CCS Student Portal</div>
+            <div class="brand-sub">University of Cabuyao</div>
           </div>
         </div>
 
-        <div class="left-footer">
-          <span>© 2024 Department of Information Systems</span>
+        <div class="hero">
+          <h1 class="hero-title">
+            <span>Student</span>
+            <span class="accent">Self-Service</span>
+            <span>Portal</span>
+          </h1>
+          <p class="hero-desc">
+            Access your academic records, schedules,
+            and departmental updates.
+          </p>
         </div>
+
+        <p class="left-foot">© 2024 University of Cabuyao — College of Computing Studies</p>
       </div>
 
-      <!-- Right panel (form) -->
-      <div class="right-panel">
-        <div class="form-card">
-          <div class="form-header">
-            <h2>Student Login</h2>
-            <p>Enter your student number to access your portal</p>
-          </div>
+      <!-- RIGHT PANEL -->
+      <div class="right">
+        <div class="form-wrap">
+          <div class="form-accent-bar" :class="{ loading: loading }"></div>
+          <h2 class="form-title">Student <span>Login</span></h2>
+          <p class="form-sub">Sign in to access your academic portal</p>
 
           <form @submit.prevent="handleLogin" class="login-form">
-            <div class="field-group">
-              <label for="student-number">Student Number</label>
-              <div class="input-wrapper" :class="{ focused: idFocused, filled: studentId }">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+
+            <div class="field">
+              <div class="field-label-row">
+                <label class="field-label">Student Number</label>
+              </div>
+              <div class="inp-wrap" :class="{ focused: idFocused }">
+                <span class="inp-ico">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </span>
                 <input
                   v-model="studentId"
-                  id="student-number"
-                  name="studentId"
                   type="text"
+                  placeholder="e.g. 2021-12345"
+                  autocomplete="username"
                   required
-                  placeholder="202X-XXXXX"
                   @focus="idFocused = true"
                   @blur="idFocused = false"
                 />
               </div>
             </div>
 
-            <div class="field-group">
-              <label for="password">
-                Password
-                <a href="#" class="forgot-link blue">Forgot?</a>
-              </label>
-              <div class="input-wrapper" :class="{ focused: passwordFocused, filled: password }">
-                <svg class="input-icon" viewBox="0 0 20 20" fill="none">
-                  <rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="10" cy="13" r="1" fill="currentColor"/>
-                </svg>
+            <div class="field">
+              <div class="field-label-row">
+                <label class="field-label">Password</label>
+                <a href="#" class="forgot">Forgot password?</a>
+              </div>
+              <div class="inp-wrap" :class="{ focused: passwordFocused }">
+                <span class="inp-ico">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
                 <input
                   v-model="password"
-                  id="password"
-                  name="password"
                   :type="showPassword ? 'text' : 'password'"
+                  placeholder="Enter your password"
                   autocomplete="current-password"
                   required
-                  placeholder="Enter your password"
                   @focus="passwordFocused = true"
                   @blur="passwordFocused = false"
                 />
-                <button type="button" @click="showPassword = !showPassword" class="toggle-password">
-                  <svg v-if="showPassword" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                <button type="button" class="eye-btn" @click="showPassword = !showPassword">
+                  <svg v-if="showPassword" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
                   </svg>
-                  <svg v-else viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
-                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                  <svg v-else width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div v-if="error" class="error-message">
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-              <span>{{ error }}</span>
-            </div>
+            <transition name="error-fade">
+              <div v-if="error" class="error-message">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ error }}</span>
+              </div>
+            </transition>
 
-            <button type="submit" class="submit-button blue" :disabled="loading">
+            <button class="btn-submit" type="submit" :disabled="loading">
               <span v-if="loading">Signing in...</span>
-              <span v-else>Sign In</span>
-              <svg v-if="!loading" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
+              <span v-else>Sign In &nbsp;<span class="b-arrow">→</span></span>
             </button>
+
           </form>
 
-          <div class="form-footer">
-            <p>Are you a faculty member? <router-link to="/login">Faculty Login</router-link></p>
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">Secured Access</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="secure-row">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <p>Protected by end-to-end encryption. For CCS students only.</p>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -155,7 +158,7 @@ const passwordFocused = ref(false)
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
     await authStore.login(studentId.value, password.value)
     router.push('/')
@@ -168,344 +171,510 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Inheriting some styles from Login.vue or global styles, 
-   but adding student-specific blue theme */
-.accent-blue {
-  color: #4F46E5;
-}
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
-.feature-dot.blue {
-  background: #4F46E5;
-}
-
-.submit-button.blue {
-  background: #4F46E5;
-}
-
-.submit-button.blue:hover {
-  background: #4338CA;
-}
-
-.forgot-link.blue {
-  color: #4F46E5;
-}
-
-/* Base styles copied and adapted from Login.vue */
 .login-page {
-  min-height: 100vh;
+  --brown: #2d1200; /* Lightened from #180700 */
+  --orange: #f06a00;
+  --orange-d: #c85800;
+  --r: 10px;
+
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  background: var(--brown);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8fafc;
-  position: relative;
-  overflow: hidden;
-  padding: 20px;
 }
 
-.bg-decoration {
+.login-page * {
+  box-sizing: border-box;
+}
+
+/* ── SHELL ── */
+.shell {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+}
+
+/* ══ LEFT ══ */
+.left {
+  background: var(--brown);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start; /* Ensure all children start from the left padding line */
+  padding: 40px 48px 40px 60px; /* Reduced left padding to 60px */
+  overflow: hidden;
+  perspective: 900px;
+  text-align: left; /* Explicitly left align all text */
+}
+
+/* ── FLOATING ICONS ── */
+.floating-icons {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
-.circle {
+.ico {
   position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
+  animation: float-up 10s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.circle-1 {
-  width: 400px;
-  height: 400px;
-  background: #4F46E5;
-  top: -100px;
-  right: -100px;
+.ico::before {
+  content: '+';
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 300;
 }
 
-.circle-2 {
-  width: 300px;
-  height: 300px;
-  background: #818CF8;
-  bottom: -50px;
-  left: -50px;
+.ico-1 { top: 15%; left: 10%; animation-delay: -2s; animation-duration: 12s; }
+.ico-2 { top: 30%; left: 80%; animation-delay: -5s; animation-duration: 15s; }
+.ico-3 { top: 70%; left: 20%; animation-delay: -8s; animation-duration: 10s; }
+.ico-4 { top: 85%; left: 60%; animation-delay: -3s; animation-duration: 18s; }
+.ico-5 { top: 50%; left: 50%; animation-delay: -10s; animation-duration: 14s; }
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 0; }
+  25% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: translateY(-200px); opacity: 0; }
 }
 
-.circle-3 {
-  width: 250px;
-  height: 250px;
-  background: #C7D2FE;
-  top: 40%;
-  left: 15%;
-}
-
-.grid-pattern {
+/* crosshatch grid */
+.left::before {
+  content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.5;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
 }
 
-.login-container {
-  display: flex;
-  width: 100%;
-  max-width: 1100px;
-  min-height: 650px;
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+/* brand */
+.brand {
   position: relative;
   z-index: 1;
-  overflow: hidden;
-}
-
-.left-panel {
-  flex: 1;
-  background: #0f172a;
-  color: white;
-  padding: 48px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.brand-mark {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 64px;
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .brand-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.01em;
+  line-height: 1.3;
 }
 
-.left-content {
-  flex: 1;
+.brand-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.02em;
 }
 
-.hero-text {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 24px;
-  letter-spacing: -0.02em;
+/* hero - removed 3D rotation for better lining */
+.hero {
+  position: relative;
+  z-index: 1;
 }
 
-.hero-sub {
-  font-size: 1.125rem;
-  color: #94a3b8;
-  line-height: 1.6;
-  margin-bottom: 40px;
-  max-width: 400px;
+/* 3D title - removed translateZ for equal lining */
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(62px, 7vw, 96px);
+  line-height: 0.92;
+  color: #fff;
+  margin-bottom: 20px;
+  letter-spacing: 0.01em;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.3),
+    6px 6px 0px rgba(0, 0, 0, 0.2), 8px 8px 12px rgba(0, 0, 0, 0.25);
 }
 
-.feature-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.hero-title .accent {
+  color: var(--orange);
+  display: block;
+  text-shadow: 2px 2px 0px rgba(150, 50, 0, 0.6), 4px 4px 0px rgba(120, 40, 0, 0.4),
+    6px 6px 0px rgba(100, 30, 0, 0.25), 8px 8px 14px rgba(0, 0, 0, 0.3);
 }
 
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 500;
-  color: #e2e8f0;
+.hero-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.7;
+  max-width: 340px;
 }
 
-.feature-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* footer */
+.left-foot {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.2);
 }
 
-.left-footer {
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.right-panel {
-  flex: 1;
+/* ══ RIGHT ══ */
+.right {
+  background: #f8f7f5;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 48px;
-  background: #ffffff;
+  padding: 60px 52px;
+  position: relative;
+  overflow: hidden;
 }
 
-.form-card {
+/* subtle warm texture on right */
+.right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 106, 0, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(240, 106, 0, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.form-wrap {
   width: 100%;
-  max-width: 400px;
+  max-width: 370px;
+  position: relative;
+  z-index: 1;
 }
 
-.form-header {
-  margin-bottom: 40px;
+/* top orange accent bar */
+.form-accent-bar {
+  width: 40px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--orange), var(--orange-d));
+  border-radius: 2px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.3s ease-in-out;
 }
 
-.form-header h2 {
-  font-size: 1.875rem;
+.form-accent-bar.loading {
+  width: 100%;
+}
+
+.form-accent-bar.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: loading-scan 1.2s infinite ease-in-out;
+}
+
+@keyframes loading-scan {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.form-title {
+  font-size: 32px;
   font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 8px;
+  color: #111827;
+  margin-bottom: 6px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
-.form-header p {
-  color: #64748b;
+.form-title span {
+  color: var(--orange);
 }
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.form-sub {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 40px;
+  line-height: 1.55;
+  font-weight: 400;
 }
 
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* fields */
+.field {
+  margin-bottom: 20px;
 }
 
-.field-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #475569;
+.field-label-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
 }
 
-.input-wrapper {
+.field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #374151;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.forgot {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--orange);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot:hover {
+  color: var(--orange-d);
+}
+
+/* input wrapper with floating label feel */
+.inp-wrap {
   position: relative;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: stretch; /* Stretch children to fill height */
+  height: 52px; /* Fixed height for perfect consistency */
+  overflow: hidden;
+}
+
+.inp-wrap.focused {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4px rgba(240, 106, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.inp-ico {
+  width: 46px; /* Sufficient width for centering */
+  color: #d1d5db;
+  pointer-events: none;
+  transition: color 0.25s;
   display: flex;
   align-items: center;
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  transition: all 0.2s;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.input-wrapper.focused {
-  border-color: #4F46E5;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+.inp-wrap.focused .inp-ico {
+  color: var(--orange);
 }
 
-.input-icon {
-  width: 20px;
-  height: 20px;
-  margin-left: 16px;
-  color: #94a3b8;
-}
-
-.input-wrapper.focused .input-icon {
-  color: #4F46E5;
-}
-
-.input-wrapper input {
-  width: 100%;
-  padding: 12px 16px;
+.inp-wrap input {
+  flex: 1;
   background: transparent;
   border: none;
   outline: none;
-  font-size: 1rem;
-  color: #1e293b;
+  padding: 0 16px 0 0; /* Only right padding, icon handles left spacing */
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  height: 100%;
+  display: block;
 }
 
-.input-wrapper input::placeholder {
-  color: #94a3b8;
+/* Fix for Chrome Autofill background color issues */
+.inp-wrap input:-webkit-autofill,
+.inp-wrap input:-webkit-autofill:hover,
+.inp-wrap input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-.toggle-password {
+.inp-wrap input::placeholder {
+  color: #c4c9d1;
+  font-weight: 400;
+}
+
+.eye-btn {
   background: none;
   border: none;
-  padding: 0 16px;
-  color: #94a3b8;
   cursor: pointer;
-}
-
-.toggle-password svg {
-  width: 20px;
-  height: 20px;
-}
-
-.forgot-link {
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.submit-button {
+  color: #c4c9d1;
+  width: 46px; /* Same width as left icon for balance */
+  padding: 0;
+  transition: color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.eye-btn:hover {
+  color: #6b7280;
+}
+
+/* submit button */
+.btn-submit {
+  width: 100%;
+  padding: 15px 24px;
+  margin-top: 8px;
   border: none;
   border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 8px;
+  background: linear-gradient(135deg, var(--orange) 0%, #ff8c2a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 15px rgba(240, 106, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
-.submit-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
 }
 
-.submit-button svg {
-  width: 18px;
-  height: 18px;
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(240, 106, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.b-arrow {
+  transition: transform 0.2s;
+  font-size: 17px;
+}
+
+.btn-submit:hover .b-arrow {
+  transform: translateX(5px);
+}
+
+/* divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e9eaec;
+}
+
+.divider-text {
+  font-size: 11px;
+  color: #c4c9d1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* bottom secure row */
+.secure-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+}
+
+.secure-row svg {
+  color: #d1d5db;
+  flex-shrink: 0;
+}
+
+.secure-row p {
+  font-size: 11.5px;
+  color: #b0b5be;
+  line-height: 1.5;
 }
 
 .error-message {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: #fef2f2;
+  gap: 10px;
+  background-color: #fff5f5; /* Softer red background */
+  color: #c53030; /* Darker red text for contrast */
+  padding: 12px 16px;
   border-radius: 8px;
-  color: #dc2626;
-  font-size: 0.875rem;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #fed7d7; /* Subtle red border */
+  text-align: left;
 }
 
-.error-message svg {
-  width: 20px;
-  height: 20px;
+.error-fade-enter-active,
+.error-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.form-footer {
-  margin-top: 32px;
-  text-align: center;
-}
-
-.form-footer p {
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.form-footer a {
-  color: #4F46E5;
-  text-decoration: none;
-  font-weight: 600;
+.error-fade-enter-from,
+.error-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 @media (max-width: 1024px) {
-  .left-panel {
-    display: none;
+  .shell {
+    grid-template-columns: 1fr;
   }
-  .login-container {
-    max-width: 500px;
+  .left {
+    display: none;
   }
 }
 </style>

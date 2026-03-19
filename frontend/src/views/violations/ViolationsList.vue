@@ -7,11 +7,28 @@
       </div>
       <div class="header-right">
         <div class="summary-tags">
-          <div class="summary-tag major">Major: <strong>2</strong></div>
-          <div class="summary-tag moderate">Moderate: <strong>4</strong></div>
-          <div class="summary-tag minor">Minor: <strong>6</strong></div>
+          <div class="summary-tag major">Major: <strong>{{ counts.major }}</strong></div>
+          <div class="summary-tag moderate">Moderate: <strong>{{ counts.moderate }}</strong></div>
+          <div class="summary-tag minor">Minor: <strong>{{ counts.minor }}</strong></div>
         </div>
       </div>
+    </div>
+
+    <!-- ADDED: SEARCH + FILTER -->
+    <div class="toolbar">
+      <input v-model="searchQuery" placeholder="Search student..." />
+      <select v-model="severityFilter">
+        <option value="">All Severity</option>
+        <option value="Major">Major</option>
+        <option value="Moderate">Moderate</option>
+        <option value="Minor">Minor</option>
+      </select>
+      <select v-model="statusFilter">
+        <option value="">All Status</option>
+        <option value="Under Review">Under Review</option>
+        <option value="Warned">Warned</option>
+        <option value="Resolved">Resolved</option>
+      </select>
     </div>
 
     <div class="table-card">
@@ -27,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="v in cases" :key="v.name">
+          <tr v-for="v in filteredCases" :key="v.name">
             <td class="col-student">
               <div class="student-cell">
                 <div class="avatar" :style="{ background: v.color }">{{ v.name.charAt(0) }}</div>
@@ -53,13 +70,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../store/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
 const loading = ref(true)
 const cases = ref([])
+
+// ADDED STATE
+const searchQuery = ref('')
+const severityFilter = ref('')
+const statusFilter = ref('')
+
+// FILTERED DATA
+const filteredCases = computed(() => {
+  return cases.value.filter(v => {
+    const matchSearch = v.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchSeverity = severityFilter.value ? v.severity === severityFilter.value : true
+    const matchStatus = statusFilter.value ? v.status === statusFilter.value : true
+    return matchSearch && matchSeverity && matchStatus
+  })
+})
+
+// ADDED COUNTS
+const counts = computed(() => {
+  return {
+    major: cases.value.filter(v => v.severity === 'Major').length,
+    moderate: cases.value.filter(v => v.severity === 'Moderate').length,
+    minor: cases.value.filter(v => v.severity === 'Minor').length
+  }
+})
 
 const fetchViolations = async () => {
   loading.value = true
@@ -71,7 +112,7 @@ const fetchViolations = async () => {
       severity: v.severity,
       date: v.date_filed,
       status: v.status,
-      color: v.severity === 'Major' ? '#ef4444' : v.severity === 'Moderate' ? '#f59e0b' : '#3b82f6',
+      color: v.severity === 'Major' ? '#FF6B1A' : v.severity === 'Moderate' ? '#000' : '#fff',
       severityClass: v.severity === 'Major' ? 'sev-major' : v.severity === 'Moderate' ? 'sev-moderate' : 'sev-minor',
       statusClass: v.status === 'Resolved' ? 'st-resolved' : v.status === 'Warned' ? 'st-warned' : 'st-review'
     }))
@@ -96,6 +137,19 @@ onMounted(() => {
   gap: 24px;
 }
 
+/* ADDED TOOLBAR */
+.toolbar {
+  display: flex;
+  gap: 12px;
+}
+
+.toolbar input,
+.toolbar select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #000;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -103,16 +157,9 @@ onMounted(() => {
 }
 
 .section-title {
-  font-family: 'Syne', sans-serif;
   font-size: 24px;
   font-weight: 700;
-  color: #1a0a00;
-}
-
-.section-desc {
-  font-size: 13px;
-  color: #b89f90;
-  margin-top: 4px;
+  color: #FF6B1A;
 }
 
 .summary-tags {
@@ -124,101 +171,62 @@ onMounted(() => {
   font-size: 12px;
   padding: 6px 14px;
   border-radius: 10px;
-  border: 1px solid transparent;
 }
 
-.summary-tag strong { font-weight: 700; }
-
-.major { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
-.moderate { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
-.minor { background: #fffbeb; color: #d97706; border-color: #fef3c7; }
+.major { background: #FF6B1A; color: #fff; }
+.moderate { background: #000; color: #fff; }
+.minor { background: #fff; color: #000; border: 1px solid #000; }
 
 .table-card {
-  background: #fff;
-  border: 1px solid #f0e8e0;
-  border-radius: 18px;
-  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 12px;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
 }
 
 .data-table th {
-  padding: 16px 24px;
-  background: #faf8f6;
-  font-size: 11px;
-  font-weight: 700;
-  color: #9a8070;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  border-bottom: 1px solid #f0e8e0;
+  background: #000;
+  color: #fff;
+  padding: 12px;
 }
 
 .data-table td {
-  padding: 18px 24px;
-  font-size: 13px;
-  color: #1a0a00;
-  border-bottom: 1px solid #faf8f6;
+  padding: 14px;
 }
 
-.data-table tr:last-child td {
-  border-bottom: none;
+.data-table tr:hover {
+  background: #fff5ef;
 }
 
-.student-cell { display: flex; align-items: center; gap: 12px; }
 .avatar {
-  width: 34px; height: 34px;
-  border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; font-size: 13px;
-}
-.name { font-weight: 600; }
-
-.col-type { color: #9a8070; }
-.col-date { color: #b89f90; font-size: 12px; }
-
-.severity-badge {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 5px;
-  text-transform: uppercase;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
 }
 
-.sev-major { background: #fff1f2; color: #e11d48; }
-.sev-moderate { background: #fff7ed; color: #ea580c; }
-.sev-minor { background: #fffbeb; color: #d97706; }
+.sev-major { background: #FF6B1A; color: #fff; }
+.sev-moderate { background: #000; color: #fff; }
+.sev-minor { background: #fff; color: #000; border: 1px solid #000; }
 
-.status-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-}
-
-.st-review { background: #fff1f2; color: #e11d48; }
-.st-warned { background: #fff7ed; color: #ea580c; }
-.st-resolved { background: #f0fdf4; color: #16a34a; }
+.st-review { background: #FF6B1A; color: #fff; }
+.st-warned { background: #000; color: #fff; }
+.st-resolved { background: #fff; color: #000; border: 1px solid #000; }
 
 .review-btn {
-  background: #fff5ef;
-  color: #FF6B1A;
-  border: 1px solid #ffd5b0;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'DM Sans', sans-serif;
+  background: #000;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
 .review-btn:hover {
   background: #FF6B1A;
-  color: #fff;
-  border-color: #FF6B1A;
 }
-</style>
+</style>s
