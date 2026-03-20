@@ -12,9 +12,14 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
+        'department_id',
+        'program_id',
         'course_code',
         'course_name',
-        'department_id',
+        'year_level',
+        'semester',
+        'units',
+        'prerequisites',
     ];
 
     public function department(): BelongsTo
@@ -22,8 +27,28 @@ class Course extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function sections(): HasMany
+    public function program(): BelongsTo
     {
-        return $this->hasMany(Section::class);
+        return $this->belongsTo(Program::class);
+    }
+
+    public function sectionSubjects(): HasMany
+    {
+        return $this->hasMany(SectionSubject::class);
+    }
+
+    public function subjectInstructors(): HasMany
+    {
+        return $this->hasMany(SubjectInstructor::class);
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
+    public function studentSubjects(): HasMany
+    {
+        return $this->hasMany(StudentSubject::class);
     }
 }

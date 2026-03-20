@@ -12,10 +12,10 @@ class SectionController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->isDean() && !$request->user()->isFaculty()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair() && !$request->user()->isSecretary() && !$request->user()->isFaculty()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return Section::with('course')->get();
+        return Section::with(['program', 'department'])->get();
     }
 }

@@ -15,21 +15,21 @@ class AnalyticsController extends Controller
      */
     public function deanSummary(Request $request)
     {
-        if (!$request->user()->isDean()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair() && !$request->user()->isSecretary()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $totalStudents = Student::count();
         $totalFaculty = Faculty::count();
         $totalViolations = StudentViolation::where('status', 'active')->count();
-        $totalAwards = DB::table('academic_awards')->count();
+        $totalAwards = \App\Models\AcademicAward::count();
 
         return response()->json([
             'total_students' => $totalStudents,
             'total_faculty' => $totalFaculty,
             'active_violations' => $totalViolations,
             'total_awards' => $totalAwards,
-            'dept_avg_gwa' => 1.87, // Mocking GWA calculation for now
+            'dept_avg_gwa' => 1.87,
         ]);
     }
 
@@ -38,7 +38,7 @@ class AnalyticsController extends Controller
      */
     public function academicPerformance(Request $request)
     {
-        if (!$request->user()->isDean()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

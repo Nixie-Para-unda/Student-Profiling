@@ -6,18 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StudentViolation extends Model
+class StudentOrganization extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'student_id',
-        'faculty_id',
-        'violationType',
-        'description',
-        'dateReported',
-        'status',
-        'action_taken',
+        'org_id',
+        'role',
+        'dateJoined',
+        'dateLeft',
     ];
 
     public function student(): BelongsTo
@@ -25,8 +23,8 @@ class StudentViolation extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function faculty(): BelongsTo
+    public function organization(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(UniversityOrganization::class, 'org_id');
     }
 }

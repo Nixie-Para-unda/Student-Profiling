@@ -106,8 +106,12 @@
           <div class="card-body">
             <div class="form-grid">
               <div class="form-group">
-                <label>Guardian Name</label>
-                <input v-model="guardian.name" type="text" placeholder="Full name" />
+                <label>Guardian First Name</label>
+                <input v-model="guardian.first_name" type="text" placeholder="First name" />
+              </div>
+              <div class="form-group">
+                <label>Guardian Last Name</label>
+                <input v-model="guardian.last_name" type="text" placeholder="Last name" />
               </div>
               <div class="form-group">
                 <label>Relationship</label>
@@ -121,15 +125,7 @@
               </div>
               <div class="form-group">
                 <label>Contact Number</label>
-                <input v-model="guardian.contact" type="tel" placeholder="09XX XXX XXXX" />
-              </div>
-              <div class="form-group">
-                <label>Email Address</label>
-                <input v-model="guardian.email" type="email" placeholder="guardian@email.com" />
-              </div>
-              <div class="form-group full-width">
-                <label>Address</label>
-                <textarea v-model="guardian.address" rows="2" placeholder="Guardian's address"></textarea>
+                <input v-model="guardian.contact_number" type="tel" placeholder="09XX XXX XXXX" />
               </div>
             </div>
           </div>
@@ -177,9 +173,9 @@
               <button @click="addSkill" class="add-skill-btn">+</button>
             </div>
             <div class="skills-tags">
-              <span v-for="skill in skills" :key="skill" class="skill-tag">
-                {{ skill }}
-                <button @click="removeSkill(skill)" class="remove-skill">&times;</button>
+              <span v-for="skill in skills" :key="skill.id" class="skill-tag">
+                {{ skill.skillName }}
+                <button @click="removeSkill(skill.id)" class="remove-skill">&times;</button>
               </span>
               <p v-if="skills.length === 0" class="empty-msg">No skills added yet.</p>
             </div>
@@ -198,29 +194,28 @@ const loading = ref(true)
 const saving = ref(false)
 const newSkill = ref('')
 const skills = ref([])
+
 const profile = ref({
+  student_number: '',
   first_name: '',
   last_name: '',
   middle_name: '',
-  student_number: '',
-  email: '',
   gender: '',
   birthdate: '',
   civil_status: '',
+  email: '',
   contact_number: '',
   address: '',
   course_name: '',
   section_name: '',
-  gwa: ''
+  gwa: '0.00'
 })
 
-// ✅ ADDED: Guardian ref
 const guardian = ref({
-  name: '',
-  relationship: '',
-  contact: '',
-  email: '',
-  address: ''
+  first_name: '',
+  last_name: '',
+  contact_number: '',
+  relationship: ''
 })
 
 const fetchProfile = async () => {
@@ -228,18 +223,33 @@ const fetchProfile = async () => {
   try {
     const response = await axios.get('/student/profile')
     const data = response.data
+    
     profile.value = {
-      ...data,
-      course_name: data.section?.course?.course_code || '—',
-      section_name: data.section?.section_name || '—'
+      student_number: data.user?.student_number || '',
+      first_name: data.first_name,
+      last_name: data.last_name,
+      middle_name: data.middle_name || '',
+      gender: data.gender || '',
+      birthdate: data.birthdate || '',
+      civil_status: data.civil_status || '',
+      email: data.user?.email || '',
+      contact_number: data.contact_number || '',
+      address: data.address || '',
+      course_name: data.program?.program_name || '',
+      section_name: data.section?.section_name || '',
+      gwa: data.gwa || '0.00'
     }
-    // Mock skills for now
-    skills.value = data.skills || []
 
-    // ✅ ADDED: Load guardian data if available
     if (data.guardian) {
-      guardian.value = { ...data.guardian }
+      guardian.value = {
+        first_name: data.guardian.first_name,
+        last_name: data.guardian.last_name,
+        contact_number: data.guardian.contact_number,
+        relationship: data.guardian.relationship
+      }
     }
+
+    skills.value = data.skills || []
   } catch (err) {
     console.error('Failed to fetch profile:', err)
   } finally {
@@ -250,30 +260,49 @@ const fetchProfile = async () => {
 const saveProfile = async () => {
   saving.value = true
   try {
+    // Update basic info
     await axios.post('/student/profile', {
-      ...profile.value,
-      skills: skills.value
+      middle_name: profile.value.middle_name,
+      gender: profile.value.gender,
+      birthdate: profile.value.birthdate,
+      civil_status: profile.value.civil_status,
+      contact_number: profile.value.contact_number,
+      address: profile.value.address
     })
-    // ✅ ADDED: Save guardian info alongside profile
+
+    // Update guardian info
     await axios.post('/student/guardian', guardian.value)
-    alert('Profile updated successfully!')
+
+    alert('Profile and Guardian information updated successfully!')
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to update profile.')
+    console.error('Failed to save profile:', err)
+    alert('Error saving profile changes.')
   } finally {
     saving.value = false
   }
 }
 
-const addSkill = () => {
-  const skill = newSkill.value.trim()
-  if (skill && !skills.value.includes(skill)) {
-    skills.value.push(skill)
+const addSkill = async () => {
+  if (!newSkill.value.trim()) return
+  try {
+    const response = await axios.post('/student/skills', {
+      skillName: newSkill.value,
+      skill_category: 'Technical' // Default category
+    })
+    skills.value.push(response.data.skill)
     newSkill.value = ''
+  } catch (err) {
+    console.error('Failed to add skill:', err)
   }
 }
 
-const removeSkill = (skill) => {
-  skills.value = skills.value.filter(s => s !== skill)
+const removeSkill = async (id) => {
+  try {
+    await axios.delete(`/student/skills/${id}`)
+    skills.value = skills.value.filter(s => s.id !== id)
+  } catch (err) {
+    console.error('Failed to remove skill:', err)
+  }
 }
 
 onMounted(fetchProfile)

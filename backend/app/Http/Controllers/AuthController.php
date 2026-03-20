@@ -18,28 +18,23 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Try login with email first, then student_number
         $user = User::where('email', $request->email)
             ->orWhere('student_number', $request->email)
             ->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        // Check if student has set their password
-        if ($user->isStudent() && is_null($user->password_set_at)) {
-            throw ValidationException::withMessages([
-                'email' => ['Your account is not yet fully set up. Please check your email for the password setup link.'],
-            ]);
+        // Check if student/faculty has set their password (if required by the setup flow)
+        if (in_array($user->role, ['student', 'faculty']) && is_null($user->password_set_at) && $user->password_setup_token) {
+            return response()->json(['message' => 'Account setup required'], 403);
         }
 
-        return [
+        return response()->json([
             'token' => $user->createToken('auth_token')->plainTextToken,
-            'user' => $user,
-        ];
+            'user' => $user->load($user->role === 'student' ? 'student' : ($user->role === 'faculty' ? 'faculty' : [])),
+        ]);
     }
 
     public function setupPassword(Request $request)
@@ -55,25 +50,19 @@ class AuthController extends Controller
             ->first();
 
         if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid password setup link or email.'],
-            ]);
+            return response()->json(['message' => 'Invalid setup link'], 400);
         }
 
-        return DB::transaction(function () use ($request, $user) {
+        DB::transaction(function () use ($request, $user) {
             $user->update([
                 'password' => Hash::make($request->password),
                 'password_set_at' => now(),
                 'password_setup_token' => null,
+                'status' => 'active',
             ]);
-
-            // Also update student status to active
-            if ($user->student) {
-                $user->student->update(['status' => 'active']);
-            }
-
-            return response()->json(['message' => 'Password has been set successfully. You can now login.']);
         });
+
+        return response()->json(['message' => 'Account setup successful']);
     }
 
     public function logout(Request $request)

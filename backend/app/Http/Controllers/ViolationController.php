@@ -12,10 +12,10 @@ class ViolationController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->isDean()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return StudentViolation::with(['student', 'faculty'])->latest()->get();
+        return StudentViolation::with(['student.section', 'faculty'])->latest()->get();
     }
 }

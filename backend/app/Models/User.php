@@ -21,13 +21,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
         'email',
         'student_number',
         'password',
         'role',
-        'password_set_at',
+        'email_verified_at',
         'password_setup_token',
+        'password_set_at',
+        'status',
     ];
 
     public function student(): HasOne
@@ -43,6 +44,16 @@ class User extends Authenticatable
     public function isDean(): bool
     {
         return $this->role === 'dean';
+    }
+
+    public function isDepartmentChair(): bool
+    {
+        return $this->role === 'department_chair';
+    }
+
+    public function isSecretary(): bool
+    {
+        return $this->role === 'secretary';
     }
 
     public function isFaculty(): bool

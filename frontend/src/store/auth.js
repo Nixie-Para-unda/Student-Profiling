@@ -12,7 +12,7 @@ export const useAuthStore = defineStore('auth', {
     isFaculty: (state) => state.user?.role === 'faculty',
     isStudent: (state) => state.user?.role === 'student',
     isSecretary: (state) => state.user?.role === 'secretary',
-    isChair: (state) => state.user?.role === 'chair'
+    isChair: (state) => state.user?.role === 'department_chair'
   },
   actions: {
     async login(email, password) {

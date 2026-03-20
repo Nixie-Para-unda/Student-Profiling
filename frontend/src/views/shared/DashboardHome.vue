@@ -614,8 +614,8 @@ const secPendingAchievements = ref([
 const fetchSummary = async () => {
   loading.value = true
   try {
-    if (authStore.isDean) {
-      const response = await axios.get('/dean/analytics/summary')
+    if (authStore.isDean || authStore.isChair || authStore.isSecretary) {
+      const response = await axios.get('/analytics/summary')
       const data = response.data
       stats.value = [
         { label: 'Total Students', value: data.total_students.toString(), delta: 'Real-time sync', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },

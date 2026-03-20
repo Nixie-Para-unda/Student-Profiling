@@ -6,8 +6,8 @@
         <p class="section-desc">View all student records, GWA, violations, and organization memberships.</p>
       </div>
       <div class="header-right">
-        <!-- Import Button for Dean -->
-        <template v-if="authStore.isDean">
+        <!-- Import Button for Secretary -->
+        <template v-if="authStore.isSecretary">
           <input 
             type="file" 
             ref="fileInput" 
@@ -97,19 +97,19 @@ const students = ref([])
 const fetchStudents = async () => {
   loadingStudents.value = true
   try {
-    const response = await axios.get('/dean/students')
+    const response = await axios.get('/students')
     students.value = response.data.map(s => ({
-      studentNumber: s.student_number,
+      studentNumber: s.user?.student_number || 'N/A',
       name: `${s.first_name} ${s.last_name}`,
-      course: s.section?.section_name?.split(' ')[0] || 'Unassigned',
+      course: s.program?.program_code || 'Unassigned',
       year: s.section?.year_level ? `${s.section.year_level}${getYearSuffix(s.section.year_level)} Year` : 'N/A',
       gwa: s.gwa || '0.00',
       violations: s.violations_count || 0,
       org: '—',
       skills: [],
-      status: s.status === 'active' ? 'Active' : 'Pending',
-      statusClass: s.status === 'active' ? 'st-good' : 'st-monitor',
-      color: s.status === 'active' ? '#10b981' : '#94a3b8'
+      status: s.user?.status === 'active' ? 'Active' : 'Pending',
+      statusClass: s.user?.status === 'active' ? 'st-good' : 'st-monitor',
+      color: s.user?.status === 'active' ? '#10b981' : '#94a3b8'
     }))
   } catch (err) {
     console.error('Failed to fetch students:', err)
@@ -126,7 +126,7 @@ const getYearSuffix = (year) => {
 }
 
 onMounted(() => {
-  if (authStore.isDean) {
+  if (authStore.isDean || authStore.isChair || authStore.isSecretary) {
     fetchStudents()
   }
 })
@@ -140,7 +140,7 @@ const handleFileUpload = async (event) => {
 
   importing.value = true
   try {
-    const response = await axios.post('/dean/students/import', formData)
+    const response = await axios.post('/secretary/students/import', formData)
     alert(response.data.message || 'Students imported successfully!')
     fetchStudents() // Refresh list
   } catch (err) {

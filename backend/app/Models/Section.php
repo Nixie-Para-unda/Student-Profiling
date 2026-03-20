@@ -12,30 +12,45 @@ class Section extends Model
     use HasFactory;
 
     protected $fillable = [
+        'department_id',
+        'program_id',
         'section_name',
         'year_level',
         'school_year',
-        'course_id',
-        'adviser_id',
     ];
 
-    public function course(): BelongsTo
+    public function department(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Department::class);
     }
 
-    public function adviser(): BelongsTo
+    public function program(): BelongsTo
     {
-        return $this->belongsTo(Faculty::class, 'adviser_id');
-    }
-
-    public function subjectLoads(): HasMany
-    {
-        return $this->hasMany(SubjectLoad::class);
+        return $this->belongsTo(Program::class);
     }
 
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(StudentSubject::class);
+    }
+
+    public function sectionSubjects(): HasMany
+    {
+        return $this->hasMany(SectionSubject::class);
+    }
+
+    public function advisers(): HasMany
+    {
+        return $this->hasMany(SectionAdviser::class);
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class);
     }
 }

@@ -27,10 +27,13 @@
         <button class="close-btn" @click="showImport = false">×</button>
       </div>
       <div class="import-body">
-        <div class="drop-zone" @click="$refs.csvInput.click()">
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 8v24M14 18l10-10 10 10M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <p class="drop-title">Click to upload or drag and drop</p>
-          <p class="drop-sub">CSV files only · Max 5MB</p>
+        <div class="drop-zone" :class="{ disabled: loadingImport }" @click="!loadingImport && $refs.csvInput.click()">
+          <div v-if="loadingImport" class="spinner-lg"></div>
+          <template v-else>
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8v24M14 18l10-10 10 10M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p class="drop-title">Click to upload or drag and drop</p>
+            <p class="drop-sub">CSV files only · Max 5MB</p>
+          </template>
           <input ref="csvInput" type="file" accept=".csv" style="display:none" @change="handleCSV" />
         </div>
         <div class="import-template">
@@ -207,7 +210,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
 const search = ref('')
@@ -219,6 +222,9 @@ const showDeleteModal = ref(false)
 const saving = ref(false)
 const editingStudent = ref(null)
 const deletingStudent = ref(null)
+const csvInput = ref(null)
+const loading = ref(false)
+const loadingImport = ref(false)
 
 const form = ref({
   first_name: '', last_name: '', student_number: '',
@@ -227,15 +233,33 @@ const form = ref({
 
 const colors = ['#FF6B1A', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
 
-// Mock data - replace with real API call when backend is ready
-// const response = await axios.get('/secretary/students')
-const students = ref([
-  { id: 1, first_name: 'Juan', last_name: 'dela Cruz', student_number: '2024-00001', email: 'juan@school.edu.ph', course: 'BSCS', year_level: 1, section: 'BSCS 1-A', status: 'active', created_at: 'Mar 10, 2026', color: '#FF6B1A' },
-  { id: 2, first_name: 'Ana', last_name: 'Reyes', student_number: '2024-00002', email: 'ana@school.edu.ph', course: 'BSIT', year_level: 2, section: 'BSIT 2-B', status: 'pending', created_at: 'Mar 11, 2026', color: '#3b82f6' },
-  { id: 3, first_name: 'Carlos', last_name: 'Santos', student_number: '2024-00003', email: 'carlos@school.edu.ph', course: 'BSCS', year_level: 3, section: 'BSCS 3-A', status: 'active', created_at: 'Mar 12, 2026', color: '#10b981' },
-  { id: 4, first_name: 'Maria', last_name: 'Cruz', student_number: '2024-00004', email: 'maria@school.edu.ph', course: 'BSIS', year_level: 1, section: null, status: 'pending', created_at: 'Mar 13, 2026', color: '#f59e0b' },
-  { id: 5, first_name: 'Paolo', last_name: 'Villanueva', student_number: '2024-00005', email: 'paolo@school.edu.ph', course: 'BSCS', year_level: 4, section: 'BSCS 4-A', status: 'active', created_at: 'Mar 14, 2026', color: '#8b5cf6' }
-])
+const students = ref([])
+
+const fetchStudents = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('/students')
+    students.value = response.data.map((s, idx) => ({
+      id: s.id,
+      first_name: s.first_name,
+      last_name: s.last_name,
+      student_number: s.user?.student_number || 'N/A',
+      email: s.user?.email || 'N/A',
+      course: s.program?.program_code || 'N/A',
+      year_level: s.section?.year_level || 1,
+      section: s.section?.section_name || null,
+      status: s.user?.status || 'pending',
+      created_at: new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      color: colors[idx % colors.length]
+    }))
+  } catch (err) {
+    console.error('Failed to fetch students:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchStudents)
 
 const miniStats = computed(() => [
   { label: 'Total Students', value: students.value.length, color: '#FF6B1A' },
@@ -326,11 +350,25 @@ const resendSetup = async (student) => {
   }
 }
 
-const handleCSV = (e) => {
+const handleCSV = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-  // await axios.post('/secretary/students/import', formData)
-  alert(`CSV file "${file.name}" selected. Backend integration pending.`)
+  
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  loadingImport.value = true
+  try {
+    const response = await axios.post('/secretary/students/import', formData)
+    alert(response.data.message || 'Students imported successfully!')
+    fetchStudents() // Refresh list
+  } catch (err) {
+    console.error('Import failed:', err)
+    alert(err.response?.data?.message || 'Failed to import students.')
+  } finally {
+    loadingImport.value = false
+    if (csvInput.value) csvInput.value.value = '' // Clear input
+  }
 }
 </script>
 
@@ -360,8 +398,10 @@ const handleCSV = (e) => {
 .close-btn { background: none; border: none; font-size: 22px; color: #b89f90; cursor: pointer; padding: 0; line-height: 1; }
 .close-btn:hover { color: #1a0a00; }
 .import-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-.drop-zone { border: 2px dashed #f0e8e0; border-radius: 14px; padding: 36px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
-.drop-zone:hover { border-color: #FF6B1A; background: #fffaf8; }
+.drop-zone { border: 2px dashed #f0e8e0; border-radius: 14px; padding: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; min-height: 160px; }
+.drop-zone:hover:not(.disabled) { border-color: #FF6B1A; background: #fffaf8; }
+.drop-zone.disabled { cursor: not-allowed; opacity: 0.7; background: #fafafa; }
+.spinner-lg { width: 32px; height: 32px; border: 3px solid rgba(255,107,26,0.1); border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
 .drop-zone svg { width: 40px; height: 40px; color: #c0b0a5; }
 .drop-title { font-size: 14px; font-weight: 600; color: #1a0a00; }
 .drop-sub { font-size: 12px; color: #b89f90; }

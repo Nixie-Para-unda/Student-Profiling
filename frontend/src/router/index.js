@@ -1,24 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import FacultyLogin from '../views/auth/login/FacultyLogin.vue'
 import StudentLogin from '../views/auth/login/StudentLogin.vue'
-import SetupPassword from '../views/SetupPassword.vue'
-import ActivateAccount from '../views/ActivateAccount.vue'
+import SetupPassword from '../views/auth/setup/SetupPassword.vue'
+import ActivateAccount from '../views/auth/activate/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
-import DashboardHome from '../views/dashboard/DashboardHome.vue'
-import StudentsList from '../views/students/StudentsList.vue'
-import StudentProfile from '../views/students/StudentProfile.vue'
-import FacultyList from '../views/faculty/FacultyList.vue'
-import PerformanceOverview from '../views/academic-performance/PerformanceOverview.vue'
-import ViolationsList from '../views/violations/ViolationsList.vue'
+import DashboardHome from '../views/shared/DashboardHome.vue'
+import StudentsList from '../views/dean/StudentsList.vue'
+import StudentProfile from '../views/student/StudentProfile.vue'
+import FacultyList from '../views/dean/FacultyList.vue'
+import PerformanceOverview from '../views/dean/PerformanceOverview.vue'
+import ViolationsList from '../views/dean/ViolationsList.vue'
+import ProfilingReport from '../views/dean/ProfilingReport.vue'
+import FacultySchedule from '../views/faculty/FacultySchedule.vue'
 
 // ✅ Student page imports
-import MyAffiliations from '../views/students/StudentAffiliation.vue'
-import MyActivities from '../views/students/StudentActivities.vue'
-import MySchedule from '../views/students/StudentSchedule.vue'
-import MyAcademicHistory from '../views/students/StudentAcademicHistory.vue'
-import MyAwards from '../views/students/StudentAwards.vue'
-import MyViolations from '../views/students/StudentViolations.vue'
-import MyPerformance from '../views/students/StudentPerformance.vue'
+import MyAffiliations from '../views/student/StudentAffiliation.vue'
+import MyActivities from '../views/student/StudentActivities.vue'
+import MySchedule from '../views/student/StudentSchedule.vue'
+import MyAcademicHistory from '../views/student/StudentAcademicHistory.vue'
+import MyAwards from '../views/student/StudentAwards.vue'
+import MyViolations from '../views/student/StudentViolations.vue'
+import MyPerformance from '../views/student/StudentPerformance.vue'
 
 // Department Chair page imports
 import ChairStudents from '../views/chair/DepartmentChairStudents.vue'
@@ -29,7 +31,15 @@ import ChairPerformance from '../views/chair/DepartmentChairPerformance.vue'
 import ChairReports from '../views/chair/DepartmentChairReports.vue'
 
 // ✅ Settings
-import Settings from '../views/settings/Settings.vue'
+import Settings from '../views/shared/Settings.vue'
+
+// ✅ Secretary page imports
+import SecretaryStudents from '../views/secretary/SecretaryStudent.vue'
+import SecretaryFaculty from '../views/secretary/SecretaryFaculty.vue'
+import SecretaryFacultyWorkload from '../views/secretary/SecretaryFacultyWorkload.vue'
+import SecretaryStudentProfiles from '../views/secretary/SecretaryStudentProfiles.vue'
+import SecretaryAchievements from '../views/secretary/SecretaryAchievements.vue'
+import SecretaryReports from '../views/secretary/SecretaryReports.vue'
 
 // ✅ router/index.js is in src/router/ so store is ONE level up — NOT two
 import { useAuthStore } from '../store/auth'
@@ -102,7 +112,21 @@ const routes = [
         path: 'violations',
         name: 'Violations',
         component: ViolationsList,
-        meta: { title: 'Violations' }
+        meta: { title: 'Student Violations' }
+      },
+      {
+        path: 'profiling/report',
+        name: 'ProfilingReport',
+        component: ProfilingReport,
+        meta: { title: 'Profiling Report Engine' }
+      },
+
+      // ── Faculty routes ──────────────────────────
+      {
+        path: 'faculty/schedule',
+        name: 'FacultySchedule',
+        component: FacultySchedule,
+        meta: { title: 'My Schedule' }
       },
 
       // ── Student routes ───────────────────────────
@@ -174,13 +198,13 @@ const routes = [
       { path: 'profiles', name: 'StudentProfiles', component: { template: '<div>Student Profiles Page</div>' } },
       { path: 'record-violation', name: 'RecordViolation', component: { template: '<div>Record Violation Page</div>' } },
 
-      // ── Secretary placeholders ───────────────────
-      { path: 'secretary/students', name: 'SecretaryStudents', component: { template: '<div>Secretary - Student Accounts</div>' } },
-      { path: 'secretary/faculty', name: 'SecretaryFaculty', component: { template: '<div>Secretary - Faculty Accounts</div>' } },
-      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: { template: '<div>Secretary - Faculty Workload</div>' } },
-      { path: 'secretary/profiles', name: 'SecretaryProfiles', component: { template: '<div>Secretary - Student Profiles</div>' } },
-      { path: 'secretary/achievements', name: 'SecretaryAchievements', component: { template: '<div>Secretary - Achievement Verification</div>' } },
-      { path: 'secretary/reports', name: 'SecretaryReports', component: { template: '<div>Secretary - Generate Reports</div>' } },
+      // ── Secretary routes ─────────────────────────
+      { path: 'secretary/students', name: 'SecretaryStudents', component: SecretaryStudents, meta: { title: 'Student Accounts' } },
+      { path: 'secretary/faculty', name: 'SecretaryFaculty', component: SecretaryFaculty, meta: { title: 'Faculty Accounts' } },
+      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload' } },
+      { path: 'secretary/profiles', name: 'SecretaryProfiles', component: SecretaryStudentProfiles, meta: { title: 'Student Profiles' } },
+      { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification' } },
+      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports' } },
 
       // ── Chair routes ─────────────────────────────
       { path: 'chair/students', name: 'DepartmentChairStudents', component: ChairStudents, meta: { title: 'Student Profiles' } },

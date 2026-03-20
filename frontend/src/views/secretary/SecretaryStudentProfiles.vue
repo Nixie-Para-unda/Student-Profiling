@@ -86,20 +86,43 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
 const search = ref('')
 const filterCourse = ref('')
 const filterYear = ref('')
 const viewingStudent = ref(null)
+const loading = ref(false)
 
-const students = ref([
-  { id: 1, name: 'Aira Mae Reyes', student_number: '2023-00142', email: 'aira@school.edu.ph', course: 'BSCS', year: 3, section: 'BSCS 3-A', gwa: '1.21', violations: 0, status: 'active', color: '#f59e0b' },
-  { id: 2, name: 'Jose Miguel Cruz', student_number: '2023-00143', email: 'jose@school.edu.ph', course: 'BSIT', year: 3, section: 'BSIT 3-A', gwa: '1.34', violations: 0, status: 'active', color: '#3b82f6' },
-  { id: 3, name: 'Katrina Villanueva', student_number: '2023-00144', email: 'katrina@school.edu.ph', course: 'BSCS', year: 2, section: 'BSCS 2-B', gwa: '1.38', violations: 0, status: 'active', color: '#10b981' },
-  { id: 4, name: 'Ryan Santos', student_number: '2023-00145', email: 'ryan@school.edu.ph', course: 'BSCS', year: 4, section: 'BSCS 4-A', gwa: '2.10', violations: 2, status: 'active', color: '#ef4444' },
-  { id: 5, name: 'Maria Cruz', student_number: '2024-00001', email: 'maria@school.edu.ph', course: 'BSIS', year: 1, section: 'BSIS 1-A', gwa: '0.00', violations: 0, status: 'pending', color: '#8b5cf6' }
-])
+const colors = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6', '#FF6B1A']
+const students = ref([])
+
+const fetchStudents = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('/students')
+    students.value = response.data.map((s, idx) => ({
+      id: s.id,
+      name: `${s.first_name} ${s.last_name}`,
+      student_number: s.user?.student_number || 'N/A',
+      email: s.user?.email || 'N/A',
+      course: s.program?.program_code || 'N/A',
+      year: s.section?.year_level || 1,
+      section: s.section?.section_name || 'N/A',
+      gwa: s.gwa || '0.00',
+      violations: s.violations_count || 0,
+      status: s.user?.status || 'pending',
+      color: colors[idx % colors.length]
+    }))
+  } catch (err) {
+    console.error('Failed to fetch students:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchStudents)
 
 const filteredStudents = computed(() => students.value.filter(s => {
   const matchSearch = !search.value || s.name.toLowerCase().includes(search.value.toLowerCase()) || s.student_number.includes(search.value) || s.course.includes(search.value)

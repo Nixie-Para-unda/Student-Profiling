@@ -8,12 +8,15 @@
       <div class="pcard-header"><h3>New Affiliation</h3></div>
       <div class="pcard-body">
         <div class="form-grid">
-          <div class="form-group"><label>Organization Name</label><input v-model="form.name" type="text" placeholder="e.g. ICPEP.SE" /></div>
-          <div class="form-group"><label>Role / Position</label><input v-model="form.role" type="text" placeholder="e.g. Member" /></div>
-          <div class="form-group"><label>Year Joined</label><input v-model="form.since" type="text" placeholder="e.g. 2023" /></div>
-          <div class="form-group"><label>Status</label>
-            <select v-model="form.status"><option>Active</option><option>Inactive</option></select>
+          <div class="form-group">
+            <label>Organization</label>
+            <select v-model="form.org_id">
+              <option value="">Select Organization</option>
+              <option v-for="org in organizations" :key="org.id" :value="org.id">{{ org.organization_name }}</option>
+            </select>
           </div>
+          <div class="form-group"><label>Role / Position</label><input v-model="form.role" type="text" placeholder="e.g. Member" /></div>
+          <div class="form-group"><label>Date Joined</label><input v-model="form.dateJoined" type="date" /></div>
         </div>
         <div class="form-actions">
           <button class="primary-btn" @click="addAffiliation">Save</button>
@@ -25,15 +28,15 @@
       <div class="pcard-body">
         <div v-if="affiliations.length === 0" class="empty-state">No affiliations recorded yet.</div>
         <div v-else class="affil-list">
-          <div class="affil-row" v-for="org in affiliations" :key="org.name">
-            <div class="affil-avatar" :style="{ background: org.color }">{{ org.name.charAt(0) }}</div>
+          <div class="affil-row" v-for="aff in affiliations" :key="aff.id">
+            <div class="affil-avatar" :style="{ background: aff.color }">{{ aff.name.charAt(0) }}</div>
             <div class="affil-info">
-              <p class="affil-name">{{ org.name }}</p>
-              <p class="affil-role">{{ org.role }}</p>
+              <p class="affil-name">{{ aff.name }}</p>
+              <p class="affil-role">{{ aff.role }}</p>
             </div>
-            <span class="affil-since">Since {{ org.since }}</span>
-            <span class="status-badge" :class="org.status === 'Active' ? 'st-active' : 'st-inactive'">{{ org.status }}</span>
-            <button class="delete-btn" @click="removeAffiliation(org.name)">×</button>
+            <span class="affil-since">Since {{ aff.since }}</span>
+            <span class="status-badge" :class="aff.status === 'Active' ? 'st-active' : 'st-inactive'">{{ aff.status }}</span>
+            <button class="delete-btn" @click="removeAffiliation(aff.id)">×</button>
           </div>
         </div>
       </div>
@@ -42,21 +45,70 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
 const showForm = ref(false)
-const form = ref({ name: '', role: '', since: '', status: 'Active' })
+const organizations = ref([])
+const affiliations = ref([])
+const loading = ref(true)
+
+const form = ref({ 
+  org_id: '', 
+  role: '', 
+  dateJoined: '', 
+})
+
 const colors = ['#FF6B1A','#3b82f6','#10b981','#f59e0b','#8b5cf6']
-const affiliations = ref([
-  { name: 'ICPEP.SE', role: 'Member', since: '2023', status: 'Active', color: '#FF6B1A' },
-  { name: 'Google Developer Student Club', role: 'Core Member', since: '2024', status: 'Active', color: '#3b82f6' }
-])
-const addAffiliation = () => {
-  if (!form.value.name) return
-  affiliations.value.push({ ...form.value, color: colors[affiliations.value.length % colors.length] })
-  form.value = { name: '', role: '', since: '', status: 'Active' }
-  showForm.value = false
+
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const [orgsRes, profileRes] = await Promise.all([
+      axios.get('/student/organizations'),
+      axios.get('/student/profile')
+    ])
+    organizations.value = orgsRes.data
+    affiliations.value = profileRes.data.organizations.map((aff, idx) => ({
+      ...aff,
+      name: aff.organization.organization_name,
+      since: new Date(aff.dateJoined).getFullYear(),
+      status: aff.dateLeft ? 'Inactive' : 'Active',
+      color: colors[idx % colors.length]
+    }))
+  } catch (err) {
+    console.error('Failed to fetch affiliations:', err)
+  } finally {
+    loading.value = false
+  }
 }
-const removeAffiliation = (name) => { affiliations.value = affiliations.value.filter(a => a.name !== name) }
+
+const addAffiliation = async () => {
+  if (!form.value.org_id || !form.value.role || !form.value.dateJoined) return
+  try {
+    const response = await axios.post('/student/affiliations', form.value)
+    alert('Affiliation added successfully!')
+    showForm.value = false
+    form.value = { org_id: '', role: '', dateJoined: '' }
+    fetchData()
+  } catch (err) {
+    console.error('Failed to add affiliation:', err)
+    alert('Error adding affiliation.')
+  }
+}
+
+const removeAffiliation = async (id) => {
+  if (!confirm('Are you sure you want to remove this affiliation?')) return
+  try {
+    await axios.delete(`/student/affiliations/${id}`)
+    fetchData()
+  } catch (err) {
+    console.error('Failed to remove affiliation:', err)
+    alert('Error removing affiliation.')
+  }
+}
+
+onMounted(fetchData)
 </script>
 
 <style scoped>

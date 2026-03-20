@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Subject extends Model
+class Program extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'subject_code',
-        'subject_name',
         'department_id',
+        'program_code',
+        'program_name',
     ];
 
     public function department(): BelongsTo
@@ -22,8 +22,18 @@ class Subject extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function subjectLoads(): HasMany
+    public function sections(): HasMany
     {
-        return $this->hasMany(SubjectLoad::class);
+        return $this->hasMany(Section::class);
+    }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
+    }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
     }
 }

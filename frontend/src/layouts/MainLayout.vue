@@ -70,6 +70,15 @@
             <span v-show="!sidebarCollapsed">Violations</span>
             <span class="nav-badge danger" v-show="!sidebarCollapsed">12</span>
           </router-link>
+          <router-link v-if="authStore.isDean || authStore.isChair || authStore.isSecretary" to="/profiling/report" class="nav-item" active-class="active">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-show="!sidebarCollapsed">Profiling Report</span>
+          </router-link>
+          <router-link v-if="authStore.isFaculty" to="/faculty/schedule" class="nav-item" active-class="active">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Schedule</span>
+          </router-link>
+
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
           <router-link to="/faculty-schedule" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>

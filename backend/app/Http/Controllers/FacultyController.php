@@ -15,48 +15,47 @@ class FacultyController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->isDean()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair() && !$request->user()->isSecretary()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return Faculty::with(['user', 'subjectLoads.subject', 'subjectLoads.section'])->get();
+        return Faculty::with(['user', 'department', 'expertise', 'organizations', 'schedules.course', 'schedules.section'])->get();
     }
 
     /**
-     * Store a new faculty member (for Dean).
+     * Store a new faculty member (for Secretary).
      */
     public function store(Request $request)
     {
-        if (!$request->user()->isDean()) {
+        if (!$request->user()->isSecretary()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'email' => 'required|email|unique:users,email|unique:faculty,email',
+            'middle_name' => 'nullable|string',
+            'email' => 'required|email|unique:users,email',
             'department_id' => 'required|exists:departments,id',
             'position' => 'required|string',
-            'status' => 'required|string',
             'password' => 'required|string|min:8',
         ]);
 
         return DB::transaction(function () use ($request) {
             $user = User::create([
-                'name' => $request->first_name . ' ' . $request->last_name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'faculty',
+                'status' => 'active',
             ]);
 
             $faculty = Faculty::create([
                 'user_id' => $user->id,
+                'department_id' => $request->department_id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'email' => $request->email,
-                'department_id' => $request->department_id,
+                'middle_name' => $request->middle_name,
                 'position' => $request->position,
-                'status' => $request->status,
             ]);
 
             return response()->json([

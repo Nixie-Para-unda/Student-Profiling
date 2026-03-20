@@ -6,23 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StudentViolation extends Model
+class SectionAdviser extends Model
 {
     use HasFactory;
 
+    protected $table = 'section_adviser';
+
     protected $fillable = [
-        'student_id',
+        'section_id',
         'faculty_id',
-        'violationType',
-        'description',
-        'dateReported',
-        'status',
-        'action_taken',
     ];
 
-    public function student(): BelongsTo
+    public function section(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Section::class);
     }
 
     public function faculty(): BelongsTo

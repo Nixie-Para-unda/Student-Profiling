@@ -14,9 +14,14 @@ class Department extends Model
         'department_name',
     ];
 
-    public function faculty(): HasMany
+    public function programs(): HasMany
     {
-        return $this->hasMany(Faculty::class);
+        return $this->hasMany(Program::class);
+    }
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(Section::class);
     }
 
     public function courses(): HasMany
@@ -24,8 +29,8 @@ class Department extends Model
         return $this->hasMany(Course::class);
     }
 
-    public function subjects(): HasMany
+    public function faculty(): HasMany
     {
-        return $this->hasMany(Subject::class);
+        return $this->hasMany(Faculty::class);
     }
 }
