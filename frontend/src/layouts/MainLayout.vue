@@ -50,6 +50,14 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Reports</span>
           </router-link>
+          <router-link to="/dean/curriculum" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Curriculum</span>
+          </router-link>
+          <router-link to="/dean/courses" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 8h14M8 4v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Courses</span>
+          </router-link>
           <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
           <router-link to="/students" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>

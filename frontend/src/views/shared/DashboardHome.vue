@@ -334,10 +334,10 @@
         </div>
       </div>
 
-      <!-- Subjects I Teach -->
+      <!-- Courses I Teach -->
       <div class="card">
         <div class="card-header">
-          <div><h3 class="card-title">Subjects I Teach</h3><p class="card-sub">Current semester workload</p></div>
+          <div><h3 class="card-title">Courses I Teach</h3><p class="card-sub">Current semester workload</p></div>
           <router-link to="/faculty/subjects" class="card-link">View all →</router-link>
         </div>
         <div class="faculty-subjects-list">
@@ -391,7 +391,7 @@
       <!-- Faculty Workload Overview -->
       <div class="card">
         <div class="card-header">
-          <div><h3 class="card-title">Faculty Workload</h3><p class="card-sub">Schedules & subject loads</p></div>
+          <div><h3 class="card-title">Faculty Workload</h3><p class="card-sub">Schedules & course loads</p></div>
           <router-link to="/secretary/faculty" class="card-link">View all →</router-link>
         </div>
         <div class="faculty-subjects-list">
@@ -406,7 +406,7 @@
               </div>
             </div>
             <div class="fsubj-right">
-              <span class="fsubj-section">{{ f.subjects }} subjects</span>
+              <span class="fsubj-section">{{ f.subjects }} courses</span>
               <span class="fsubj-enrolled">{{ f.students }} students</span>
             </div>
           </div>

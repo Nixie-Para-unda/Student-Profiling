@@ -11,6 +11,8 @@ import FacultyList from '../views/dean/FacultyList.vue'
 import PerformanceOverview from '../views/dean/PerformanceOverview.vue'
 import ViolationsList from '../views/dean/ViolationsList.vue'
 import ProfilingReport from '../views/dean/ProfilingReport.vue'
+import CurriculumManagement from '../views/dean/CurriculumManagement.vue'
+import CourseManagement from '../views/dean/CourseManagement.vue'
 import FacultySchedule from '../views/faculty/FacultySchedule.vue'
 
 // ✅ Student page imports
@@ -119,6 +121,18 @@ const routes = [
         name: 'ProfilingReport',
         component: ProfilingReport,
         meta: { title: 'Profiling Report Engine' }
+      },
+      {
+        path: 'dean/curriculum',
+        name: 'CurriculumManagement',
+        component: CurriculumManagement,
+        meta: { title: 'Curriculum Management' }
+      },
+      {
+        path: 'dean/courses',
+        name: 'CourseManagement',
+        component: CourseManagement,
+        meta: { title: 'Course Management' }
       },
 
       // ── Faculty routes ──────────────────────────

@@ -8,7 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ViolationController;
-use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SubjectLoadController;
 
@@ -16,6 +16,8 @@ use App\Http\Controllers\ProfilingController;
 
 use App\Http\Controllers\FacultyScheduleController;
 use App\Http\Controllers\StudentProfileController;
+
+use App\Http\Controllers\CurriculumController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/setup-password', [AuthController::class, 'setupPassword']);
@@ -51,8 +53,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dean Specific
     Route::middleware('role:dean')->group(function () {
-        Route::post('/dean/curriculum', [ProfilingController::class, 'storeCurriculum']); // Example
-        // Add more dean-specific routes here
+        Route::get('/dean/curriculum', [CurriculumController::class, 'index']);
+        Route::post('/dean/curriculum', [CurriculumController::class, 'store']);
+        Route::post('/dean/curriculum/bulk', [CurriculumController::class, 'bulkStore']);
+        Route::post('/dean/curriculum/import', [CurriculumController::class, 'import']);
+        Route::delete('/dean/curriculum/{id}', [CurriculumController::class, 'destroy']);
     });
 
     // Secretary Specific
@@ -65,6 +70,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:dean,department_chair,secretary')->group(function () {
         Route::get('/students', [StudentController::class, 'index']);
         Route::get('/faculty', [FacultyController::class, 'index']);
+        
+        // Courses
+        Route::get('/courses', [CourseController::class, 'index']);
+        Route::post('/courses', [CourseController::class, 'store']);
+        Route::put('/courses/{id}', [CourseController::class, 'update']);
+        Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+
         Route::get('/analytics/summary', [AnalyticsController::class, 'deanSummary']);
         Route::get('/analytics/performance', [AnalyticsController::class, 'academicPerformance']);
         Route::get('/violations', [ViolationController::class, 'index']);

@@ -7,7 +7,7 @@
         <p>Manage faculty, subjects, and teaching loads</p>
       </div>
       <div class="actions">
-        <button v-if="authStore.isDean" class="btn outline" @click="showSubjectModal = true">+ Subject</button>
+        <button v-if="authStore.isDean" class="btn outline" @click="showCourseModal = true">+ Course</button>
         <button v-if="authStore.isDean" class="btn primary" @click="showAddModal = true">+ Faculty</button>
       </div>
     </div>
@@ -49,7 +49,7 @@
         </div>
 
         <button v-if="authStore.isDean" class="assign" @click="openAssignModal(prof)">
-          Assign Subject
+          Assign Course
         </button>
       </div>
     </div>
