@@ -313,13 +313,18 @@ const userRoleDisplay = computed(() => {
   if (role === 'faculty') return 'Faculty Member'
   if (role === 'student') return 'Student'
   if (role === 'secretary') return 'Department Secretary'
-  if (role === 'chair') return 'Department Chair'
+  if (role === 'department_chair') return 'Department Chair'
   return role.charAt(0).toUpperCase() + role.slice(1)
 })
 
 const handleLogout = () => {
+  const isStudent = authStore.isStudent
   authStore.logout()
-  router.push('/login')
+  if (isStudent) {
+    router.push('/student/login')
+  } else {
+    router.push('/login')
+  }
 }
 </script>
 
