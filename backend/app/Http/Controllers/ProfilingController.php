@@ -19,7 +19,16 @@ class ProfilingController extends Controller
         }
 
         $query = Student::query()
-            ->with(['user', 'section', 'program', 'skills', 'academicActivities', 'nonAcademicActivities', 'organizations.organization', 'awards']);
+            ->with([
+                'user',
+                'section',
+                'program',
+                'skills',
+                'academicActivities' => fn($q) => $q->where('status', 'verified'),
+                'nonAcademicActivities' => fn($q) => $q->where('status', 'verified'),
+                'organizations.organization',
+                'awards' => fn($q) => $q->where('status', 'approved')
+            ]);
 
         // Filter by Year Level, Section, Program
         if ($request->filled('year_level')) {
@@ -36,11 +45,7 @@ class ProfilingController extends Controller
 
         // Filter by Skills
         if ($request->filled('skill_name') || $request->filled('skill_category')) {
-            $query->whereExists(function ($q) use ($request) {
-                $q->select(DB::raw(1))
-                  ->from('student_skills')
-                  ->whereRaw('student_skills.student_id = students.id');
-                
+            $query->whereHas('skills', function ($q) use ($request) {
                 if ($request->filled('skill_name')) {
                     $q->where('skillName', 'like', '%' . $request->skill_name . '%');
                 }
@@ -55,8 +60,12 @@ class ProfilingController extends Controller
             $query->whereHas('academicActivities', function($q) use ($request) {
                 $q->where('status', 'verified')
                   ->where('activity_name', 'like', '%' . $request->academic_activity . '%');
-                if ($request->filled('start_date') && $request->filled('end_date')) {
-                    $q->whereBetween('date', [$request->start_date, $request->end_date]);
+                
+                if ($request->filled('start_date')) {
+                    $q->where('date', '>=', $request->start_date);
+                }
+                if ($request->filled('end_date')) {
+                    $q->where('date', '<=', $request->end_date);
                 }
             });
         }
@@ -66,8 +75,12 @@ class ProfilingController extends Controller
             $query->whereHas('nonAcademicActivities', function($q) use ($request) {
                 $q->where('status', 'verified')
                   ->where('activity_name', 'like', '%' . $request->non_academic_activity . '%');
-                if ($request->filled('start_date') && $request->filled('end_date')) {
-                    $q->whereBetween('date', [$request->start_date, $request->end_date]);
+                
+                if ($request->filled('start_date')) {
+                    $q->where('date', '>=', $request->start_date);
+                }
+                if ($request->filled('end_date')) {
+                    $q->where('date', '<=', $request->end_date);
                 }
             });
         }
@@ -84,21 +97,17 @@ class ProfilingController extends Controller
             $query->whereHas('awards', function($q) use ($request) {
                 $q->where('status', 'approved')
                   ->where('awardName', 'like', '%' . $request->award_name . '%');
-                if ($request->filled('start_date') && $request->filled('end_date')) {
-                    $q->whereBetween('date_received', [$request->start_date, $request->end_date]);
+                
+                if ($request->filled('start_date')) {
+                    $q->where('date_received', '>=', $request->start_date);
+                }
+                if ($request->filled('end_date')) {
+                    $q->where('date_received', '<=', $request->end_date);
                 }
             });
         }
 
         $students = $query->get();
-        
-        // Debug: Log the first student's skills if any exist
-        if ($students->isNotEmpty()) {
-            \Log::info('First student skills', [
-                'name' => $students->first()->first_name,
-                'skills' => $students->first()->skills->toArray()
-            ]);
-        }
 
         $report = $students->map(function($student) {
             return [
@@ -106,12 +115,12 @@ class ProfilingController extends Controller
                 'year_level' => $student->section->year_level ?? 'N/A',
                 'section' => $student->section->section_name ?? 'N/A',
                 'program' => $student->program->program_code ?? 'N/A',
-                'matched_skills' => $student->skills->map(fn($s) => $s->skillName)->toArray(),
+                'matched_skills' => $student->skills->pluck('skillName')->toArray(),
                 'relevant_activities' => [
-                    'academic' => $student->academicActivities->where('status', 'verified')->map(fn($a) => $a->activity_name)->toArray(),
-                    'non_academic' => $student->nonAcademicActivities->where('status', 'verified')->map(fn($a) => $a->activity_name)->toArray(),
+                    'academic' => $student->academicActivities->pluck('activity_name')->toArray(),
+                    'non_academic' => $student->nonAcademicActivities->pluck('activity_name')->toArray(),
                 ],
-                'relevant_awards' => $student->awards->where('status', 'approved')->map(fn($aw) => $aw->awardName)->toArray(),
+                'relevant_awards' => $student->awards->pluck('awardName')->toArray(),
                 'org_memberships' => $student->organizations->map(fn($o) => $o->organization->organization_name ?? 'Unknown')->toArray(),
             ];
         });
