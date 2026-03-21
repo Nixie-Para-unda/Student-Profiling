@@ -22,103 +22,16 @@
 
       <div class="divider-line"></div>
 
-      <div class="icon-container">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f06a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      <div v-if="error && !isSuccess" class="global-error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
+        {{ error }}
       </div>
 
-      <h1>New Password</h1>
-      <p class="subtitle">Create a strong password</p>
-
-      <div class="email-chip">
-        <span class="dot"></span>
-        {{ email || 'loading...' }}
-      </div>
-
-      <div class="fields">
-        <div class="field">
-          <label>Password</label>
-          <div class="input-row">
-            <span class="input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="3" y="11" width="18" height="11" rx="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </span>
-            <input
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              placeholder="Enter new password"
-            />
-            <button type="button" class="eye-btn" @click="showPassword = !showPassword" tabindex="-1">
-              <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
-          </div>
-          <div class="strength-bar" v-if="password">
-            <div
-              v-for="i in 4" :key="i"
-              class="strength-segment"
-              :class="{ active: passwordStrength >= i, [`level-${passwordStrength}`]: passwordStrength >= i }"
-            ></div>
-            <span class="strength-label">{{ strengthLabel }}</span>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Confirm Password</label>
-          <div class="input-row">
-            <span class="input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-              </svg>
-            </span>
-            <input
-              v-model="passwordConfirmation"
-              :type="showConfirm ? 'text' : 'password'"
-              placeholder="Repeat your password"
-            />
-            <button type="button" class="eye-btn" @click="showConfirm = !showConfirm" tabindex="-1">
-              <svg v-if="!showConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
-            <span v-if="passwordsMatch" class="match-check">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </span>
-          </div>
-          <div v-if="passwordsMatch" class="match-success">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            Passwords match!
-          </div>
-          <div v-else-if="error" class="match-success match-error">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            {{ error }}
-          </div>
-        </div>
-      </div>
-
-      <div v-if="success" class="success-section">
+      <div v-if="isSuccess" class="success-section">
         <div class="success-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -126,17 +39,110 @@
           </svg>
         </div>
         <h2>Password Set!</h2>
-        <p>Your password has been created successfully.</p>
+        <p>{{ success || 'Your password has been created successfully.' }}</p>
         <div class="redirect-note">Redirecting to login in {{ countdown }} seconds...</div>
         <button class="login-btn" @click="router.push('/student/login')">
           Go to Login Now
         </button>
       </div>
 
-      <button v-else class="submit-btn" :class="{ loading }" :disabled="loading" @click="handleSetup">
-        <span v-if="!loading">Set Password</span>
-        <span v-else class="spinner"></span>
-      </button>
+      <template v-else>
+        <div class="icon-container">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f06a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+
+        <h1>Set Password</h1>
+        <p class="subtitle">Create a strong password</p>
+
+        <div class="email-chip">
+          <span class="dot"></span>
+          {{ email || 'loading...' }}
+        </div>
+
+        <div class="fields">
+          <div class="field">
+            <label>Password</label>
+            <div class="input-row">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="Enter new password"
+              />
+              <button type="button" class="eye-btn" @click="showPassword = !showPassword" tabindex="-1">
+                <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <div class="strength-bar" v-if="password">
+              <div
+                v-for="i in 4" :key="i"
+                class="strength-segment"
+                :class="{ active: passwordStrength >= i, [`level-${passwordStrength}`]: passwordStrength >= i }"
+              ></div>
+              <span class="strength-label">{{ strengthLabel }}</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Confirm Password</label>
+            <div class="input-row">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+              </span>
+              <input
+                v-model="passwordConfirmation"
+                :type="showConfirm ? 'text' : 'password'"
+                placeholder="Repeat your password"
+              />
+              <button type="button" class="eye-btn" @click="showConfirm = !showConfirm" tabindex="-1">
+                <svg v-if="!showConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <div v-if="passwordsMatch" class="match-success">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Passwords match!
+            </div>
+            <div v-else-if="error" class="match-success match-error">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              {{ error }}
+            </div>
+          </div>
+        </div>
+
+        <button class="submit-btn" :class="{ loading }" :disabled="loading" @click="handleSetup">
+          <span v-if="!loading">Set Password</span>
+          <span v-else class="spinner"></span>
+        </button>
+      </template>
     </div>
   </div>
 </template>
@@ -187,6 +193,8 @@ onMounted(() => {
   }
 })
 
+const isSuccess = ref(false)
+
 const handleSetup = async () => {
   if (!password.value || !passwordConfirmation.value) {
     error.value = 'Please fill in both fields.'
@@ -198,7 +206,7 @@ const handleSetup = async () => {
   }
   loading.value = true
   error.value = ''
-  success.value = ''
+  isSuccess.value = false
   try {
     const response = await axios.post('/setup-password', {
       email: email.value,
@@ -206,7 +214,8 @@ const handleSetup = async () => {
       password: password.value,
       password_confirmation: passwordConfirmation.value
     })
-    success.value = response.data.message
+    success.value = response.data.message || 'Account setup successful'
+    isSuccess.value = true
     countdown.value = 3
     const timer = setInterval(() => {
       countdown.value--
@@ -233,7 +242,7 @@ const handleSetup = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2d1200;
+  background: #f3f4f6;
   position: relative;
   overflow: hidden;
   font-family: 'Inter', sans-serif;
@@ -246,17 +255,17 @@ const handleSetup = async () => {
   filter: blur(100px);
   pointer-events: none;
 }
-.orb-1 { width: 500px; height: 500px; background: rgba(240,106,0,0.15); top: -150px; right: -100px; }
-.orb-2 { width: 400px; height: 400px; background: rgba(255,140,42,0.1); bottom: -120px; left: -80px; }
-.orb-3 { width: 300px; height: 300px; background: rgba(255,200,140,0.08); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.orb-1 { width: 500px; height: 500px; background: rgba(240,106,0,0.08); top: -150px; right: -100px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(240,106,0,0.05); bottom: -120px; left: -80px; }
+.orb-3 { width: 300px; height: 300px; background: rgba(240,106,0,0.04); top: 50%; left: 50%; transform: translate(-50%,-50%); }
 
 .card {
   width: 100%;
   max-width: 420px;
-  background: #f8f7f5;
+  background: #ffffff;
   border-radius: 28px;
   padding: 44px 40px;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
   animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
   position: relative;
   z-index: 1;
@@ -347,6 +356,27 @@ h1 {
 
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #f06a00; box-shadow: 0 0 6px rgba(240,106,0,0.5); }
 
+.global-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
 .fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
 
 .field { display: flex; flex-direction: column; gap: 8px; }
@@ -398,13 +428,6 @@ h1 {
   align-items: center;
 }
 .eye-btn:hover { color: #6b7280; }
-
-.match-check {
-  color: #10b981;
-  padding-right: 12px;
-  display: flex;
-  align-items: center;
-}
 
 .match-success {
   display: flex;
