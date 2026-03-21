@@ -35,6 +35,7 @@ class CourseController extends Controller
             'program_id' => 'required|exists:programs,id',
             'year_level' => 'required|string',
             'semester' => 'required|string',
+            'type' => 'required|in:lec,lab,lec+lab',
             'units' => 'required|integer',
         ]);
 
@@ -52,6 +53,7 @@ class CourseController extends Controller
             'department_id' => $program->department_id,
             'year_level' => $request->year_level,
             'semester' => $request->semester,
+            'type' => $request->type,
             'units' => $request->units,
             'prerequisites' => $request->prerequisites,
         ]);
@@ -75,6 +77,7 @@ class CourseController extends Controller
             'program_id' => 'required|exists:programs,id',
             'year_level' => 'required|string',
             'semester' => 'required|string',
+            'type' => 'required|in:lec,lab,lec+lab',
             'units' => 'required|integer',
         ]);
 
@@ -91,6 +94,7 @@ class CourseController extends Controller
             'department_id' => $program->department_id,
             'year_level' => $request->year_level,
             'semester' => $request->semester,
+            'type' => $request->type,
             'units' => $request->units,
             'prerequisites' => $request->prerequisites,
         ]);

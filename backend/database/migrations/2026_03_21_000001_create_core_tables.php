@@ -72,6 +72,7 @@ return new class extends Migration
             $table->string('course_name');
             $table->string('year_level');
             $table->string('semester');
+            $table->enum('type', ['lec', 'lab', 'lec+lab'])->default('lec');
             $table->integer('units');
             $table->string('prerequisites')->nullable();
             $table->timestamps();

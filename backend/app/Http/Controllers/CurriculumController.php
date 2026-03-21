@@ -144,6 +144,11 @@ class CurriculumController extends Controller
 
                 $data = array_combine($header, $row);
                 
+                // Normalize semester (convert '1' to '1st', '2' to '2nd')
+                $semester = $data['semester'];
+                if ($semester == '1') $semester = '1st';
+                elseif ($semester == '2') $semester = '2nd';
+
                 // Try to find by code first, then by ID if numeric
                 $program = Program::where('program_code', $data['program_code'])->first();
                 if (!$program && is_numeric($data['program_code'])) {
@@ -161,12 +166,13 @@ class CurriculumController extends Controller
                 if (!$course) {
                     $course = Course::create([
                         'course_code' => $data['course_code'],
-                        'course_name' => $data['course_code'], // Placeholder name
+                        'course_name' => $data['course_code'], // Placeholder
                         'program_id' => $program->id,
                         'department_id' => $program->department_id,
                         'year_level' => $data['year_level'],
-                        'semester' => $data['semester'],
-                        'units' => 3, // Default units
+                        'semester' => $semester,
+                        'type' => 'lec', // Default to lec, chair can change later
+                        'units' => 3,
                     ]);
                 }
 
@@ -177,7 +183,7 @@ class CurriculumController extends Controller
                     ],
                     [
                         'year_level' => $data['year_level'],
-                        'semester' => $data['semester'],
+                        'semester' => $semester,
                         'created_by' => $request->user()->id,
                     ]
                 );

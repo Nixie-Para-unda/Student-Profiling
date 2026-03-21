@@ -38,6 +38,7 @@
               <th>Code</th>
               <th>Course Name</th>
               <th>Program</th>
+              <th>Type</th>
               <th>Year/Sem</th>
               <th>Units</th>
               <th>Action</th>
@@ -48,6 +49,7 @@
               <td><span class="code-badge">{{ c.course_code }}</span></td>
               <td><strong>{{ c.course_name }}</strong></td>
               <td>{{ c.program?.program_code || 'N/A' }}</td>
+              <td><span class="type-badge" :class="c.type">{{ c.type?.toUpperCase() }}</span></td>
               <td>{{ c.year_level }}{{ getYearSuffix(c.year_level) }} / {{ c.semester }}</td>
               <td>{{ c.units }}</td>
               <td class="actions-cell">
@@ -110,9 +112,19 @@
                 </select>
               </div>
             </div>
-            <div class="form-group">
-              <label>Units</label>
-              <input v-model.number="form.units" type="number" placeholder="3" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Course Type</label>
+                <select v-model="form.type">
+                  <option value="lec">Lecture (Lec)</option>
+                  <option value="lab">Laboratory (Lab)</option>
+                  <option value="lec+lab">Lec + Lab</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Units</label>
+                <input v-model.number="form.units" type="number" placeholder="3" />
+              </div>
             </div>
             <div class="form-group">
               <label>Prerequisites (Optional)</label>
@@ -150,6 +162,7 @@ const form = ref({
   program_id: '',
   year_level: '1',
   semester: '1st',
+  type: 'lec',
   units: 3,
   prerequisites: ''
 })
@@ -206,6 +219,7 @@ const openEditModal = (course) => {
     program_id: course.program_id,
     year_level: course.year_level,
     semester: course.semester,
+    type: course.type,
     units: course.units,
     prerequisites: course.prerequisites || ''
   }
@@ -248,6 +262,7 @@ const resetForm = () => {
     program_id: '',
     year_level: '1',
     semester: '1st',
+    type: 'lec',
     units: 3,
     prerequisites: ''
   }

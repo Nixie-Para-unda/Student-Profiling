@@ -31,6 +31,7 @@ import ChairViolations from '../views/chair/DepartmentChairViolations.vue'
 import ChairAwards from '../views/chair/DepartmentChairAwards.vue'
 import ChairPerformance from '../views/chair/DepartmentChairPerformance.vue'
 import ChairReports from '../views/chair/DepartmentChairReports.vue'
+import ChairSchedules from '../views/chair/ScheduleManagement.vue'
 
 // ✅ Settings
 import Settings from '../views/shared/Settings.vue'
@@ -226,6 +227,7 @@ const routes = [
       { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations' } },
       { path: 'chair/awards', name: 'DepartmentChairAwards', component: ChairAwards, meta: { title: 'Approve Awards' } },
       { path: 'chair/performance', name: 'DepartmentChairPerformance', component: ChairPerformance, meta: { title: 'Academic Performance' } },
+      { path: 'chair/schedules', name: 'ChairSchedules', component: ChairSchedules, meta: { title: 'Schedule Management' } },
       { path: 'chair/reports', name: 'DepartmentChairReports', component: ChairReports, meta: { title: 'Generate Reports' } },
 
       // ── Redirect old /profile ────────────────────

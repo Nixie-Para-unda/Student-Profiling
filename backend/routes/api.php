@@ -19,6 +19,8 @@ use App\Http\Controllers\StudentProfileController;
 
 use App\Http\Controllers\CurriculumController;
 
+use App\Http\Controllers\ScheduleController;
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/setup-password', [AuthController::class, 'setupPassword']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -76,6 +78,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/courses', [CourseController::class, 'store']);
         Route::put('/courses/{id}', [CourseController::class, 'update']);
         Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+
+        // Schedules
+        Route::get('/schedules', [ScheduleController::class, 'index']);
+        Route::post('/schedules', [ScheduleController::class, 'store']);
+        Route::post('/schedules/import', [ScheduleController::class, 'import']);
+        Route::post('/schedules/auto-generate', [ScheduleController::class, 'autoGenerate']);
+        Route::post('/schedules/{id}/assign-faculty', [ScheduleController::class, 'assignFaculty']);
+        Route::get('/curriculum-courses', [ScheduleController::class, 'getCurriculumCourses']);
+        Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
 
         Route::get('/analytics/summary', [AnalyticsController::class, 'deanSummary']);
         Route::get('/analytics/performance', [AnalyticsController::class, 'academicPerformance']);

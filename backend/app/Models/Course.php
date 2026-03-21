@@ -18,6 +18,7 @@ class Course extends Model
         'course_name',
         'year_level',
         'semester',
+        'type',
         'units',
         'prerequisites',
     ];

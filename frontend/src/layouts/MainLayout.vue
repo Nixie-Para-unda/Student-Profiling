@@ -153,6 +153,10 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span v-show="!sidebarCollapsed">Academic Performance</span>
           </router-link>
+          <router-link to="/chair/schedules" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Manage Schedules</span>
+          </router-link>
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
           <router-link to="/chair/violations" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>

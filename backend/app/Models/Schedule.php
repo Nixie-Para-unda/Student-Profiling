@@ -14,6 +14,7 @@ class Schedule extends Model
         'course_id',
         'faculty_id',
         'section_id',
+        'class_type',
         'dayOfWeek',
         'startTime',
         'endTime',

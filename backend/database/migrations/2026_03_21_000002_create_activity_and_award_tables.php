@@ -56,12 +56,13 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained('courses')->onDelete('restrict');
-            $table->foreignId('faculty_id')->constrained('faculty')->onDelete('restrict');
+            $table->foreignId('faculty_id')->nullable()->constrained('faculty')->onDelete('restrict');
             $table->foreignId('section_id')->constrained('sections')->onDelete('restrict');
+            $table->enum('class_type', ['lec', 'lab'])->default('lec');
             $table->enum('dayOfWeek', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
             $table->time('startTime');
             $table->time('endTime');
-            $table->string('room');
+            $table->string('room')->nullable();
             $table->timestamps();
         });
 
