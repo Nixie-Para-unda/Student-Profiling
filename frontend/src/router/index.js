@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import FacultyLogin from '../views/auth/login/FacultyLogin.vue'
 import StudentLogin from '../views/auth/login/StudentLogin.vue'
 import SetupPassword from '../views/auth/setup/SetupPassword.vue'
+import SetupPasswordFaculty from '../views/auth/setup/SetupPasswordFaculty.vue'
 import ActivateAccount from '../views/auth/activate/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import DashboardHome from '../views/shared/DashboardHome.vue'
@@ -64,6 +65,12 @@ const routes = [
     path: '/setup-password',
     name: 'SetupPassword',
     component: SetupPassword,
+    meta: { guest: true }
+  },
+  {
+    path: '/faculty/setup-password',
+    name: 'SetupPasswordFaculty',
+    component: SetupPasswordFaculty,
     meta: { guest: true }
   },
   {

@@ -66,6 +66,17 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
+    public function getNameAttribute()
+    {
+        if ($this->isStudent()) {
+            return $this->student ? $this->student->first_name . ' ' . $this->student->last_name : $this->email;
+        }
+        if ($this->isFaculty()) {
+            return $this->faculty ? $this->faculty->first_name . ' ' . $this->faculty->last_name : $this->email;
+        }
+        return $this->email;
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -38,7 +38,8 @@ class SetupPasswordNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = env('FRONTEND_URL', 'http://localhost:5173') . '/setup-password?token=' . $this->token . '&email=' . urlencode($this->email);
+        $path = $notifiable->role === 'faculty' ? '/faculty/setup-password' : '/setup-password';
+        $url = env('FRONTEND_URL', 'http://localhost:5173') . $path . '?token=' . $this->token . '&email=' . urlencode($this->email);
 
         return (new MailMessage)
                     ->subject('Welcome! Set Your Portal Password')

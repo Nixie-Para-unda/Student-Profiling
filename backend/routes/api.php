@@ -65,7 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Secretary Specific
     Route::middleware('role:secretary')->group(function () {
         Route::post('/secretary/students/import', [StudentController::class, 'import']);
-        // Add more secretary-specific routes here
+        Route::post('/secretary/faculty', [FacultyController::class, 'store']);
+        Route::post('/secretary/faculty/import', [FacultyController::class, 'import']);
     });
 
     // Shared routes for Dean, Chair, Secretary

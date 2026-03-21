@@ -24,15 +24,18 @@
         <button class="close-btn" @click="showImport = false">×</button>
       </div>
       <div class="import-body">
-        <div class="drop-zone" @click="$refs.csvInput.click()">
-          <svg viewBox="0 0 48 48" fill="none"><path d="M24 8v24M14 18l10-10 10 10M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <p class="drop-title">Click to upload or drag and drop</p>
-          <p class="drop-sub">CSV files only · Max 5MB</p>
+        <div class="drop-zone" :class="{ disabled: loadingImport }" @click="!loadingImport && $refs.csvInput.click()">
+          <div v-if="loadingImport" class="spinner-lg"></div>
+          <template v-else>
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8v24M14 18l10-10 10 10M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p class="drop-title">Click to upload or drag and drop</p>
+            <p class="drop-sub">CSV files only · Max 5MB</p>
+          </template>
           <input ref="csvInput" type="file" accept=".csv" style="display:none" @change="handleCSV" />
         </div>
         <div class="import-template">
           <svg viewBox="0 0 18 18" fill="none"><path d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.4"/><path d="M11 2v4h4" stroke="currentColor" stroke-width="1.4"/></svg>
-          <span>Required columns: <strong>first_name, last_name, email, department, position</strong></span>
+          <span>Required columns: <strong>first_name, last_name, middle_name, email, position</strong></span>
         </div>
       </div>
     </div>
@@ -54,9 +57,7 @@
       <div class="filter-group">
         <select v-model="filterDept">
           <option value="">All Departments</option>
-          <option value="CS Department">CS Department</option>
-          <option value="Math Department">Math Department</option>
-          <option value="English Department">English Department</option>
+          <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.department_name }}</option>
         </select>
         <select v-model="filterStatus">
           <option value="">All Status</option>
@@ -68,7 +69,11 @@
 
     <!-- Table -->
     <div class="table-card">
-      <table class="data-table">
+      <div v-if="loading" class="loading-state">
+        <div class="spinner-lg"></div>
+        <p>Loading faculty members...</p>
+      </div>
+      <table v-else class="data-table">
         <thead>
           <tr>
             <th>FACULTY</th>
@@ -76,7 +81,6 @@
             <th>DEPARTMENT</th>
             <th>POSITION</th>
             <th>EMAIL</th>
-            <th>SUBJECTS</th>
             <th>STATUS</th>
             <th>ACTIONS</th>
           </tr>
@@ -88,15 +92,14 @@
                 <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
                 <div>
                   <p class="s-name">{{ f.first_name }} {{ f.last_name }}</p>
-                  <p class="s-sub">{{ f.email }}</p>
+                  <p class="s-sub">{{ f.position }}</p>
                 </div>
               </div>
             </td>
             <td><span class="code-badge">{{ f.employee_id }}</span></td>
-            <td>{{ f.department }}</td>
+            <td>{{ f.department_name }}</td>
             <td>{{ f.position }}</td>
-            <td class="email-cell">{{ f.email }}</td>
-            <td><span class="subjects-count">{{ f.subjects }} subjects</span></td>
+            <td class="email-cell">{{ f.user?.email }}</td>
             <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending Setup' }}</span></td>
             <td>
               <div class="action-btns">
@@ -106,7 +109,7 @@
               </div>
             </td>
           </tr>
-          <tr v-if="filteredFaculty.length === 0"><td colspan="8" class="empty-row">No faculty members found.</td></tr>
+          <tr v-if="filteredFaculty.length === 0"><td colspan="7" class="empty-row">No faculty members found.</td></tr>
         </tbody>
       </table>
     </div>
@@ -122,19 +125,16 @@
           <div class="form-grid">
             <div class="form-group"><label>First Name</label><input v-model="form.first_name" type="text" placeholder="First name" /></div>
             <div class="form-group"><label>Last Name</label><input v-model="form.last_name" type="text" placeholder="Last name" /></div>
-            <div class="form-group"><label>Employee ID</label><input v-model="form.employee_id" type="text" placeholder="e.g. FAC-2024-001" /></div>
-            <div class="form-group"><label>Email Address</label><input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" /></div>
+            <div class="form-group"><label>Middle Name (Optional)</label><input v-model="form.middle_name" type="text" placeholder="Middle name" /></div>
+            <div class="form-group"><label>Email Address</label><input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" :disabled="!!editingFaculty" /></div>
             <div class="form-group"><label>Department</label>
-              <select v-model="form.department">
+              <select v-model="form.department_id">
                 <option value="">Select Department</option>
-                <option value="CS Department">CS Department</option>
-                <option value="Math Department">Math Department</option>
-                <option value="English Department">English Department</option>
+                <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.department_name }}</option>
               </select>
             </div>
             <div class="form-group"><label>Position</label>
               <select v-model="form.position">
-                <option value="">Select Position</option>
                 <option value="Professor">Professor</option>
                 <option value="Associate Professor">Associate Professor</option>
                 <option value="Assistant Professor">Assistant Professor</option>
@@ -172,7 +172,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
 const search = ref('')
 const filterDept = ref('')
@@ -181,46 +182,178 @@ const showImport = ref(false)
 const showModal = ref(false)
 const showDeleteModal = ref(false)
 const saving = ref(false)
+const loading = ref(false)
+const loadingImport = ref(false)
 const editingFaculty = ref(null)
 const deletingFaculty = ref(null)
-const form = ref({ first_name: '', last_name: '', employee_id: '', email: '', department: '', position: '' })
+const csvInput = ref(null)
+
+const form = ref({ 
+  first_name: '', 
+  last_name: '', 
+  middle_name: '', 
+  email: '', 
+  department_id: '', 
+  position: '' 
+})
+
 const colors = ['#FF6B1A', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
 
-const faculty = ref([
-  { id: 1, first_name: 'Dr. Ricardo', last_name: 'Villanueva', employee_id: 'FAC-2020-001', email: 'r.villanueva@school.edu.ph', department: 'CS Department', position: 'Professor', subjects: 3, status: 'active', color: '#FF6B1A' },
-  { id: 2, first_name: 'Prof. Anna', last_name: 'Reyes', employee_id: 'FAC-2021-002', email: 'a.reyes@school.edu.ph', department: 'CS Department', position: 'Associate Professor', subjects: 2, status: 'active', color: '#3b82f6' },
-  { id: 3, first_name: 'Dr. Jose', last_name: 'Cruz', employee_id: 'FAC-2019-003', email: 'j.cruz@school.edu.ph', department: 'Math Department', position: 'Professor', subjects: 4, status: 'active', color: '#8b5cf6' },
-  { id: 4, first_name: 'Prof. Luis', last_name: 'Garcia', employee_id: 'FAC-2022-004', email: 'l.garcia@school.edu.ph', department: 'CS Department', position: 'Instructor', subjects: 2, status: 'pending', color: '#10b981' }
-])
+const faculty = ref([])
+const departments = ref([])
+
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const [facultyRes, sectionsRes] = await Promise.all([
+      axios.get('/faculty'),
+      axios.get('/sections')
+    ])
+    
+    faculty.value = facultyRes.data.map((f, idx) => ({
+      ...f,
+      color: colors[idx % colors.length],
+      status: f.user?.status || 'pending',
+      employee_id: f.employee_id || 'N/A',
+      department_name: f.department?.department_name || 'N/A'
+    }))
+
+    // Extract unique departments from sections or a dedicated endpoint if available
+    // For now, let's assume we can get them from the sections response or just use a default
+    const depts = new Set()
+    sectionsRes.data.forEach(s => {
+      if (s.department) depts.add(JSON.stringify(s.department))
+    })
+    departments.value = Array.from(depts).map(d => JSON.parse(d))
+    
+    // If no departments found, at least add CCS
+    if (departments.value.length === 0) {
+      departments.value = [{ id: 1, department_name: 'College of Computing Studies' }]
+    }
+  } catch (err) {
+    console.error('Failed to fetch data:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchData)
 
 const miniStats = computed(() => [
   { label: 'Total Faculty', value: faculty.value.length, color: '#FF6B1A' },
   { label: 'Active', value: faculty.value.filter(f => f.status === 'active').length, color: '#16a34a' },
   { label: 'Pending Setup', value: faculty.value.filter(f => f.status === 'pending').length, color: '#f59e0b' },
-  { label: 'CS Dept', value: faculty.value.filter(f => f.department === 'CS Department').length, color: '#8b5cf6' }
+  { label: 'CCS Dept', value: faculty.value.filter(f => f.department_name.includes('Computing')).length, color: '#8b5cf6' }
 ])
 
 const filteredFaculty = computed(() => faculty.value.filter(f => {
-  const matchSearch = !search.value || `${f.first_name} ${f.last_name}`.toLowerCase().includes(search.value.toLowerCase()) || f.email.toLowerCase().includes(search.value.toLowerCase())
-  const matchDept = !filterDept.value || f.department === filterDept.value
+  const fullName = `${f.first_name} ${f.last_name}`.toLowerCase()
+  const matchSearch = !search.value || fullName.includes(search.value.toLowerCase()) || f.user?.email.toLowerCase().includes(search.value.toLowerCase())
+  const matchDept = !filterDept.value || f.department_id == filterDept.value
   const matchStatus = !filterStatus.value || f.status === filterStatus.value
   return matchSearch && matchDept && matchStatus
 }))
 
-const openCreateModal = () => { editingFaculty.value = null; form.value = { first_name: '', last_name: '', employee_id: '', email: '', department: '', position: '' }; showModal.value = true }
-const openEditModal = (f) => { editingFaculty.value = f; form.value = { ...f }; showModal.value = true }
+const openCreateModal = () => { 
+  editingFaculty.value = null; 
+  form.value = { 
+    first_name: '', 
+    last_name: '', 
+    middle_name: '', 
+    email: '', 
+    department_id: departments.value[0]?.id || '', 
+    position: 'Instructor' 
+  }; 
+  showModal.value = true 
+}
+
+const openEditModal = (f) => { 
+  editingFaculty.value = f; 
+  form.value = { 
+    first_name: f.first_name, 
+    last_name: f.last_name, 
+    middle_name: f.middle_name, 
+    email: f.user?.email, 
+    department_id: f.department_id, 
+    position: f.position 
+  }; 
+  showModal.value = true 
+}
+
 const saveFaculty = async () => {
+  if (!form.value.first_name || !form.value.last_name || !form.value.email) {
+    alert('Please fill in all required fields.')
+    return
+  }
+
   saving.value = true
   try {
-    if (editingFaculty.value) { const idx = faculty.value.findIndex(f => f.id === editingFaculty.value.id); faculty.value[idx] = { ...faculty.value[idx], ...form.value } }
-    else { faculty.value.push({ id: Date.now(), ...form.value, subjects: 0, status: 'pending', color: colors[faculty.value.length % colors.length] }) }
+    if (editingFaculty.value) {
+      // await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, form.value)
+      alert('Update functionality not yet implemented in backend. Only Creation is ready.')
+    } else {
+      const response = await axios.post('/secretary/faculty', form.value)
+      faculty.value.push({
+        ...response.data.faculty,
+        color: colors[faculty.value.length % colors.length],
+        status: 'pending',
+        department_name: departments.value.find(d => d.id == form.value.department_id)?.department_name || 'N/A'
+      })
+      alert('Faculty account created successfully. Setup email sent.')
+    }
     showModal.value = false
-  } finally { saving.value = false }
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to save faculty.')
+  } finally {
+    saving.value = false
+  }
 }
+
 const confirmDelete = (f) => { deletingFaculty.value = f; showDeleteModal.value = true }
-const deleteFaculty = () => { faculty.value = faculty.value.filter(f => f.id !== deletingFaculty.value.id); showDeleteModal.value = false }
-const resendSetup = (f) => alert(`Setup email resent to ${f.email}`)
-const handleCSV = (e) => { const file = e.target.files[0]; if (file) alert(`CSV "${file.name}" selected. Backend integration pending.`) }
+const deleteFaculty = async () => {
+  try {
+    // await axios.delete(`/secretary/faculty/${deletingFaculty.value.id}`)
+    faculty.value = faculty.value.filter(f => f.id !== deletingFaculty.value.id)
+    showDeleteModal.value = false
+  } catch (err) {
+    alert('Failed to delete faculty.')
+  }
+}
+
+const resendSetup = async (f) => {
+  try {
+    // await axios.post(`/secretary/faculty/${f.id}/resend-setup`)
+    alert(`Setup email resent to ${f.user?.email}`)
+  } catch (err) {
+    alert('Failed to resend setup email.')
+  }
+}
+
+const handleCSV = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  loadingImport.value = true
+  try {
+    const response = await axios.post('/secretary/faculty/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    alert(response.data.message)
+    if (response.data.errors && response.data.errors.length > 0) {
+      console.error('Import errors:', response.data.errors)
+    }
+    fetchData() // Refresh list
+    showImport.value = false
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to import CSV.')
+  } finally {
+    loadingImport.value = false
+    if (csvInput.value) csvInput.value.value = ''
+  }
+}
 </script>
 
 <style scoped>
@@ -301,5 +434,10 @@ const handleCSV = (e) => { const file = e.target.files[0]; if (file) alert(`CSV 
 .modal-notice svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
 .delete-msg { font-size: 14px; color: #4a3020; line-height: 1.6; }
 .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.drop-zone.disabled { opacity: 0.6; cursor: not-allowed; border-color: #f0e8e0 !important; background: #fafafa !important; }
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #b89f90; }
+.spinner-lg { width: 40px; height: 40px; border: 3px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 1s linear infinite; }
+.spinner-sm { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>

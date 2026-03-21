@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Notifications\SetupPasswordNotification;
 
 class FacultyController extends Controller
 {
@@ -38,15 +40,20 @@ class FacultyController extends Controller
             'email' => 'required|email|unique:users,email',
             'department_id' => 'required|exists:departments,id',
             'position' => 'required|string',
-            'password' => 'required|string|min:8',
         ]);
 
         return DB::transaction(function () use ($request) {
+            // Initial password: last_name + random 3 numbers (or just last_name123)
+            // But for faculty, we'll use a standard pattern like last_name + "CCS"
+            $initialPassword = $request->last_name . 'CCS';
+            $setupToken = Str::random(60);
+
             $user = User::create([
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make($initialPassword),
                 'role' => 'faculty',
-                'status' => 'active',
+                'password_setup_token' => $setupToken,
+                'status' => 'pending',
             ]);
 
             $faculty = Faculty::create([
@@ -58,10 +65,99 @@ class FacultyController extends Controller
                 'position' => $request->position,
             ]);
 
+            // Notify faculty to set up password
+            $user->notify(new SetupPasswordNotification($setupToken, $request->email));
+
             return response()->json([
-                'message' => 'Faculty member added successfully.',
+                'message' => 'Faculty member added successfully. An email has been sent for account setup.',
                 'faculty' => $faculty->load('user')
             ]);
         });
+    }
+
+    /**
+     * Import faculty from CSV.
+     */
+    public function import(Request $request)
+    {
+        if (!$request->user()->isSecretary() && !$request->user()->isDean()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('file');
+        ini_set('auto_detect_line_endings', true);
+        $handle = fopen($file->getRealPath(), 'r');
+        fgetcsv($handle); // Skip header
+
+        $imported = 0;
+        $errors = [];
+        $row = 2;
+
+        while (($data = fgetcsv($handle)) !== FALSE) {
+            if (empty($data) || (count($data) === 1 && empty($data[0]))) continue;
+
+            try {
+                if (count($data) < 5) {
+                    throw new \Exception("Insufficient columns. Expected at least 5 (first_name, last_name, middle_name, email, position).");
+                }
+
+                $firstName = trim($data[0]);
+                $lastName = trim($data[1]);
+                $middleName = trim($data[2]) ?: null;
+                $email = trim($data[3]);
+                $position = trim($data[4]);
+
+                if (empty($firstName) || empty($lastName) || empty($email) || empty($position)) {
+                    throw new \Exception("Required fields missing.");
+                }
+
+                if (User::where('email', $email)->exists()) {
+                    throw new \Exception("Email $email already exists.");
+                }
+
+                DB::transaction(function () use ($firstName, $lastName, $middleName, $email, $position) {
+                    $initialPassword = $lastName . 'CCS';
+                    $setupToken = Str::random(60);
+
+                    // For now, assume CCS department
+                    $department = \App\Models\Department::firstOrCreate(['department_name' => 'College of Computing Studies']);
+
+                    $user = User::create([
+                        'email' => $email,
+                        'password' => Hash::make($initialPassword),
+                        'role' => 'faculty',
+                        'password_setup_token' => $setupToken,
+                        'status' => 'pending',
+                    ]);
+
+                    Faculty::create([
+                        'user_id' => $user->id,
+                        'department_id' => $department->id,
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
+                        'middle_name' => $middleName,
+                        'position' => $position,
+                    ]);
+
+                    $user->notify(new SetupPasswordNotification($setupToken, $email));
+                });
+
+                $imported++;
+            } catch (\Exception $e) {
+                $errors[] = "Row $row: " . $e->getMessage();
+            }
+            $row++;
+        }
+        fclose($handle);
+
+        return response()->json([
+            'message' => "Successfully imported $imported faculty members.",
+            'imported_count' => $imported,
+            'errors' => $errors
+        ]);
     }
 }
