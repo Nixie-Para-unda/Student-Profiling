@@ -39,11 +39,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 const search = ref('')
-const faculty = ref([
-  { id:1, name:'Dr. R. Villanueva', department:'CS Dept', position:'Professor', units:18, totalStudents:113, color:'#FF6B1A', subjects:[{code:'CS301',name:'Data Structures',section:'BSCS 3-A'},{code:'CS401',name:'Algorithms',section:'BSCS 4-A'}] },
-  { id:2, name:'Prof. A. Reyes', department:'CS Dept', position:'Assoc. Professor', units:12, totalStudents:70, color:'#3b82f6', subjects:[{code:'CS302',name:'Software Engineering',section:'BSCS 3-A'}] },
-  { id:3, name:'Dr. J. Cruz', department:'Math Dept', position:'Professor', units:21, totalStudents:140, color:'#8b5cf6', subjects:[{code:'MATH201',name:'Discrete Math',section:'BSCS 3-A'},{code:'MATH101',name:'Calculus',section:'BSCS 1-A'}] },
-])
+const faculty = ref([])
 const filtered = computed(() => faculty.value.filter(f => !search.value || f.name.toLowerCase().includes(search.value.toLowerCase())))
 </script>
 <style scoped>

@@ -52,39 +52,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-const faculty = ref([
-  {
-    id: 1, name: 'Dr. R. Villanueva', department: 'CS Department', position: 'Professor', units: 18, totalStudents: 113, color: '#FF6B1A',
-    subjects: [
-      { code: 'CS301', name: 'Data Structures', section: 'BSCS 3-A', schedule: 'MWF 7:30–9:00 AM' },
-      { code: 'CS301L', name: 'Data Structures Lab', section: 'BSCS 3-A', schedule: 'TTH 1:00–4:00 PM' },
-      { code: 'CS401', name: 'Algorithms', section: 'BSCS 4-A', schedule: 'MWF 10:00–11:30 AM' }
-    ]
-  },
-  {
-    id: 2, name: 'Prof. A. Reyes', department: 'CS Department', position: 'Associate Professor', units: 12, totalStudents: 70, color: '#3b82f6',
-    subjects: [
-      { code: 'CS302', name: 'Software Engineering', section: 'BSCS 3-A', schedule: 'TTH 10:00 AM–1:00 PM' },
-      { code: 'CS302L', name: 'SE Lab', section: 'BSCS 3-B', schedule: 'MWF 1:00–2:30 PM' }
-    ]
-  },
-  {
-    id: 3, name: 'Dr. J. Cruz', department: 'Math Department', position: 'Professor', units: 21, totalStudents: 140, color: '#8b5cf6',
-    subjects: [
-      { code: 'MATH201', name: 'Discrete Mathematics', section: 'BSCS 3-A', schedule: 'MWF 1:00–2:30 PM' },
-      { code: 'MATH101', name: 'Calculus', section: 'BSCS 1-A', schedule: 'TTH 7:30–9:00 AM' },
-      { code: 'MATH102', name: 'Calculus 2', section: 'BSCS 2-A', schedule: 'MWF 3:00–4:30 PM' },
-      { code: 'MATH301', name: 'Linear Algebra', section: 'BSCS 3-B', schedule: 'TTH 1:00–2:30 PM' }
-    ]
-  },
-  {
-    id: 4, name: 'Prof. L. Garcia', department: 'CS Department', position: 'Instructor', units: 9, totalStudents: 65, color: '#10b981',
-    subjects: [
-      { code: 'CS303', name: 'Computer Organization', section: 'BSCS 3-B', schedule: 'MWF 7:30–9:00 AM' },
-      { code: 'CS101', name: 'Programming 1', section: 'BSCS 1-B', schedule: 'TTH 3:00–4:30 PM' }
-    ]
-  }
-])
+const faculty = ref([])
 
 const miniStats = computed(() => [
   { label: 'Total Faculty', value: faculty.value.length, color: '#FF6B1A' },

@@ -1,63 +1,237 @@
 <template>
   <div class="page">
     <div class="page-header">
-      <div><h2 class="page-title">Class Schedule</h2><p class="page-sub">2nd Semester · Academic Year 2026–2027</p></div>
+      <div>
+        <h2 class="page-title">Class Schedule</h2>
+        <p class="page-sub">2nd Semester · Academic Year 2026–2027</p>
+      </div>
     </div>
-    <div class="pcard">
-      <div class="pcard-body no-pad">
-        <table class="data-table">
-          <thead>
-            <tr><th>Subject Code</th><th>Subject Name</th><th>Professor</th><th>Schedule</th><th>Room</th><th>Units</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="s in schedule" :key="s.code">
-              <td><span class="code-badge">{{ s.code }}</span></td>
-              <td><strong>{{ s.name }}</strong></td>
-              <td>
-                <div class="prof-cell">
-                  <div class="prof-avatar" :style="{ background: s.color }">{{ s.professor.charAt(0) }}</div>
-                  {{ s.professor }}
-                </div>
-              </td>
-              <td>{{ s.sched }}</td>
-              <td>{{ s.room }}</td>
-              <td><span class="units-badge">{{ s.units }} units</span></td>
-            </tr>
-          </tbody>
-        </table>
+
+    <div class="calendar-card">
+      <div class="calendar-wrapper">
+        <div class="calendar-grid">
+          <!-- Header: Days -->
+          <div class="time-header"></div>
+          <div v-for="day in days" :key="day" class="day-header">{{ day }}</div>
+
+          <!-- Time Labels and Grid Background -->
+          <template v-for="(time, tIdx) in timeLabels" :key="time">
+            <div class="time-label">{{ time }}</div>
+            <div v-for="day in days" :key="day + time" class="grid-cell"></div>
+          </template>
+
+          <!-- Schedule Items (Dynamic) -->
+          <div 
+            v-for="(item, index) in formattedSchedule" 
+            :key="index"
+            class="schedule-item"
+            :style="getItemStyle(item)"
+          >
+            <div class="item-content">
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-meta">
+                <span class="item-code">{{ item.code }}</span>
+                <span class="item-sep">|</span>
+                <span class="item-room">{{ item.room }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const schedule = ref([
-  { code: 'CS301', name: 'Data Structures & Algorithms', professor: 'Dr. R. Villanueva', sched: 'MWF 7:30–9:00 AM', room: 'CS Lab 3', units: 3, color: '#8b5cf6' },
-  { code: 'CS302', name: 'Software Engineering', professor: 'Prof. A. Reyes', sched: 'TTH 10:00 AM–1:00 PM', room: 'Room 204', units: 3, color: '#FF6B1A' },
-  { code: 'MATH201', name: 'Discrete Mathematics', professor: 'Dr. J. Cruz', sched: 'MWF 1:00–2:30 PM', room: 'Room 101', units: 3, color: '#3b82f6' },
-  { code: 'CS303', name: 'Computer Organization', professor: 'Prof. L. Garcia', sched: 'TTH 1:00–2:30 PM', room: 'Room 103', units: 3, color: '#10b981' },
-  { code: 'CS304', name: 'Web Development', professor: 'Prof. M. Diaz', sched: 'MWF 3:00–4:30 PM', room: 'CS Lab 1', units: 3, color: '#f59e0b' },
-  { code: 'HUM101', name: 'Ethics & Moral Philosophy', professor: 'Dr. C. Bautista', sched: 'TTH 4:00–5:30 PM', room: 'Room 205', units: 3, color: '#6b7280' },
-  { code: 'PE201', name: 'Physical Education 3', professor: 'Coach F. Torres', sched: 'Sat 8:00–10:00 AM', room: 'Gym', units: 2, color: '#ef4444' }
-])
+import { ref, computed } from 'vue'
+
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+// Generate time labels from 7:00 AM to 8:30 PM in 30-minute increments
+const timeLabels = [
+  '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', 
+  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', 
+  '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM'
+]
+
+// Empty schedule for user to fill with real data
+const schedule = ref([])
+
+const timeToMinutes = (timeStr) => {
+  if (!timeStr) return 0
+  const [time, modifier] = timeStr.split(' ')
+  let [hours, minutes] = time.split(':').map(Number)
+  if (!minutes) minutes = 0
+  if (hours === 12) hours = 0
+  if (modifier === 'PM') hours += 12
+  return hours * 60 + minutes
+}
+
+const START_MINUTES = 7 * 60 // 7:00 AM
+const MINUTES_PER_ROW = 15 // 15-minute increments for better precision
+
+const formattedSchedule = computed(() => {
+  return schedule.value.map(item => {
+    const start = timeToMinutes(item.startTime)
+    const end = timeToMinutes(item.endTime)
+    const duration = end - start
+    
+    // grid-row: starts at 2 (1 is header)
+    const startRow = Math.floor((start - START_MINUTES) / MINUTES_PER_ROW) + 2
+    const rowSpan = Math.floor(duration / MINUTES_PER_ROW)
+    const colIndex = days.indexOf(item.day) + 2 // +1 for time column, +1 for 1-based index
+    
+    return {
+      ...item,
+      gridArea: `${startRow} / ${colIndex} / span ${rowSpan} / ${colIndex}`
+    }
+  })
+})
+
+const getItemStyle = (item) => ({
+  gridArea: item.gridArea,
+  backgroundColor: item.color || '#FF6B1A',
+  borderLeft: `3px solid rgba(0,0,0,0.15)`
+})
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
-.page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
-.page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
-.pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
-.pcard-body { padding: 22px; }
-.no-pad { padding: 0; }
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th { padding: 14px 20px; background: #faf8f6; font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; }
-.data-table td { padding: 14px 20px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: #fdf9f7; }
-.code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 4px 10px; border-radius: 7px; white-space: nowrap; }
-.prof-cell { display: flex; align-items: center; gap: 10px; }
-.prof-avatar { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.units-badge { font-size: 11px; font-weight: 700; background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 7px; }
+.page { display: flex; flex-direction: column; gap: 16px; font-family: 'DM Sans', sans-serif; height: 100%; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 0; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
+.page-sub { font-size: 12px; color: #b89f90; margin-top: 2px; }
+
+.calendar-card {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 70px repeat(7, 1fr);
+  /* 14 hours * 4 slots = 56 rows + 1 header */
+  grid-template-rows: 40px repeat(56, 24px); 
+  min-width: 1000px;
+}
+
+.time-header {
+  background: #faf8f6;
+  border-bottom: 1px solid #f0e8e0;
+  border-right: 1px solid #f0e8e0;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 21;
+}
+
+.day-header {
+  background: #faf8f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #6b7280;
+  border-bottom: 1px solid #f0e8e0;
+  border-right: 1px solid #f3f4f6;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.time-label {
+  grid-column: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  border-right: 1px solid #f0e8e0;
+  grid-row: span 2;
+  background: #fff;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.grid-cell {
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f9fafb;
+}
+
+/* Hourly separators (stronger lines for full hours) */
+.time-label:nth-of-type(odd) {
+  border-bottom: 1px solid #f0e8e0;
+}
+
+.schedule-item {
+  margin: 1px 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+  z-index: 5;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.schedule-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 15;
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-start;
+  padding-top: 4px;
+}
+
+.item-name {
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.item-sep {
+  opacity: 0.5;
+}
+
+@media (max-width: 1024px) {
+  .calendar-grid {
+    grid-template-columns: 60px repeat(7, 1fr);
+    min-width: 800px;
+  }
+}
 </style>

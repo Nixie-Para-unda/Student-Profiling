@@ -13,6 +13,16 @@
       </button>
     </div>
 
+    <!-- Error Summary -->
+    <transition name="fade">
+      <div v-if="Object.keys(errors).length > 0" class="error-summary">
+        <svg viewBox="0 0 24 24" fill="none" width="18" height="18" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Please fill in all required fields marked in red.</span>
+      </div>
+    </transition>
+
     <!-- Loading -->
     <div v-if="loading" class="loading-state">
       <span class="spinner"></span>
@@ -88,14 +98,14 @@
                 <label>Middle Name</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input v-model="profile.middle_name" type="text" placeholder="Optional" />
+                  <input v-model="profile.middle_name" type="text" placeholder="Optional" :class="{ 'error-input': errors.middle_name }" />
                 </div>
               </div>
               <div class="form-group">
                 <label>Gender</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 12v2M9 5h6M5 12h14"/></svg>
-                  <select v-model="profile.gender">
+                  <select v-model="profile.gender" :class="{ 'error-input': errors.gender }">
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -107,14 +117,14 @@
                 <label>Birthdate</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                  <input v-model="profile.birthdate" type="date" />
+                  <input v-model="profile.birthdate" type="date" :class="{ 'error-input': errors.birthdate }" />
                 </div>
               </div>
               <div class="form-group">
                 <label>Civil Status</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                  <select v-model="profile.civil_status">
+                  <select v-model="profile.civil_status" :class="{ 'error-input': errors.civil_status }">
                     <option value="">Select Status</option>
                     <option value="Single">Single</option>
                     <option value="Married">Married</option>
@@ -151,14 +161,14 @@
                 <label>Mobile Number</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-                  <input v-model="profile.contact_number" type="tel" placeholder="09XX XXX XXXX" />
+                  <input v-model="profile.contact_number" type="tel" placeholder="09XX XXX XXXX" :class="{ 'error-input': errors.contact_number }" />
                 </div>
               </div>
               <div class="form-group full-width">
                 <label>Permanent Address</label>
                 <div class="input-icon textarea-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <textarea v-model="profile.address" rows="3" placeholder="Enter your full address"></textarea>
+                  <textarea v-model="profile.address" rows="3" placeholder="Enter your full address" :class="{ 'error-input': errors.address }"></textarea>
                 </div>
               </div>
             </div>
@@ -183,21 +193,21 @@
                 <label>Guardian First Name</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input v-model="guardian.first_name" type="text" placeholder="First name" />
+                  <input v-model="guardian.first_name" type="text" placeholder="First name" :class="{ 'error-input': errors['guardian.first_name'] }" />
                 </div>
               </div>
               <div class="form-group">
                 <label>Guardian Last Name</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input v-model="guardian.last_name" type="text" placeholder="Last name" />
+                  <input v-model="guardian.last_name" type="text" placeholder="Last name" :class="{ 'error-input': errors['guardian.last_name'] }" />
                 </div>
               </div>
               <div class="form-group">
                 <label>Relationship</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                  <select v-model="guardian.relationship">
+                  <select v-model="guardian.relationship" :class="{ 'error-input': errors['guardian.relationship'] }">
                     <option value="">Select</option>
                     <option value="Parent">Parent</option>
                     <option value="Sibling">Sibling</option>
@@ -210,7 +220,7 @@
                 <label>Contact Number</label>
                 <div class="input-icon">
                   <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-                  <input v-model="guardian.contact_number" type="tel" placeholder="09XX XXX XXXX" />
+                  <input v-model="guardian.contact_number" type="tel" placeholder="09XX XXX XXXX" :class="{ 'error-input': errors['guardian.contact_number'] }" />
                 </div>
               </div>
             </div>
@@ -385,6 +395,7 @@ import axios from 'axios'
 
 const loading = ref(true)
 const saving = ref(false)
+const errors = ref({})
 const newSkill = ref('')
 const skills = ref([])
 const activeTab = ref('personal')
@@ -436,31 +447,34 @@ const fetchProfile = async () => {
   try {
     const response = await axios.get('/student/profile')
     const data = response.data
-    profile.value = {
-      student_number: data.user?.student_number || '',
-      first_name:     data.first_name || '',
-      last_name:      data.last_name || '',
-      middle_name:    data.middle_name || '',
-      gender:         data.gender || '',
-      birthdate:      data.birthdate || '',
-      civil_status:   data.civil_status || '',
-      email:          data.user?.email || '',
-      contact_number: data.contact_number || '',
-      address:        data.address || '',
-      course_name:    data.program?.program_name || '',
-      section_name:   data.section?.section_name || '',
-      year_level:     data.year_level || '',
-      gwa:            data.gwa || '0.00'
-    }
-    if (data.guardian) {
-      guardian.value = {
-        first_name:     data.guardian.first_name,
-        last_name:      data.guardian.last_name,
-        contact_number: data.guardian.contact_number,
-        relationship:   data.guardian.relationship
+    
+    if (data) {
+      // Direct assignment for better reactivity
+      profile.value.first_name = data.first_name || ''
+      profile.value.last_name = data.last_name || ''
+      profile.value.middle_name = data.middle_name || ''
+      profile.value.gender = data.gender || ''
+      profile.value.birthdate = data.birthdate || ''
+      profile.value.civil_status = data.civil_status || ''
+      profile.value.contact_number = data.contact_number || ''
+      profile.value.address = data.address || ''
+      
+      // Academic & Identity Info (from User relationship)
+      profile.value.student_number = data.user?.student_number || data.student_number || '—'
+      profile.value.email = data.user?.email || data.email || '—'
+      profile.value.course_name = data.program?.program_name || data.program?.name || '—'
+      profile.value.section_name = data.section?.section_name || data.section?.name || 'Unassigned'
+      profile.value.year_level = data.year_level || '—'
+      profile.value.gwa = data.gwa || '0.00'
+      
+      if (data.guardian) {
+        guardian.value.first_name = data.guardian.first_name || ''
+        guardian.value.last_name = data.guardian.last_name || ''
+        guardian.value.contact_number = data.guardian.contact_number || ''
+        guardian.value.relationship = data.guardian.relationship || ''
       }
+      skills.value = data.skills || []
     }
-    skills.value = data.skills || []
   } catch (err) {
     console.error('Failed to fetch profile:', err)
   } finally {
@@ -469,6 +483,33 @@ const fetchProfile = async () => {
 }
 
 const saveProfile = async () => {
+  // Reset errors
+  errors.value = {}
+  
+  // Validation
+  if (!profile.value.gender) errors.value.gender = true
+  if (!profile.value.birthdate) errors.value.birthdate = true
+  if (!profile.value.civil_status) errors.value.civil_status = true
+  if (!profile.value.contact_number) errors.value.contact_number = true
+  if (!profile.value.address) errors.value.address = true
+  
+  if (!guardian.value.first_name) errors.value['guardian.first_name'] = true
+  if (!guardian.value.last_name) errors.value['guardian.last_name'] = true
+  if (!guardian.value.relationship) errors.value['guardian.relationship'] = true
+  if (!guardian.value.contact_number) errors.value['guardian.contact_number'] = true
+
+  if (Object.keys(errors.value).length > 0) {
+    // Switch to the first tab that has an error
+    if (errors.value.gender || errors.value.birthdate || errors.value.civil_status) {
+      activeTab.value = 'personal'
+    } else if (errors.value.contact_number || errors.value.address) {
+      activeTab.value = 'contact'
+    } else {
+      activeTab.value = 'guardian'
+    }
+    return
+  }
+
   saving.value = true
   try {
     await axios.post('/student/profile', {
@@ -832,6 +873,34 @@ onMounted(fetchProfile)
   background: #f3f0ed !important;
   color: #9a8070 !important;
   cursor: not-allowed;
+}
+
+.error-input {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.error-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 /* ── Progress Card ── */

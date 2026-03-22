@@ -167,7 +167,7 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    await authStore.login(studentId.value, password.value)
+    await authStore.login(studentId.value, password.value, 'student')
     router.push('/')
   } catch (err) {
     error.value = err.response?.data?.message || 'Invalid student number or password'

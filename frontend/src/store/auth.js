@@ -15,9 +15,12 @@ export const useAuthStore = defineStore('auth', {
     isChair: (state) => state.user?.role === 'department_chair'
   },
   actions: {
-    async login(email, password) {
+    async login(email, password, role = null) {
       try {
-        const response = await axios.post('/login', { email, password })
+        const payload = { email, password }
+        if (role) payload.role = role
+        
+        const response = await axios.post('/login', payload)
         this.user = response.data.user
         this.token = response.data.token
         localStorage.setItem('user', JSON.stringify(this.user))

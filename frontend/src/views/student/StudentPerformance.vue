@@ -53,44 +53,7 @@ import { ref } from 'vue'
 
 // Replace with real API call when backend is ready
 // const response = await axios.get('/student/performance')
-const history = ref([
-  {
-    semester: '2nd Semester 2025–2026 (Current)', gwa: 1.72,
-    subjects: [
-      { code: 'CS301', name: 'Data Structures & Algorithms', units: 3, grade: 1.5 },
-      { code: 'CS302', name: 'Software Engineering', units: 3, grade: 1.75 },
-      { code: 'CS303', name: 'Computer Organization', units: 3, grade: 1.5 },
-      { code: 'CS304', name: 'Web Development', units: 3, grade: 2.0 }
-    ]
-  },
-  {
-    semester: '1st Semester 2025–2026', gwa: 1.74,
-    subjects: [
-      { code: 'CS201', name: 'Algorithms', units: 3, grade: 1.5 },
-      { code: 'CS202', name: 'Database Systems', units: 3, grade: 1.75 },
-      { code: 'CS203', name: 'Operating Systems', units: 3, grade: 2.0 },
-      { code: 'MATH201', name: 'Discrete Mathematics', units: 3, grade: 1.5 }
-    ]
-  },
-  {
-    semester: '2nd Semester 2024–2025', gwa: 1.77,
-    subjects: [
-      { code: 'CS101', name: 'Programming 1', units: 3, grade: 1.5 },
-      { code: 'MATH101', name: 'Calculus', units: 3, grade: 2.0 },
-      { code: 'CS102', name: 'Object-Oriented Programming', units: 3, grade: 1.75 },
-      { code: 'HUM101', name: 'Humanities', units: 3, grade: 1.5 }
-    ]
-  },
-  {
-    semester: '1st Semester 2024–2025', gwa: 1.81,
-    subjects: [
-      { code: 'CS001', name: 'Introduction to Computing', units: 3, grade: 1.5 },
-      { code: 'ENGL101', name: 'Technical Writing', units: 3, grade: 2.0 },
-      { code: 'MATH001', name: 'College Algebra', units: 3, grade: 1.75 },
-      { code: 'PE101', name: 'Physical Education 1', units: 2, grade: 1.5 }
-    ]
-  }
-])
+const history = ref([])
 
 const totalUnits = (subjects) => subjects.reduce((a, s) => a + s.units, 0)
 

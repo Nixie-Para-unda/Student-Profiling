@@ -20,11 +20,31 @@ class StudentProfileController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        if (!$user->isStudent()) {
+        
+        // Ensure we're dealing with a student
+        if (!$user->role === 'student') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return $user->student()->with(['guardian', 'skills', 'organizations.organization', 'academicActivities', 'nonAcademicActivities', 'section', 'program'])->first();
+        // Get the student record for the current user with all required relationships
+        $student = Student::with([
+            'user', 
+            'guardian', 
+            'skills', 
+            'organizations.organization', 
+            'academicActivities', 
+            'nonAcademicActivities', 
+            'section', 
+            'program'
+        ])
+        ->where('user_id', $user->id)
+        ->first();
+
+        if (!$student) {
+            return response()->json(['message' => 'Student profile not found'], 404);
+        }
+
+        return response()->json($student);
     }
 
     /**

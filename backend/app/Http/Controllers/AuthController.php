@@ -16,6 +16,7 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|string',
             'password' => 'required',
+            'role' => 'nullable|string|in:student,faculty,dean,department_chair,secretary,faculty_portal',
         ]);
 
         $user = User::where('email', $request->email)
@@ -24,6 +25,21 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // Enforce role restriction if provided
+        if ($request->filled('role')) {
+            if ($request->role === 'student') {
+                if ($user->role !== 'student') {
+                    return response()->json(['message' => 'Invalid credentials'], 401);
+                }
+            } elseif ($request->role === 'faculty_portal') {
+                // Allow faculty, dean, department_chair, and secretary for the faculty portal
+                $allowedFacultyRoles = ['faculty', 'dean', 'department_chair', 'secretary'];
+                if (!in_array($user->role, $allowedFacultyRoles)) {
+                    return response()->json(['message' => 'Invalid credentials'], 401);
+                }
+            }
         }
 
         // Check if student/faculty has set their password (if required by the setup flow)

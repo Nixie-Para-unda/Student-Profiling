@@ -533,11 +533,7 @@ const studentAwards = ref([
   { title: 'Outstanding Student Leader', semester: '1st Sem 2024-2025', badge: 'Leadership', color: '#10b981' }
 ])
 const studentViolations = ref([])
-const todaySchedule = ref([
-  { time: '7:30 AM', duration: '1.5 hrs', subject: 'Data Structures & Algorithms', professor: 'Dr. R. Villanueva', room: 'CS Lab 3', type: 'Lecture', color: '#8b5cf6' },
-  { time: '10:00 AM', duration: '3 hrs', subject: 'Software Engineering', professor: 'Prof. A. Reyes', room: 'Room 204', type: 'Lab', color: '#FF6B1A' },
-  { time: '1:00 PM', duration: '1.5 hrs', subject: 'Discrete Mathematics', professor: 'Dr. J. Cruz', room: 'Room 101', type: 'Lecture', color: '#3b82f6' }
-])
+const todaySchedule = ref([])
 const studentChartData = ref([
   { sem: "1st '23", gwa: 1.95, pct: 45 }, { sem: "2nd '23", gwa: 1.88, pct: 55 },
   { sem: "1st '24", gwa: 1.81, pct: 68 }, { sem: "2nd '24", gwa: 1.77, pct: 76 },

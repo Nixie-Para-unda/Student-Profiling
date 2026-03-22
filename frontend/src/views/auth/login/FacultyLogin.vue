@@ -169,10 +169,11 @@ const handleLogin = async () => {
   loading.value = true
   error.value = ''
   try {
-    await authStore.login(email.value, password.value)
+    // Attempt login allowing all faculty-related roles (dean, chair, secretary, etc.)
+    await authStore.login(email.value, password.value, 'faculty_portal')
     router.push('/')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Login failed. Please try again.'
+    error.value = err.response?.data?.message || 'Invalid email or password'
   } finally {
     loading.value = false
   }
