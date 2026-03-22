@@ -172,6 +172,79 @@ class StudentController extends Controller
     }
 
     /**
+     * Update a student member (for Secretary).
+     */
+    public function update(Request $request, $id)
+    {
+        if (!$request->user()->isSecretary()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = Student::findOrFail($id);
+        $user = $student->user;
+
+        $request->validate([
+            'student_number' => 'required|string|unique:users,student_number,' . ($user ? $user->id : 0),
+            'course' => 'required|string',
+            'year_level' => 'required|integer|min:1|max:4',
+        ]);
+
+        return DB::transaction(function () use ($request, $student, $user) {
+            // Update student number in the users table
+            if ($user) {
+                $user->update(['student_number' => $request->student_number]);
+            }
+
+            // Find or create the program
+            $program = Program::where('program_code', $request->course)->first();
+            if (!$program) {
+                $program = Program::where('program_name', 'like', "%{$request->course}%")->first();
+            }
+
+            // Find an appropriate section
+            $section = Section::where('program_id', $program->id)
+                ->where('year_level', $request->year_level)
+                ->first();
+
+            $student->update([
+                'program_id' => $program ? $program->id : $student->program_id,
+                'section_id' => $section ? $section->id : $student->section_id,
+                'year_level' => $request->year_level,
+            ]);
+
+            return response()->json([
+                'message' => 'Student account updated successfully.',
+                'student' => $student->load('user', 'section', 'program')
+            ]);
+        });
+    }
+
+    /**
+     * Delete a student account (for Secretary).
+     */
+    public function destroy(Request $request, $id)
+    {
+        if (!$request->user()->isSecretary()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = Student::findOrFail($id);
+        $user = $student->user;
+
+        return DB::transaction(function () use ($student, $user) {
+            // Delete student record
+            $student->delete();
+            
+            // Delete associated user account
+            if ($user) {
+                $user->delete();
+            }
+
+            return response()->json(['message' => 'Student account deleted successfully.']);
+        });
+    }
+
+    /**
      * Get all students (for Dean).
      */
     public function index(Request $request)

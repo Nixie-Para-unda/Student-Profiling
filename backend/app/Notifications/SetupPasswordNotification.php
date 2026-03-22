@@ -43,12 +43,17 @@ class SetupPasswordNotification extends Notification
 
         return (new MailMessage)
                     ->subject('Welcome! Set Your Portal Password')
-                    ->greeting('Hello ' . $notifiable->name . '!')
-                    ->line('Your account has been created in the Student Profiling System.')
-                    ->line('Please click the button below to set your initial password.')
+                    ->greeting('Dear ' . $notifiable->name . ',')
+                    ->line('Greetings from the College of Computing Studies.')
+                    ->line('Your account for the **Student Profiling System** has been successfully created. To activate your account, please set your initial password by clicking the button below:')
                     ->action('Set Password', $url)
-                    ->line('This link will allow you to securely set your password and access your account.')
-                    ->line('Thank you for using our application!');
+                    ->line('For security purposes, this link will allow you to create your password and gain access to the system.')
+                    ->line('If you are unable to click the button, you may copy and paste the following link into your web browser:')
+                    ->line($url)
+                    ->line('Please note that this link is intended only for your use. Do not share it with others to protect your account security.')
+                    ->line('If you did not expect this email or believe it was sent in error, please contact the system administrator immediately.')
+                    ->line('Thank you.')
+                    ->salutation("Sincerely,\nCollege of Computing Studies\nStudent Profiling System Administration");
     }
 
     /**

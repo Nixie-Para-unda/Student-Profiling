@@ -142,6 +142,9 @@ const routes = [
         component: CourseManagement,
         meta: { title: 'Course Management' }
       },
+      { path: 'reports', name: 'Reports', component: { template: '<div>Reports Page</div>' } },
+      { path: 'faculty-schedule', name: 'FacultyScheduleManagement', component: { template: '<div>Faculty Schedule Management Page</div>' } },
+      { path: 'awards', name: 'Awards', component: { template: '<div>Awards Page</div>' } },
 
       // ── Faculty routes ──────────────────────────
       {
@@ -150,6 +153,11 @@ const routes = [
         component: FacultySchedule,
         meta: { title: 'My Schedule' }
       },
+      { path: 'faculty/subjects', name: 'FacultySubjects', component: { template: '<div>My Subjects</div>' } },
+      { path: 'faculty/students', name: 'FacultyStudents', component: { template: '<div>Student Profiles</div>' } },
+      { path: 'faculty/violations', name: 'FacultyViolations', component: { template: '<div>Record Violation</div>' } },
+      { path: 'faculty/awards', name: 'FacultyAwards', component: { template: '<div>Recommend Awards</div>' } },
+      { path: 'faculty/profile', name: 'FacultyProfile', component: { template: '<div>Faculty Profile</div>' } },
 
       // ── Student routes ───────────────────────────
       {
@@ -200,25 +208,6 @@ const routes = [
         component: MyPerformance,
         meta: { title: 'My Performance' }
       },
-
-      // ── Faculty placeholders ─────────────────────
-      { path: 'faculty/schedule', name: 'FacultyMySchedule', component: { template: '<div>Faculty Schedule</div>' } },
-      { path: 'faculty/subjects', name: 'FacultySubjects', component: { template: '<div>My Subjects</div>' } },
-      { path: 'faculty/students', name: 'FacultyStudents', component: { template: '<div>Student Profiles</div>' } },
-      { path: 'faculty/violations', name: 'FacultyViolations', component: { template: '<div>Record Violation</div>' } },
-      { path: 'faculty/awards', name: 'FacultyAwards', component: { template: '<div>Recommend Awards</div>' } },
-      { path: 'faculty/profile', name: 'FacultyProfile', component: { template: '<div>Faculty Profile</div>' } },
-
-      // ── Dean placeholders ────────────────────────
-      { path: 'reports', name: 'Reports', component: { template: '<div>Reports Page</div>' } },
-      { path: 'faculty-schedule', name: 'FacultySchedule', component: { template: '<div>Faculty Schedule Page</div>' } },
-      { path: 'awards', name: 'Awards', component: { template: '<div>Awards Page</div>' } },
-
-      // ── Old placeholders (kept so nothing breaks) ─
-      { path: 'subjects', name: 'MySubjects', component: { template: '<div>My Subjects Page</div>' } },
-      { path: 'classes', name: 'MyClasses', component: { template: '<div>My Classes Page</div>' } },
-      { path: 'profiles', name: 'StudentProfiles', component: { template: '<div>Student Profiles Page</div>' } },
-      { path: 'record-violation', name: 'RecordViolation', component: { template: '<div>Record Violation Page</div>' } },
 
       // ── Secretary routes ─────────────────────────
       { path: 'secretary/students', name: 'SecretaryStudents', component: SecretaryStudents, meta: { title: 'Student Accounts' } },

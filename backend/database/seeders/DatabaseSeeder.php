@@ -18,17 +18,23 @@ class DatabaseSeeder extends Seeder
         // Create Department
         $dept = \App\Models\Department::create(['department_name' => 'College of Computing Studies']);
 
-        // Create Program
-        $program = \App\Models\Program::create([
+        // Create Programs
+        $programIT = \App\Models\Program::create([
             'department_id' => $dept->id,
             'program_code' => 'BSIT',
             'program_name' => 'Bachelor of Science in Information Technology'
         ]);
 
+        $programCS = \App\Models\Program::create([
+            'department_id' => $dept->id,
+            'program_code' => 'BSCS',
+            'program_name' => 'Bachelor of Science in Computer Science'
+        ]);
+
         // Create Section
         $section = \App\Models\Section::create([
             'department_id' => $dept->id,
-            'program_id' => $program->id,
+            'program_id' => $programIT->id,
             'section_name' => 'BSIT 4-A',
             'year_level' => '4',
             'school_year' => '2026-2027'
@@ -90,7 +96,7 @@ class DatabaseSeeder extends Seeder
 
         \App\Models\Student::create([
             'user_id' => $studentUser->id,
-            'program_id' => $program->id,
+            'program_id' => $programIT->id,
             'section_id' => $section->id,
             'first_name' => 'Juan',
             'last_name' => 'Dela Cruz',

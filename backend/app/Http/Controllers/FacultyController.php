@@ -65,13 +65,65 @@ class FacultyController extends Controller
                 'position' => $request->position,
             ]);
 
-            // Notify faculty to set up password
+            // Notify faculty to set up password (Synchronous for now to avoid queue errors)
             $user->notify(new SetupPasswordNotification($setupToken, $request->email));
 
             return response()->json([
                 'message' => 'Faculty member added successfully. An email has been sent for account setup.',
                 'faculty' => $faculty->load('user')
             ]);
+        });
+    }
+
+    /**
+     * Update a faculty member (for Secretary).
+     */
+    public function update(Request $request, $id)
+    {
+        if (!$request->user()->isSecretary()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $faculty = Faculty::findOrFail($id);
+
+        $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'position' => 'required|string',
+        ]);
+
+        $faculty->update([
+            'department_id' => $request->department_id,
+            'position' => $request->position,
+        ]);
+
+        return response()->json([
+            'message' => 'Faculty account updated successfully.',
+            'faculty' => $faculty->load('user', 'department')
+        ]);
+    }
+
+    /**
+     * Delete a faculty member (for Secretary).
+     */
+    public function destroy(Request $request, $id)
+    {
+        if (!$request->user()->isSecretary()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $faculty = Faculty::findOrFail($id);
+        $user = $faculty->user;
+
+        return DB::transaction(function () use ($faculty, $user) {
+            // Delete faculty record first
+            $faculty->delete();
+            
+            // Delete associated user account
+            if ($user) {
+                $user->delete();
+            }
+
+            return response()->json(['message' => 'Faculty account deleted successfully.']);
         });
     }
 

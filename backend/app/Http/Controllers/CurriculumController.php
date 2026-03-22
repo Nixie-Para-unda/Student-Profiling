@@ -120,7 +120,7 @@ class CurriculumController extends Controller
 
     /**
      * Import curriculum via CSV.
-     * Expected CSV headers: program_code, course_code, year_level, semester
+     * Expected CSV headers: program_code, course_code, course_name, units, prerequisites, year_level, semester
      */
     public function import(Request $request)
     {
@@ -131,6 +131,7 @@ class CurriculumController extends Controller
         $file = $request->file('file');
         $handle = fopen($file->getRealPath(), 'r');
         $header = fgetcsv($handle); // Read headers
+        $header = array_map('trim', $header); // Clean headers
 
         $importedCount = 0;
         $errors = [];
@@ -140,7 +141,15 @@ class CurriculumController extends Controller
         try {
             while (($row = fgetcsv($handle)) !== false) {
                 $rowNum++;
-                if (count($row) < 4) continue;
+                if (count($row) < 7) {
+                    $errors[] = "Row $rowNum: Not enough columns (Found " . count($row) . ", expected 7).";
+                    continue;
+                }
+
+                if (count($header) !== count($row)) {
+                    $errors[] = "Row $rowNum: Column count mismatch (Expected " . count($header) . ", got " . count($row) . ").";
+                    continue;
+                }
 
                 $data = array_combine($header, $row);
                 
@@ -155,26 +164,24 @@ class CurriculumController extends Controller
                     $program = Program::find($data['program_code']);
                 }
 
-                $course = Course::where('course_code', $data['course_code'])->first();
-
                 if (!$program) {
                     $errors[] = "Row $rowNum: Program '{$data['program_code']}' not found.";
                     continue;
                 }
 
-                // Auto-create course if it doesn't exist
-                if (!$course) {
-                    $course = Course::create([
-                        'course_code' => $data['course_code'],
-                        'course_name' => $data['course_code'], // Placeholder
+                // Create or update course with detailed info
+                $course = Course::updateOrCreate(
+                    ['course_code' => $data['course_code']],
+                    [
+                        'course_name' => $data['course_name'],
+                        'units' => $data['units'],
                         'program_id' => $program->id,
                         'department_id' => $program->department_id,
                         'year_level' => $data['year_level'],
                         'semester' => $semester,
-                        'type' => 'lec', // Default to lec, chair can change later
-                        'units' => 3,
-                    ]);
-                }
+                        'type' => 'lec', // Default
+                    ]
+                );
 
                 Curriculum::updateOrCreate(
                     [

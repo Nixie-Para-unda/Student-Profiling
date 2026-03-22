@@ -53,8 +53,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/student/activities', [StudentProfileController::class, 'addActivity']);
     });
 
-    // Dean Specific
-    Route::middleware('role:dean')->group(function () {
+    // Curriculum Shared Routes (Dean and Secretary)
+    Route::middleware('role:dean,secretary')->group(function () {
         Route::get('/dean/curriculum', [CurriculumController::class, 'index']);
         Route::post('/dean/curriculum', [CurriculumController::class, 'store']);
         Route::post('/dean/curriculum/bulk', [CurriculumController::class, 'bulkStore']);
@@ -62,15 +62,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/dean/curriculum/{id}', [CurriculumController::class, 'destroy']);
     });
 
+    // Dean Specific
+    Route::middleware('role:dean')->group(function () {
+        // Any other dean-only routes can go here
+    });
+
     // Secretary Specific
     Route::middleware('role:secretary')->group(function () {
         Route::post('/secretary/students/import', [StudentController::class, 'import']);
+        Route::put('/secretary/students/{id}', [StudentController::class, 'update']);
+        Route::delete('/secretary/students/{id}', [StudentController::class, 'destroy']);
         Route::post('/secretary/faculty', [FacultyController::class, 'store']);
+        Route::put('/secretary/faculty/{id}', [FacultyController::class, 'update']);
+        Route::delete('/secretary/faculty/{id}', [FacultyController::class, 'destroy']);
         Route::post('/secretary/faculty/import', [FacultyController::class, 'import']);
     });
 
     // Shared routes for Dean, Chair, Secretary
     Route::middleware('role:dean,department_chair,secretary')->group(function () {
+        Route::get('/programs', [ProfilingController::class, 'getPrograms']);
         Route::get('/students', [StudentController::class, 'index']);
         Route::get('/faculty', [FacultyController::class, 'index']);
         

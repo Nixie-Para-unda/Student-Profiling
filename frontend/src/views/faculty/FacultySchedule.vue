@@ -12,33 +12,38 @@
       Loading schedule...
     </div>
 
-    <div v-else class="schedule-grid">
-      <div v-for="item in schedule" :key="item.id" class="schedule-card pcard">
-        <div class="card-header">
-          <div class="course-info">
-            <span class="course-code">{{ item.course.course_code }}</span>
-            <h3 class="course-name">{{ item.course.course_name }}</h3>
+    <div v-else class="calendar-card">
+      <div class="calendar-wrapper">
+        <div class="calendar-grid">
+          <!-- Header: Days -->
+          <div class="time-header"></div>
+          <div v-for="day in days" :key="day" class="day-header">{{ day }}</div>
+
+          <!-- Time Labels and Grid Background -->
+          <template v-for="(time, tIdx) in timeLabels" :key="time">
+            <div class="time-label">{{ time }}</div>
+            <div v-for="day in days" :key="day + time" class="grid-cell"></div>
+          </template>
+
+          <!-- Schedule Items (Dynamic) -->
+          <div 
+            v-for="(item, index) in formattedSchedule" 
+            :key="index"
+            class="schedule-item"
+            :style="getItemStyle(item)"
+            @click="viewStudents(item)"
+          >
+            <div class="item-content">
+              <div class="item-name">{{ item.course.course_name }}</div>
+              <div class="item-meta">
+                <span class="item-code">{{ item.course.course_code }}</span>
+                <span class="item-sep">|</span>
+                <span class="item-section">{{ item.section.section_name }}</span>
+                <span class="item-sep">|</span>
+                <span class="item-room">{{ item.room }}</span>
+              </div>
+            </div>
           </div>
-          <span class="section-badge">{{ item.section.section_name }}</span>
-        </div>
-        <div class="card-body">
-          <div class="schedule-details">
-            <div class="detail-row">
-              <svg viewBox="0 0 24 24" fill="none" class="icon"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>{{ item.dayOfWeek }}</span>
-            </div>
-            <div class="detail-row">
-              <svg viewBox="0 0 24 24" fill="none" class="icon"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>{{ formatTime(item.startTime) }} - {{ formatTime(item.endTime) }}</span>
-            </div>
-            <div class="detail-row">
-              <svg viewBox="0 0 24 24" fill="none" class="icon"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Room {{ item.room }}</span>
-            </div>
-          </div>
-          <button class="view-students-btn" @click="viewStudents(item)">
-            View Students ({{ item.section.students_count || 0 }})
-          </button>
         </div>
       </div>
     </div>
@@ -46,28 +51,38 @@
     <!-- Students Modal -->
     <div v-if="selectedSection" class="modal-overlay" @click.self="selectedSection = null">
       <div class="modal-content pcard">
-        <div class="pcard-header">
-          <h3>Students in {{ selectedSection.section.section_name }}</h3>
+        <div class="modal-header-styled">
+          <div class="modal-title-info">
+            <h3>Students in {{ selectedSection.section.section_name }}</h3>
+            <p class="modal-subtitle">{{ selectedSection.course.course_code }} · {{ selectedSection.course.course_name }}</p>
+          </div>
           <button class="close-btn" @click="selectedSection = null">&times;</button>
         </div>
-        <div class="pcard-body">
-          <table class="students-table">
+        <div class="modal-body-styled">
+          <div v-if="loadingStudents" class="loading-small">
+            <span class="spinner-sm"></span>
+            Loading student list...
+          </div>
+          <table v-else class="students-table">
             <thead>
               <tr>
                 <th>Student Number</th>
                 <th>Name</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="student in sectionStudents" :key="student.id">
-                <td>{{ student.user.student_number }}</td>
-                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                <td class="id-cell">{{ student.user.student_number }}</td>
+                <td class="name-cell">{{ student.first_name }} {{ student.last_name }}</td>
                 <td><span class="status-badge" :class="student.user.status">{{ student.user.status }}</span></td>
-                <td>
-                  <button class="action-btn">Report Violation</button>
+                <td class="text-right">
+                  <button class="report-btn">Report Violation</button>
                 </td>
+              </tr>
+              <tr v-if="sectionStudents.length === 0">
+                <td colspan="4" class="empty-row">No students enrolled in this section yet.</td>
               </tr>
             </tbody>
           </table>
@@ -78,13 +93,82 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
 const loading = ref(true)
+const loadingStudents = ref(false)
 const schedule = ref([])
 const selectedSection = ref(null)
 const sectionStudents = ref([])
+
+const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+// Generate time labels from 7:00 AM to 8:30 PM in 30-minute increments
+const timeLabels = [
+  '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', 
+  '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', 
+  '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM'
+]
+
+const START_MINUTES = 7 * 60 // 7:00 AM
+const MINUTES_PER_ROW = 15 // 15-minute increments for better precision
+
+const timeToMinutes = (timeStr) => {
+  if (!timeStr) return 0
+  // Handle both "HH:MM:SS" and "HH:MM AM/PM" formats
+  if (timeStr.includes('AM') || timeStr.includes('PM')) {
+    const [time, modifier] = timeStr.split(' ')
+    let [hours, minutes] = time.split(':').map(Number)
+    if (hours === 12) hours = 0
+    if (modifier === 'PM') hours += 12
+    return hours * 60 + (minutes || 0)
+  } else {
+    const [hours, minutes] = timeStr.split(':').map(Number)
+    return hours * 60 + (minutes || 0)
+  }
+}
+
+const formattedSchedule = computed(() => {
+  if (!Array.isArray(schedule.value)) return []
+  
+  return schedule.value.map(item => {
+    if (!item || !item.startTime || !item.endTime || !item.dayOfWeek) return null
+    
+    const start = timeToMinutes(item.startTime)
+    const end = timeToMinutes(item.endTime)
+    const duration = end - start
+    
+    // grid-row: starts at 2 (1 is header)
+    const startRow = Math.floor((start - START_MINUTES) / MINUTES_PER_ROW) + 2
+    const rowSpan = Math.max(1, Math.floor(duration / MINUTES_PER_ROW))
+    
+    // Handle day names (full names or abbreviations)
+    const dayName = item.dayOfWeek.charAt(0).toUpperCase() + item.dayOfWeek.slice(1).toLowerCase()
+    let colIndex = days.indexOf(dayName)
+    
+    // Fallback for short names if needed
+    if (colIndex === -1) {
+      const shortDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      colIndex = shortDays.indexOf(dayName.slice(0, 3))
+    }
+    
+    if (colIndex === -1) return null // Skip if day is invalid
+    
+    const colPosition = colIndex + 2 // +1 for time column, +1 for 1-based index
+    
+    return {
+      ...item,
+      gridArea: `${startRow} / ${colPosition} / span ${rowSpan} / ${colPosition}`
+    }
+  }).filter(Boolean)
+})
+
+const getItemStyle = (item) => ({
+  gridArea: item.gridArea,
+  backgroundColor: item.color || '#FF6B1A',
+  borderLeft: `3px solid rgba(0,0,0,0.15)`
+})
 
 const fetchSchedule = async () => {
   loading.value = true
@@ -100,55 +184,189 @@ const fetchSchedule = async () => {
 
 const viewStudents = async (item) => {
   selectedSection.value = item
+  loadingStudents.value = true
   try {
     const response = await axios.get(`/faculty/sections/${item.section_id}/students`)
     sectionStudents.value = response.data
   } catch (err) {
     console.error('Failed to fetch students:', err)
+  } finally {
+    loadingStudents.value = false
   }
-}
-
-const formatTime = (time) => {
-  return new Date(`2026-01-01T${time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
 onMounted(fetchSchedule)
 </script>
 
 <style scoped>
-.faculty-page { display: flex; flex-direction: column; gap: 24px; }
-.page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
-.page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
+.faculty-page { display: flex; flex-direction: column; gap: 16px; font-family: 'DM Sans', sans-serif; height: 100%; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 0; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
+.page-sub { font-size: 12px; color: #b89f90; margin-top: 2px; }
 
-.schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-.pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
-.card-header { padding: 18px 22px; border-bottom: 1px solid #faf8f6; display: flex; justify-content: space-between; align-items: flex-start; }
-.course-code { font-size: 11px; font-weight: 700; color: #FF6B1A; text-transform: uppercase; }
-.course-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; margin-top: 4px; }
-.section-badge { background: #fffaf8; color: #FF6B1A; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid #f0e8e0; }
+.calendar-card {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-.card-body { padding: 22px; }
-.schedule-details { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.detail-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #9a8070; }
-.icon { width: 16px; height: 16px; }
+.calendar-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+}
 
-.view-students-btn { width: 100%; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.view-students-btn:hover { border-color: #FF6B1A; background: #fffaf8; }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 75px repeat(7, 1fr);
+  /* 14 hours * 4 slots = 56 rows + 1 header */
+  grid-template-rows: 40px repeat(56, 24px); 
+  min-width: 1000px;
+}
 
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.modal-content { width: 100%; max-width: 800px; max-height: 80vh; display: flex; flex-direction: column; }
-.close-btn { background: none; border: none; font-size: 24px; color: #b89f90; cursor: pointer; }
+.time-header {
+  background: #faf8f6;
+  border-bottom: 1px solid #f0e8e0;
+  border-right: 1px solid #f0e8e0;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 21;
+}
+
+.day-header {
+  background: #faf8f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #6b7280;
+  border-bottom: 1px solid #f0e8e0;
+  border-right: 1px solid #f3f4f6;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.time-label {
+  grid-column: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  border-right: 1px solid #f0e8e0;
+  grid-row: span 2;
+  background: #fff;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.grid-cell {
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.time-label:nth-of-type(odd) {
+  border-bottom: 1px solid #f0e8e0;
+}
+
+.schedule-item {
+  margin: 1px 2px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+  z-index: 5;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.schedule-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 15;
+  filter: brightness(1.05);
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-start;
+  padding-top: 2px;
+}
+
+.item-name {
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.item-sep {
+  opacity: 0.5;
+}
+
+/* Modal Styles */
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,10,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-content { background: #fff; border-radius: 24px; width: 100%; max-width: 850px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 85vh; }
+.modal-header-styled { padding: 20px 24px; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: flex-start; background: #fffaf8; }
+.modal-title-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; }
+.modal-subtitle { font-size: 12px; color: #b89f90; margin-top: 2px; }
+.close-btn { background: none; border: none; font-size: 28px; color: #b89f90; cursor: pointer; line-height: 1; }
+.modal-body-styled { padding: 0; overflow-y: auto; }
 
 .students-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.students-table th { text-align: left; padding: 12px; color: #9a8070; font-weight: 700; border-bottom: 2px solid #faf8f6; }
-.students-table td { padding: 12px; border-bottom: 1px solid #faf8f6; }
+.students-table th { text-align: left; padding: 14px 24px; background: #fff; position: sticky; top: 0; z-index: 1; font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0e8e0; }
+.students-table td { padding: 16px 24px; border-bottom: 1px solid #faf8f6; }
+.id-cell { font-weight: 700; color: #FF6B1A; }
+.name-cell { font-weight: 600; color: #1a0a00; }
+.text-right { text-align: right; }
 
-.status-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
-.active { background: #f0fdf4; color: #16a34a; }
-.pending { background: #fffbeb; color: #f59e0b; }
+.status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
+.status-badge.active { background: #f0fdf4; color: #16a34a; }
+.status-badge.pending { background: #fffbeb; color: #f59e0b; }
 
-.action-btn { background: #fff1f2; color: #e11d48; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
-.spinner { width: 24px; height: 24px; border: 3px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+.report-btn { background: #fff1f2; color: #e11d48; border: none; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.report-btn:hover { background: #ffe4e6; transform: translateY(-1px); }
+
+.loading-state { padding: 100px; text-align: center; color: #b89f90; }
+.loading-small { padding: 40px; text-align: center; color: #b89f90; font-size: 13px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.empty-row { padding: 40px; text-align: center; color: #b89f90; font-style: italic; }
+
+.spinner { width: 24px; height: 24px; border: 3px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; display: block; margin: 0 auto 12px; }
+.spinner-sm { width: 18px; height: 18px; border: 2px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1024px) {
+  .calendar-grid {
+    grid-template-columns: 65px repeat(7, 1fr);
+    min-width: 800px;
+  }
+}
 </style>

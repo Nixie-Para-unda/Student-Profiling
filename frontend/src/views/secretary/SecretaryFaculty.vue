@@ -115,26 +115,26 @@
     </div>
 
     <!-- CREATE / EDIT MODAL -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+    <div v-if="showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
       <div class="modal">
         <div class="modal-header">
           <h3>{{ editingFaculty ? 'Edit Faculty Account' : 'Create Faculty Account' }}</h3>
-          <button class="close-btn" @click="showModal = false">×</button>
+          <button class="close-btn" @click="showModal = false" :disabled="saving">×</button>
         </div>
         <div class="modal-body">
           <div class="form-grid">
-            <div class="form-group"><label>First Name</label><input v-model="form.first_name" type="text" placeholder="First name" /></div>
-            <div class="form-group"><label>Last Name</label><input v-model="form.last_name" type="text" placeholder="Last name" /></div>
-            <div class="form-group"><label>Middle Name (Optional)</label><input v-model="form.middle_name" type="text" placeholder="Middle name" /></div>
-            <div class="form-group"><label>Email Address</label><input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" :disabled="!!editingFaculty" /></div>
+            <div class="form-group"><label>First Name</label><input v-model="form.first_name" type="text" placeholder="First name" :disabled="!!editingFaculty || saving" /></div>
+            <div class="form-group"><label>Last Name</label><input v-model="form.last_name" type="text" placeholder="Last name" :disabled="!!editingFaculty || saving" /></div>
+            <div class="form-group"><label>Middle Name (Optional)</label><input v-model="form.middle_name" type="text" placeholder="Middle name" :disabled="!!editingFaculty || saving"  /></div>
+            <div class="form-group"><label>Email Address</label><input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" :disabled="!!editingFaculty || saving" /></div>
             <div class="form-group"><label>Department</label>
-              <select v-model="form.department_id">
+              <select v-model="form.department_id" :disabled="saving">
                 <option value="">Select Department</option>
                 <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.department_name }}</option>
               </select>
             </div>
             <div class="form-group"><label>Position</label>
-              <select v-model="form.position">
+              <select v-model="form.position" :disabled="saving">
                 <option value="Professor">Professor</option>
                 <option value="Associate Professor">Associate Professor</option>
                 <option value="Assistant Professor">Assistant Professor</option>
@@ -148,7 +148,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="ghost-btn" @click="showModal = false">Cancel</button>
+          <button class="ghost-btn" @click="showModal = false" :disabled="saving">Cancel</button>
           <button class="primary-btn" @click="saveFaculty" :disabled="saving">
             <span v-if="saving" class="spinner-sm"></span>
             {{ saving ? 'Saving...' : editingFaculty ? 'Save Changes' : 'Create Account' }}
@@ -172,7 +172,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 
 const search = ref('')
@@ -289,8 +289,14 @@ const saveFaculty = async () => {
   saving.value = true
   try {
     if (editingFaculty.value) {
-      // await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, form.value)
-      alert('Update functionality not yet implemented in backend. Only Creation is ready.')
+      await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, {
+        department_id: form.value.department_id,
+        position: form.value.position
+      })
+      showModal.value = false
+      await nextTick()
+      alert('Faculty account updated successfully.')
+      fetchData() // Refresh the list to show updated data
     } else {
       const response = await axios.post('/secretary/faculty', form.value)
       faculty.value.push({
@@ -299,9 +305,10 @@ const saveFaculty = async () => {
         status: 'pending',
         department_name: departments.value.find(d => d.id == form.value.department_id)?.department_name || 'N/A'
       })
+      showModal.value = false
+      await nextTick()
       alert('Faculty account created successfully. Setup email sent.')
     }
-    showModal.value = false
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to save faculty.')
   } finally {
@@ -312,11 +319,12 @@ const saveFaculty = async () => {
 const confirmDelete = (f) => { deletingFaculty.value = f; showDeleteModal.value = true }
 const deleteFaculty = async () => {
   try {
-    // await axios.delete(`/secretary/faculty/${deletingFaculty.value.id}`)
+    await axios.delete(`/secretary/faculty/${deletingFaculty.value.id}`)
     faculty.value = faculty.value.filter(f => f.id !== deletingFaculty.value.id)
     showDeleteModal.value = false
+    alert('Faculty account deleted successfully.')
   } catch (err) {
-    alert('Failed to delete faculty.')
+    alert(err.response?.data?.message || 'Failed to delete faculty.')
   }
 }
 

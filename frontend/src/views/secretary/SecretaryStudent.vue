@@ -130,33 +130,33 @@
     </div>
 
     <!-- CREATE / EDIT MODAL -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+    <div v-if="showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
       <div class="modal">
         <div class="modal-header">
           <h3>{{ editingStudent ? 'Edit Student Account' : 'Create Student Account' }}</h3>
-          <button class="close-btn" @click="showModal = false">×</button>
+          <button class="close-btn" @click="showModal = false" :disabled="saving">×</button>
         </div>
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
               <label>First Name</label>
-              <input v-model="form.first_name" type="text" placeholder="First name" />
+              <input v-model="form.first_name" type="text" placeholder="First name" :disabled="!!editingStudent || saving" />
             </div>
             <div class="form-group">
               <label>Last Name</label>
-              <input v-model="form.last_name" type="text" placeholder="Last name" />
+              <input v-model="form.last_name" type="text" placeholder="Last name" :disabled="!!editingStudent || saving" />
             </div>
             <div class="form-group">
               <label>Student Number</label>
-              <input v-model="form.student_number" type="text" placeholder="e.g. 2024-00001" />
+              <input v-model="form.student_number" type="text" placeholder="e.g. 2024-00001" :disabled="saving" />
             </div>
             <div class="form-group">
               <label>Email Address</label>
-              <input v-model="form.email" type="email" placeholder="student@school.edu.ph" />
+              <input v-model="form.email" type="email" placeholder="student@school.edu.ph" :disabled="!!editingStudent || saving" />
             </div>
             <div class="form-group">
               <label>Course</label>
-              <select v-model="form.course">
+              <select v-model="form.course" :disabled="saving">
                 <option value="">Select Course</option>
                 <option value="BSCS">BSCS</option>
                 <option value="BSIT">BSIT</option>
@@ -165,7 +165,7 @@
             </div>
             <div class="form-group">
               <label>Year Level</label>
-              <select v-model="form.year_level">
+              <select v-model="form.year_level" :disabled="saving">
                 <option value="">Select Year</option>
                 <option value="1">1st Year</option>
                 <option value="2">2nd Year</option>
@@ -180,7 +180,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="ghost-btn" @click="showModal = false">Cancel</button>
+          <button class="ghost-btn" @click="showModal = false" :disabled="saving">Cancel</button>
           <button class="primary-btn" @click="saveStudent" :disabled="saving">
             <span v-if="saving" class="spinner-sm"></span>
             {{ saving ? 'Saving...' : editingStudent ? 'Save Changes' : 'Create Account' }}
@@ -210,7 +210,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 
 const search = ref('')
@@ -304,11 +304,20 @@ const saveStudent = async () => {
   saving.value = true
   try {
     if (editingStudent.value) {
-      // await axios.put(`/secretary/students/${editingStudent.value.id}`, form.value)
-      const idx = students.value.findIndex(s => s.id === editingStudent.value.id)
-      students.value[idx] = { ...students.value[idx], ...form.value }
+      await axios.put(`/secretary/students/${editingStudent.value.id}`, {
+        student_number: form.value.student_number,
+        course: form.value.course,
+        year_level: form.value.year_level
+      })
+      showModal.value = false
+      await nextTick()
+      alert('Student account updated successfully.')
+      fetchStudents() // Refresh list
     } else {
       // await axios.post('/secretary/students', form.value)
+      showModal.value = false
+      await nextTick()
+      alert('Creation is currently mock-only for Students.')
       students.value.push({
         id: Date.now(),
         ...form.value,
@@ -318,7 +327,6 @@ const saveStudent = async () => {
         color: colors[students.value.length % colors.length]
       })
     }
-    showModal.value = false
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to save student.')
   } finally {
@@ -333,11 +341,12 @@ const confirmDelete = (student) => {
 
 const deleteStudent = async () => {
   try {
-    // await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
+    await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
     students.value = students.value.filter(s => s.id !== deletingStudent.value.id)
     showDeleteModal.value = false
+    alert('Student account deleted successfully.')
   } catch (err) {
-    alert('Failed to delete student.')
+    alert(err.response?.data?.message || 'Failed to delete student.')
   }
 }
 

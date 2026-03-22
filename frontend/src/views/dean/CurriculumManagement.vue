@@ -22,13 +22,20 @@
       <div class="filter-group">
         <label>Select Program to View</label>
         <select v-model="filterProgram" @change="fetchCurriculum">
-          <option value="">All Programs</option>
           <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
         </select>
       </div>
     </div>
 
     <div class="curriculum-container">
+      <div v-if="filterProgram" class="program-header-info">
+        <h2 class="program-full-title">
+          {{ programs.find(p => p.id === filterProgram)?.program_name || 'Curriculum' }} 
+          ({{ programs.find(p => p.id === filterProgram)?.program_code }})
+        </h2>
+        <div class="program-divider"></div>
+      </div>
+
       <div v-if="loading" class="loading-state pcard">
         <span class="spinner"></span>
         Loading curriculum...
@@ -39,7 +46,12 @@
       </div>
 
       <div v-else v-for="year in groupedCurriculum" :key="year.year" class="year-section">
-        <h3 class="year-title">{{ year.year }}{{ getYearSuffix(year.year) }} Year</h3>
+        <div class="year-header">
+          <h3 class="year-title">{{ year.year }}{{ getYearSuffix(year.year) }} Year</h3>
+          <span class="program-badge" v-if="filterProgram">
+            {{ programs.find(p => p.id === filterProgram)?.program_code }}
+          </span>
+        </div>
         
         <div class="semester-grid">
           <div v-for="sem in year.semesters" :key="sem.semester" class="semester-card pcard">
@@ -53,6 +65,8 @@
                   <tr>
                     <th>Code</th>
                     <th>Course Name</th>
+                    <th>Units</th>
+                    <th>Prerequisites</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -60,6 +74,8 @@
                   <tr v-for="item in sem.courses" :key="item.id">
                     <td class="code-cell">{{ item.course.course_code }}</td>
                     <td>{{ item.course.course_name }}</td>
+                    <td class="units-cell text-center">{{ item.course.units }}</td>
+                    <td class="prereq-cell">{{ item.course.prerequisites || 'None' }}</td>
                     <td class="action-cell">
                       <button class="delete-btn-sm" @click="deleteEntry(item.id)" title="Remove from curriculum">
                         <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M7 6V4a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v10a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -154,6 +170,9 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
+import { useAuthStore } from '@/store/auth'
+
+const authStore = useAuthStore()
 const curriculum = ref([])
 const programs = ref([])
 const courses = ref([])
@@ -232,19 +251,22 @@ const fetchCurriculum = async () => {
 
 const fetchHelperData = async () => {
   try {
-    const [sectionsRes, coursesRes] = await Promise.all([
-      axios.get('/sections'),
+    const [programsRes, coursesRes] = await Promise.all([
+      axios.get('/programs'),
       axios.get('/courses')
     ])
     
-    const progMap = new Map()
-    sectionsRes.data.forEach(s => {
-      if (s.program && !progMap.has(s.program.id)) {
-        progMap.set(s.program.id, s.program)
-      }
-    })
-    programs.value = Array.from(progMap.values())
+    programs.value = programsRes.data
     courses.value = coursesRes.data
+
+    // Set BSIT as default if not set
+    if (!filterProgram.value && programs.value.length > 0) {
+      const bsit = programs.value.find(p => p.program_code === 'BSIT')
+      if (bsit) {
+        filterProgram.value = bsit.id
+        fetchCurriculum()
+      }
+    }
   } catch (err) {
     console.error('Helper data fetch failed:', err)
   }
@@ -294,13 +316,25 @@ const handleImport = async (event) => {
   formData.append('file', file)
   
   importing.value = true
-  try {
-    const res = await axios.post('/dean/curriculum/import', formData)
-    alert(res.data.message)
-    fetchCurriculum()
-  } catch (err) {
-    alert(err.response?.data?.message || 'Import failed.')
-  } finally {
+   console.log('Importing curriculum with token:', authStore.token)
+   console.log('Role:', authStore.user?.role)
+   try {
+     const res = await axios.post('/dean/curriculum/import', formData, {
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`
+          }
+        })
+      console.log('Import success:', res.data)
+      alert(res.data.message)
+      fetchCurriculum()
+    } catch (err) {
+      console.error('Import failed details:', err.response?.status, err.response?.data)
+      if (err.response?.status === 403) {
+        alert(`Forbidden: Your role is ${err.response.data.user_role}, but this action requires: ${err.response.data.required_roles.join(', ')}`)
+      } else {
+        alert(err.response?.data?.message || 'Import failed.')
+      }
+    } finally {
     importing.value = false
     if (fileInput.value) fileInput.value.value = ''
   }
@@ -317,7 +351,6 @@ const resetForm = () => {
 }
 
 onMounted(() => {
-  fetchCurriculum()
   fetchHelperData()
 })
 </script>
@@ -335,9 +368,15 @@ onMounted(() => {
 .filter-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; }
 .filter-group select { padding: 8px 12px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
 
+.program-header-info { margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.program-full-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #1a0a00; letter-spacing: -0.5px; }
+.program-divider { width: 60px; height: 4px; background: #FF6B1A; border-radius: 2px; }
+
 .curriculum-container { display: flex; flex-direction: column; gap: 30px; }
 .year-section { display: flex; flex-direction: column; gap: 16px; }
+.year-header { display: flex; justify-content: space-between; align-items: center; }
 .year-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; border-left: 4px solid #FF6B1A; padding-left: 12px; }
+.program-badge { font-size: 12px; font-weight: 800; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 20px; border: 1px solid #f0e8e0; box-shadow: 0 2px 6px rgba(255,107,26,0.05); }
 
 .semester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
 .semester-card { display: flex; flex-direction: column; }
@@ -350,6 +389,9 @@ onMounted(() => {
 .sem-table th { text-align: left; padding: 10px 20px; font-size: 11px; color: #9a8070; text-transform: uppercase; border-bottom: 1px solid #faf8f6; }
 .sem-table td { padding: 12px 20px; border-bottom: 1px solid #faf8f6; }
 .code-cell { font-weight: 700; color: #FF6B1A; width: 100px; }
+.units-cell { font-weight: 600; color: #1a0a00; width: 60px; }
+.prereq-cell { color: #9a8070; font-size: 12px; }
+.text-center { text-align: center; }
 .action-cell { text-align: right; width: 40px; }
 
 .delete-btn-sm { background: none; border: none; color: #c0b0a5; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }

@@ -3,11 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProfilingController extends Controller
 {
+    /**
+     * Get all programs.
+     */
+    public function getPrograms()
+    {
+        return response()->json(Program::all());
+    }
+
     /**
      * Profiling query engine for generating qualified-student reports.
      */
