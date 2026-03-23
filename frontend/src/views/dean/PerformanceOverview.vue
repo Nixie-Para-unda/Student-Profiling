@@ -92,7 +92,7 @@ const distribution = ref([])
 const fetchPerformanceData = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/dean/analytics/performance')
+    const response = await axios.get('/analytics/performance')
     const data = response.data
     
     summary.value = [

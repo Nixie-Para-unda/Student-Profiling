@@ -105,7 +105,7 @@ const counts = computed(() => {
 const fetchViolations = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/dean/violations')
+    const response = await axios.get('/violations')
     cases.value = response.data.map(v => ({
       name: `${v.student.first_name} ${v.student.last_name}`,
       type: v.violation_type,

@@ -79,7 +79,7 @@ const filteredFaculty = computed(() => {
 })
 
 const fetchFaculty = async () => {
-  const res = await axios.get('/dean/faculty')
+  const res = await axios.get('/faculty')
   faculty.value = res.data.map(f => ({
     id: f.id,
     name: `Prof. ${f.first_name} ${f.last_name}`,
