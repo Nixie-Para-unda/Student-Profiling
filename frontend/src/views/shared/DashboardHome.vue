@@ -6,123 +6,30 @@
       <div class="hero-bg-shape shape-1"></div>
       <div class="hero-bg-shape shape-2"></div>
       <div class="hero-body">
-
-        <div v-if="authStore.isStudent && profileIncomplete" class="profile-warning-banner">
-          <div class="warning-content">
-            <svg viewBox="0 0 24 24" fill="none" class="warning-icon"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <div class="warning-text">
-              <h4>Your profile is incomplete!</h4>
-              <p>Please provide your contact details and skills to complete your registration.</p>
-            </div>
-          </div>
-          <router-link to="/student/profile" class="complete-btn">Complete Profile</router-link>
-        </div>
-
         <!-- DEAN Hero Left -->
-        <div v-if="authStore.isDean" class="hero-left">
+        <div class="hero-left">
           <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
           <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Dean' }} 👋</h2>
-          <p class="hero-desc">You have <strong>3 pending recognition approvals</strong> and <strong>12 student violations</strong> requiring attention this week.</p>
+          <p class="hero-desc">You have <strong>{{ summaryData.pendingApprovals }} pending recognition approvals</strong> and <strong>{{ summaryData.activeViolations }} student violations</strong> requiring attention this week.</p>
           <div class="hero-actions">
-            <button class="hero-btn-primary">Pending Approvals <span class="hero-btn-badge">3</span></button>
-            <button class="hero-btn-ghost">Generate Report</button>
-          </div>
-        </div>
-
-        <!-- STUDENT Hero Left -->
-        <div v-else-if="authStore.isStudent" class="hero-left">
-          <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Student' }} 👋</h2>
-          <p class="hero-desc">Your current GWA is <strong>{{ studentProfile.gwa || '0.00' }}</strong>. You have <strong>{{ todaySchedule.length }} classes</strong> scheduled today.</p>
-          <div class="hero-actions">
-            <router-link to="/student/schedule" class="hero-btn-primary">
-              <svg viewBox="0 0 18 18" fill="none" style="width:14px;height:14px"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 1v4M12 1v4M2 7h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              View Schedule
-            </router-link>
-            <router-link to="/student/academic-history" class="hero-btn-ghost">Academic History</router-link>
-          </div>
-        </div>
-
-        <!-- FACULTY Hero Left -->
-        <div v-else-if="authStore.isFaculty" class="hero-left">
-          <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Professor' }} 👋</h2>
-          <p class="hero-desc">You have <strong>{{ facultyStats.totalSubjects }} subjects</strong> this semester with <strong>{{ facultyStats.totalStudents }} enrolled students</strong> across all your classes.</p>
-          <div class="hero-actions">
-            <router-link to="/faculty/schedule" class="hero-btn-primary">
-              <svg viewBox="0 0 18 18" fill="none" style="width:14px;height:14px"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 1v4M12 1v4M2 7h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              My Schedule
-            </router-link>
-            <router-link to="/faculty/students" class="hero-btn-ghost">View My Students</router-link>
-          </div>
-        </div>
-
-        <!-- SECRETARY Hero Left -->
-        <div v-else-if="authStore.isSecretary" class="hero-left">
-          <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Secretary' }} 👋</h2>
-          <p class="hero-desc">There are <strong>{{ secStats.pendingAccounts }} pending account requests</strong> and <strong>{{ secStats.pendingVerifications }} achievements</strong> awaiting verification today.</p>
-          <div class="hero-actions">
-            <router-link to="/secretary/students" class="hero-btn-primary">
-              <svg viewBox="0 0 18 18" fill="none" style="width:14px;height:14px"><path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              Student Accounts
-            </router-link>
-            <router-link to="/secretary/reports" class="hero-btn-ghost">Generate Report</router-link>
-          </div>
-        </div>
-
-        <!-- CHAIR Hero Left -->
-        <div v-else-if="authStore.isChair" class="hero-left">
-          <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Chair' }} 👋</h2>
-          <p class="hero-desc">Department avg GWA is <strong>{{ chairStats.avgGwa }}</strong>. You have <strong>{{ chairStats.pendingAwards }} awards</strong> awaiting approval and <strong>{{ chairStats.activeViolations }} active violations</strong> this semester.</p>
-          <div class="hero-actions">
-            <router-link to="/chair/students" class="hero-btn-primary">
-              <svg viewBox="0 0 18 18" fill="none" style="width:14px;height:14px"><path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              View Students
-            </router-link>
-            <router-link to="/chair/reports" class="hero-btn-ghost">Generate Report</router-link>
+            <button class="hero-btn-primary" @click="activeTab = 'approvals'">Pending Approvals <span class="hero-btn-badge">{{ summaryData.pendingApprovals }}</span></button>
+            <button class="hero-btn-ghost" @click="activeTab = 'reports'">Generate Report</button>
           </div>
         </div>
 
         <!-- DEAN Hero Right -->
-        <div v-if="authStore.isDean" class="hero-right">
-          <div class="hero-stat-card"><span class="hsc-label">This Week</span><span class="hsc-value">47</span><span class="hsc-sub">Activities logged</span></div>
-          <div class="hero-stat-card accent"><span class="hsc-label">Pending</span><span class="hsc-value">3</span><span class="hsc-sub">Awaiting review</span></div>
+        <div class="hero-right">
+          <div class="hero-stat-card"><span class="hsc-label">This Week</span><span class="hsc-value">{{ summaryData.activitiesThisWeek }}</span><span class="hsc-sub">Activities logged</span></div>
+          <div class="hero-stat-card accent"><span class="hsc-label">Pending</span><span class="hsc-value">{{ summaryData.pendingApprovals }}</span><span class="hsc-sub">Awaiting review</span></div>
         </div>
-
-        <!-- STUDENT Hero Right -->
-        <div v-else-if="authStore.isStudent" class="hero-right">
-          <div class="hero-stat-card"><span class="hsc-label">Current GWA</span><span class="hsc-value">{{ studentProfile.gwa || '0.00' }}</span><span class="hsc-sub">This semester</span></div>
-          <div class="hero-stat-card accent"><span class="hsc-label">Activities</span><span class="hsc-value">{{ studentActivities.length }}</span><span class="hsc-sub">Non-academic</span></div>
-        </div>
-
-        <!-- FACULTY Hero Right -->
-        <div v-else-if="authStore.isFaculty" class="hero-right">
-          <div class="hero-stat-card"><span class="hsc-label">Subjects</span><span class="hsc-value">{{ facultyStats.totalSubjects }}</span><span class="hsc-sub">This semester</span></div>
-          <div class="hero-stat-card accent"><span class="hsc-label">Students</span><span class="hsc-value">{{ facultyStats.totalStudents }}</span><span class="hsc-sub">Enrolled</span></div>
-        </div>
-
-        <!-- SECRETARY Hero Right -->
-        <div v-else-if="authStore.isSecretary" class="hero-right">
-          <div class="hero-stat-card"><span class="hsc-label">Total Students</span><span class="hsc-value">{{ secStats.totalStudents }}</span><span class="hsc-sub">Enrolled</span></div>
-          <div class="hero-stat-card accent"><span class="hsc-label">Pending</span><span class="hsc-value">{{ secStats.pendingAccounts }}</span><span class="hsc-sub">Account requests</span></div>
-        </div>
-
-        <!-- CHAIR Hero Right -->
-        <div v-else-if="authStore.isChair" class="hero-right">
-          <div class="hero-stat-card"><span class="hsc-label">Total Students</span><span class="hsc-value">{{ chairStats.totalStudents }}</span><span class="hsc-sub">Enrolled</span></div>
-          <div class="hero-stat-card accent"><span class="hsc-label">Avg GWA</span><span class="hsc-value">{{ chairStats.avgGwa }}</span><span class="hsc-sub">Department</span></div>
-        </div>
-
       </div>
     </div>
 
     <!-- STATS GRID -->
     <div class="stats-grid">
       <div class="stat-card" v-for="stat in stats" :key="stat.label"
-        @click="stat.route && $router.push(stat.route)"
-        :class="{ clickable: stat.route }">
+        @click="stat.action && stat.action()"
+        :class="{ clickable: stat.action }">
         <div class="stat-top">
           <span class="stat-label">{{ stat.label }}</span>
           <div class="stat-icon" :style="{ background: stat.iconBg, color: stat.iconColor }">
@@ -137,47 +44,409 @@
       </div>
     </div>
 
-    <!-- ==================== DEAN BOTTOM GRID ==================== -->
-    <div v-if="authStore.isDean" class="bottom-grid">
+    <!-- DEAN DASHBOARD TABS -->
+    <div v-if="authStore.isDean" class="dean-tabs-container">
+      <!-- Tab Navigation -->
+      <div class="tabs-nav">
+        <button 
+          v-for="tab in deanTabs" 
+          :key="tab.id"
+          class="tab-btn"
+          :class="{ active: activeTab === tab.id }"
+          @click="activeTab = tab.id"
+        >
+          <span class="tab-icon" v-html="tab.icon"></span>
+          {{ tab.label }}
+        </button>
+      </div>
+
+      <!-- Tab Content: Faculty -->
+      <div v-if="activeTab === 'faculty'" class="tab-content">
+        <div class="tab-header">
+          <h3>Faculty Management</h3>
+          <div class="tab-actions">
+            <input v-model="facultySearch" type="text" placeholder="Search faculty..." class="tab-search" />
+            <select v-model="facultyFilter" class="tab-select">
+              <option value="">All Status</option>
+              <option value="Normal">Normal</option>
+              <option value="Overloaded">Overloaded</option>
+            </select>
+          </div>
+        </div>
+        <div class="faculty-grid">
+          <div class="faculty-card" v-for="prof in filteredFaculty" :key="prof.id">
+            <div class="faculty-card-header">
+              <div class="faculty-avatar">{{ prof.initials }}</div>
+              <div class="faculty-info">
+                <h4>{{ prof.name }}</h4>
+                <p>{{ prof.expertise }}</p>
+                <span class="faculty-status" :class="prof.load >= 30 ? 'overloaded' : 'normal'">
+                  {{ prof.load >= 30 ? 'Overloaded' : 'Normal' }} · {{ prof.load }}/30 hrs
+                </span>
+              </div>
+            </div>
+            <div class="faculty-load-bar">
+              <div class="load-bar-track">
+                <div class="load-bar-fill" :style="{ width: (prof.load/30*100) + '%' }"></div>
+              </div>
+            </div>
+            <div class="faculty-subjects">
+              <span class="subject-tag" v-for="s in prof.subjects" :key="s">{{ s }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Students -->
+      <div v-if="activeTab === 'students'" class="tab-content">
+        <div class="tab-header">
+          <h3>Student Profiles</h3>
+          <div class="tab-actions">
+            <input v-model="studentSearch" type="text" placeholder="Search students..." class="tab-search" />
+            <select v-model="programFilter" class="tab-select">
+              <option value="">All Programs</option>
+              <option value="BSCS">BSCS</option>
+              <option value="BSIT">BSIT</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Program</th>
+                <th>Year</th>
+                <th>GWA</th>
+                <th>Violations</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="student in filteredStudents" :key="student.id">
+                <td><span class="student-id">{{ student.studentNumber }}</span></td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.course }}</td>
+                <td>{{ student.year }}</td>
+                <td><strong>{{ student.gwa }}</strong></td>
+                <td><span class="violation-count" :class="{ 'has-violations': student.violations > 0 }">{{ student.violations }}</span></td>
+                <td><span class="status-badge" :class="student.statusClass">{{ student.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content: Violations -->
+      <div v-if="activeTab === 'violations'" class="tab-content">
+        <div class="tab-header">
+          <h3>Student Violations</h3>
+          <div class="tab-actions">
+            <div class="summary-tags">
+              <span class="summary-tag major">Major: {{ violationCounts.major }}</span>
+              <span class="summary-tag moderate">Moderate: {{ violationCounts.moderate }}</span>
+              <span class="summary-tag minor">Minor: {{ violationCounts.minor }}</span>
+            </div>
+            <input v-model="violationSearch" type="text" placeholder="Search..." class="tab-search" />
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Violation Type</th>
+                <th>Severity</th>
+                <th>Date Filed</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="v in filteredViolations" :key="v.id">
+                <td>
+                  <div class="student-cell">
+                    <div class="cell-avatar" :style="{ background: v.color }">{{ v.name.charAt(0) }}</div>
+                    <span>{{ v.name }}</span>
+                  </div>
+                </td>
+                <td>{{ v.type }}</td>
+                <td><span class="severity-badge" :class="v.severityClass">{{ v.severity }}</span></td>
+                <td>{{ v.date }}</td>
+                <td><span class="status-badge" :class="v.statusClass">{{ v.status }}</span></td>
+                <td><button class="review-btn">Review</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content: Performance -->
+      <div v-if="activeTab === 'performance'" class="tab-content">
+        <div class="tab-header">
+          <h3>Academic Performance</h3>
+        </div>
+        <div class="performance-grid">
+          <div class="perf-card">
+            <div class="card-header">
+              <h4>GWA Distribution</h4>
+              <p>Students per GWA bracket</p>
+            </div>
+            <div class="dist-list">
+              <div class="dist-row" v-for="row in performanceData.distribution" :key="row.range">
+                <div class="dist-label">
+                  <span class="range">{{ row.range }}</span>
+                  <span class="desc">({{ row.desc }})</span>
+                </div>
+                <div class="dist-bar-wrap">
+                  <div class="dist-bar">
+                    <div class="dist-fill" :style="{ width: row.pct + '%', background: row.color }"></div>
+                  </div>
+                  <span class="dist-stats"><strong>{{ row.count }}</strong> ({{ row.pct }}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="perf-card">
+            <div class="card-header">
+              <h4>Semester Trend</h4>
+              <p>Average GWA over semesters</p>
+            </div>
+            <div class="trend-chart">
+              <div class="chart-bars">
+                <div class="chart-col" v-for="bar in performanceData.trend" :key="bar.sem">
+                  <div class="bar-wrap">
+                    <div class="bar-fill" :style="{ height: bar.pct + '%' }"></div>
+                  </div>
+                  <span class="bar-label">{{ bar.sem }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="trend-stats">
+              <div class="trend-stat">
+                <span class="ts-label">Highest</span>
+                <span class="ts-value">{{ performanceData.highestGwa }}</span>
+              </div>
+              <div class="trend-stat">
+                <span class="ts-label">Lowest</span>
+                <span class="ts-value">{{ performanceData.lowestGwa }}</span>
+              </div>
+              <div class="trend-stat">
+                <span class="ts-label">Average</span>
+                <span class="ts-value">{{ performanceData.avgGwa }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Curriculum -->
+      <div v-if="activeTab === 'curriculum'" class="tab-content">
+        <div class="tab-header">
+          <h3>Curriculum Management</h3>
+          <div class="tab-actions">
+            <select v-model="curriculumProgram" class="tab-select">
+              <option value="">Select Program</option>
+              <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
+            </select>
+            <button class="tab-btn-action" @click="showAddCurriculum = true">+ Add Curriculum</button>
+          </div>
+        </div>
+        <div class="curriculum-container">
+          <div v-if="groupedCurriculum.length === 0" class="empty-state">
+            <p>No curriculum entries found. Select a program or add new curriculum.</p>
+          </div>
+          <div v-else v-for="year in groupedCurriculum" :key="year.year" class="year-section">
+            <div class="year-header">
+              <h4>{{ year.year }}{{ getYearSuffix(year.year) }} Year</h4>
+            </div>
+            <div class="semester-grid">
+              <div v-for="sem in year.semesters" :key="sem.semester" class="sem-card">
+                <div class="sem-header">
+                  <h5>{{ sem.semester }} Semester</h5>
+                  <span class="course-count">{{ sem.courses.length }} courses</span>
+                </div>
+                <table class="sem-table">
+                  <tbody>
+                    <tr v-for="item in sem.courses" :key="item.id">
+                      <td class="code">{{ item.course?.course_code }}</td>
+                      <td>{{ item.course?.course_name }}</td>
+                      <td class="units">{{ item.course?.units }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Courses -->
+      <div v-if="activeTab === 'courses'" class="tab-content">
+        <div class="tab-header">
+          <h3>Course Management</h3>
+          <div class="tab-actions">
+            <input v-model="courseSearch" type="text" placeholder="Search courses..." class="tab-search" />
+            <button class="tab-btn-action" @click="showAddCourse = true">+ Add Course</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Course Name</th>
+                <th>Program</th>
+                <th>Year/Sem</th>
+                <th>Units</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in filteredCourses" :key="c.id">
+                <td><span class="code-badge">{{ c.course_code }}</span></td>
+                <td><strong>{{ c.course_name }}</strong></td>
+                <td>{{ c.program?.program_code || 'N/A' }}</td>
+                <td>{{ c.year_level }}{{ getYearSuffix(c.year_level) }} / {{ c.semester }}</td>
+                <td>{{ c.units }}</td>
+                <td><span class="type-badge" :class="c.type">{{ c.type?.toUpperCase() }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content: Reports -->
+      <div v-if="activeTab === 'reports'" class="tab-content">
+        <div class="tab-header">
+          <h3>Profiling Report Engine</h3>
+        </div>
+        <div class="filter-card">
+          <div class="filter-grid">
+            <div class="form-group">
+              <label>Skill Name / Category</label>
+              <input v-model="reportFilters.skill_name" type="text" placeholder="e.g. Java, Web Design" />
+            </div>
+            <div class="form-group">
+              <label>Award Name</label>
+              <input v-model="reportFilters.award_name" type="text" placeholder="e.g. Dean's List" />
+            </div>
+            <div class="form-group">
+              <label>Activity Name</label>
+              <input v-model="reportFilters.academic_activity" type="text" placeholder="e.g. Hackathon" />
+            </div>
+            <div class="form-group">
+              <label>Year Level</label>
+              <select v-model="reportFilters.year_level">
+                <option value="">All Years</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="primary-btn" @click="generateReport" :disabled="reportLoading">
+              {{ reportLoading ? 'Generating...' : 'Generate Report' }}
+            </button>
+            <button class="ghost-btn" @click="resetReportFilters">Reset</button>
+          </div>
+        </div>
+        <div v-if="reportData.length > 0" class="report-results">
+          <h4>Found {{ reportData.length }} Qualified Students</h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Full Name</th>
+                <th>Program</th>
+                <th>Year/Section</th>
+                <th>Matched Skills</th>
+                <th>Relevant Awards</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="student in reportData" :key="student.full_name">
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.program }}</td>
+                <td>{{ student.year_level }} - {{ student.section }}</td>
+                <td>
+                  <div class="tag-list">
+                    <span v-for="skill in student.matched_skills" :key="skill" class="tag skill-tag">{{ skill }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="tag-list">
+                    <span v-for="award in student.relevant_awards" :key="award" class="tag award-tag">{{ award }}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content: Approvals -->
+      <div v-if="activeTab === 'approvals'" class="tab-content">
+        <div class="tab-header">
+          <h3>Pending Approvals</h3>
+        </div>
+        <div class="approvals-grid">
+          <div class="approval-card" v-for="(approval, index) in pendingApprovals" :key="index">
+            <div class="approval-icon" :style="{ background: approval.color + '18', color: approval.color }">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="approval-info">
+              <h4>{{ approval.student }}</h4>
+              <p>{{ approval.award }}</p>
+              <span class="approval-meta">Recommended by {{ approval.faculty }}</span>
+            </div>
+            <div class="approval-actions">
+              <button class="approve-btn" @click="approveAward(approval.id)">Approve</button>
+              <button class="reject-btn" @click="rejectAward(approval.id)">Reject</button>
+            </div>
+          </div>
+          <div v-if="pendingApprovals.length === 0" class="empty-state">
+            <p>No pending approvals at this time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEAN BOTTOM GRID (Quick Stats) -->
+    <div v-if="authStore.isDean && false" class="bottom-grid">
       <div class="card chart-card">
         <div class="card-header">
           <div><h3 class="card-title">Academic Performance Trends</h3><p class="card-sub">Average GWA per semester</p></div>
-          <a href="#" class="card-link">Full report →</a>
         </div>
         <div class="chart-bars">
           <div class="chart-bar-col" v-for="(bar, i) in chartData" :key="i">
             <div class="chart-bar-wrap">
               <div class="chart-bar-fill" :class="{ current: i === chartData.length - 1 }" :style="{ height: bar.pct + '%' }">
-                <span class="chart-tooltip">{{ bar.sem }}: {{ bar.gwa }}</span>
               </div>
             </div>
             <span class="chart-bar-label">{{ bar.sem }}</span>
           </div>
         </div>
-        <div class="chart-legend">
-          <span class="legend-dot current"></span><span class="legend-text">Current sem</span>
-          <span class="legend-dot"></span><span class="legend-text">Previous</span>
-        </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <div><h3 class="card-title">Top Performing Students</h3><p class="card-sub">Ranked by GWA · current semester</p></div>
-          <a href="#" class="card-link">View all →</a>
+          <div><h3 class="card-title">Top Performing Students</h3><p class="card-sub">Ranked by GWA</p></div>
         </div>
         <div class="student-list">
           <div class="student-row" v-for="(s, i) in topStudents" :key="i">
             <span class="rank">{{ i + 1 }}</span>
             <div class="student-avatar" :style="{ background: s.color }">{{ s.name.charAt(0) }}</div>
             <div class="student-info"><p class="student-name">{{ s.name }}</p><p class="student-course">{{ s.course }}</p></div>
-            <span class="student-tag" :class="s.tagClass">{{ s.tag }}</span>
+            <span class="student-tag tag-green">{{ s.tag }}</span>
             <span class="student-gwa">{{ s.gwa }}</span>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <div><h3 class="card-title">Student Violations</h3><p class="card-sub">Active cases this semester</p></div>
-          <a href="#" class="card-link">View all →</a>
+          <div><h3 class="card-title">Recent Violations</h3><p class="card-sub">Active cases</p></div>
         </div>
         <div class="violation-list">
           <div class="violation-row" v-for="(v, i) in deanViolations" :key="i">
@@ -186,510 +455,325 @@
             <span class="violation-badge" :class="v.severityClass">{{ v.severity }}</span>
           </div>
         </div>
-        <div class="violation-alert">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M8 5v4M8 11.5v.5M2.5 14h11a1 1 0 00.87-1.5l-5.5-9.5a1 1 0 00-1.74 0l-5.5 9.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          <span>8 more cases need review</span>
-          <button>Review Now →</button>
-        </div>
       </div>
     </div>
-
-    <!-- ==================== STUDENT BOTTOM GRID ==================== -->
-    <div v-else-if="authStore.isStudent" class="bottom-grid">
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Today's Schedule</h3><p class="card-sub">{{ todayLabel }}</p></div>
-          <router-link to="/student/schedule" class="card-link">View all →</router-link>
-        </div>
-        <div class="schedule-list">
-          <div class="schedule-row" v-for="cls in todaySchedule" :key="cls.subject">
-            <div class="schedule-time-col">
-              <span class="schedule-time">{{ cls.time }}</span>
-              <span class="schedule-duration">{{ cls.duration }}</span>
-            </div>
-            <div class="schedule-dot-col">
-              <div class="schedule-dot" :style="{ background: cls.color }"></div>
-              <div class="schedule-line"></div>
-            </div>
-            <div class="schedule-info">
-              <p class="schedule-subject">{{ cls.subject }}</p>
-              <p class="schedule-prof">{{ cls.professor }} · {{ cls.room }}</p>
-            </div>
-            <span class="schedule-type-badge" :style="{ background: cls.color + '20', color: cls.color }">{{ cls.type }}</span>
-          </div>
-          <div v-if="todaySchedule.length === 0" class="empty-small">No classes today.</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Awards & Recognition</h3><p class="card-sub">Your achievements this year</p></div>
-          <router-link to="/student/awards" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="award in studentAwards.slice(0,3)" :key="award.title">
-            <div class="student-avatar" :style="{ background: award.color }">
-              <svg viewBox="0 0 14 14" fill="none" style="width:12px;height:12px"><path d="M7 1l1.5 4H13l-3.5 2.5 1.5 4L7 9.5 3.5 12l1.5-4L1 5h4.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
-            </div>
-            <div class="student-info"><p class="student-name">{{ award.title }}</p><p class="student-course">{{ award.semester }}</p></div>
-            <span class="student-tag tag-green">{{ award.badge }}</span>
-          </div>
-          <div v-if="studentAwards.length === 0" class="empty-small">No awards yet.</div>
-        </div>
-        <div class="violations-mini">
-          <div class="vm-header">
-            <span class="vm-label">Violations</span>
-            <router-link to="/student/violations" class="card-link">See all →</router-link>
-          </div>
-          <div v-if="studentViolations.length === 0" class="vm-clear">
-            <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><circle cx="8" cy="8" r="6" stroke="#10b981" stroke-width="1.4"/><path d="M5 8l2 2 4-4" stroke="#10b981" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            No active violations. Keep it up!
-          </div>
-          <div v-else v-for="v in studentViolations" :key="v.type" class="violation-row">
-            <div class="violation-avatar" :style="{ background: v.color }">!</div>
-            <div class="violation-info"><p class="violation-name">{{ v.type }}</p></div>
-            <span class="violation-badge" :class="v.severityClass">{{ v.severity }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="card chart-card">
-        <div class="card-header">
-          <div><h3 class="card-title">Academic Performance</h3><p class="card-sub">GWA trend per semester</p></div>
-          <router-link to="/student/academic-history" class="card-link">History →</router-link>
-        </div>
-        <div class="chart-bars">
-          <div class="chart-bar-col" v-for="(bar, i) in studentChartData" :key="i">
-            <div class="chart-bar-wrap">
-              <div class="chart-bar-fill" :class="{ current: i === studentChartData.length - 1 }" :style="{ height: bar.pct + '%' }">
-                <span class="chart-tooltip">{{ bar.sem }}: {{ bar.gwa }}</span>
-              </div>
-            </div>
-            <span class="chart-bar-label">{{ bar.sem }}</span>
-          </div>
-        </div>
-        <div class="chart-legend">
-          <span class="legend-dot current"></span><span class="legend-text">Current sem</span>
-          <span class="legend-dot"></span><span class="legend-text">Previous</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== FACULTY BOTTOM GRID ==================== -->
-    <div v-else-if="authStore.isFaculty" class="bottom-grid">
-
-      <!-- Today's Teaching Schedule -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Today's Teaching Schedule</h3><p class="card-sub">{{ todayLabel }}</p></div>
-          <router-link to="/faculty/schedule" class="card-link">View all →</router-link>
-        </div>
-        <div class="schedule-list">
-          <div class="schedule-row" v-for="cls in facultyScheduleToday" :key="cls.subject">
-            <div class="schedule-time-col">
-              <span class="schedule-time">{{ cls.time }}</span>
-              <span class="schedule-duration">{{ cls.duration }}</span>
-            </div>
-            <div class="schedule-dot-col">
-              <div class="schedule-dot" :style="{ background: cls.color }"></div>
-              <div class="schedule-line"></div>
-            </div>
-            <div class="schedule-info">
-              <p class="schedule-subject">{{ cls.subject }}</p>
-              <p class="schedule-prof">{{ cls.section }} · {{ cls.room }}</p>
-            </div>
-            <span class="schedule-type-badge" :style="{ background: cls.color + '20', color: cls.color }">{{ cls.enrolled }} students</span>
-          </div>
-          <div v-if="facultyScheduleToday.length === 0" class="empty-small">No classes today.</div>
-        </div>
-      </div>
-
-      <!-- Student Performance in My Classes -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Student Performance</h3><p class="card-sub">Top students across my classes</p></div>
-          <router-link to="/faculty/students" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="(s, i) in facultyTopStudents" :key="i">
-            <span class="rank">{{ i + 1 }}</span>
-            <div class="student-avatar" :style="{ background: s.color }">{{ s.name.charAt(0) }}</div>
-            <div class="student-info">
-              <p class="student-name">{{ s.name }}</p>
-              <p class="student-course">{{ s.subject }}</p>
-            </div>
-            <span class="student-tag tag-green">{{ s.grade }}</span>
-          </div>
-        </div>
-        <!-- Pending Actions -->
-        <div class="violations-mini">
-          <div class="vm-header">
-            <span class="vm-label">Pending Actions</span>
-          </div>
-          <div class="pending-actions-list">
-            <div class="pending-action-row" v-for="action in facultyPendingActions" :key="action.label">
-              <div class="pending-dot" :style="{ background: action.color }"></div>
-              <span class="pending-text">{{ action.label }}</span>
-              <span class="pending-badge" :style="{ background: action.color + '18', color: action.color }">{{ action.count }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Courses I Teach -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Courses I Teach</h3><p class="card-sub">Current semester workload</p></div>
-          <router-link to="/faculty/subjects" class="card-link">View all →</router-link>
-        </div>
-        <div class="faculty-subjects-list">
-          <div class="faculty-subject-row" v-for="subj in facultySubjects" :key="subj.code">
-            <div class="fsubj-left">
-              <div class="fsubj-icon" :style="{ background: subj.color + '18', color: subj.color }">
-                <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h8M5 9h6M5 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </div>
-              <div class="fsubj-info">
-                <p class="fsubj-code">{{ subj.code }}</p>
-                <p class="fsubj-name">{{ subj.name }}</p>
-              </div>
-            </div>
-            <div class="fsubj-right">
-              <span class="fsubj-section">{{ subj.section }}</span>
-              <span class="fsubj-enrolled">{{ subj.enrolled }} students</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <!-- END FACULTY BOTTOM GRID -->
-
-    <!-- ==================== SECRETARY BOTTOM GRID ==================== -->
-    <div v-else-if="authStore.isSecretary" class="bottom-grid">
-
-      <!-- Recent Account Requests -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Recent Account Requests</h3><p class="card-sub">Pending student & faculty accounts</p></div>
-          <router-link to="/secretary/students" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="req in secAccountRequests" :key="req.name">
-            <div class="student-avatar" :style="{ background: req.color }">{{ req.name.charAt(0) }}</div>
-            <div class="student-info">
-              <p class="student-name">{{ req.name }}</p>
-              <p class="student-course">{{ req.type }} · {{ req.course }}</p>
-            </div>
-            <span class="student-tag" :class="req.statusClass">{{ req.status }}</span>
-          </div>
-        </div>
-        <div class="violation-alert">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM8 5v4M8 11h.01" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          <span>{{ secStats.pendingAccounts }} accounts awaiting creation</span>
-          <button>Create Now →</button>
-        </div>
-      </div>
-
-      <!-- Faculty Workload Overview -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Faculty Workload</h3><p class="card-sub">Schedules & course loads</p></div>
-          <router-link to="/secretary/faculty" class="card-link">View all →</router-link>
-        </div>
-        <div class="faculty-subjects-list">
-          <div class="faculty-subject-row" v-for="f in secFacultyWorkload" :key="f.name">
-            <div class="fsubj-left">
-              <div class="fsubj-icon" :style="{ background: f.color + '18', color: f.color }">
-                <svg viewBox="0 0 18 18" fill="none"><path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </div>
-              <div class="fsubj-info">
-                <p class="fsubj-code">{{ f.name }}</p>
-                <p class="fsubj-name">{{ f.department }}</p>
-              </div>
-            </div>
-            <div class="fsubj-right">
-              <span class="fsubj-section">{{ f.subjects }} courses</span>
-              <span class="fsubj-enrolled">{{ f.students }} students</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Achievement Verification -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Achievement Verification</h3><p class="card-sub">Pending awards to verify</p></div>
-          <router-link to="/secretary/achievements" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="ach in secPendingAchievements" :key="ach.student">
-            <div class="student-avatar" :style="{ background: ach.color }">{{ ach.student.charAt(0) }}</div>
-            <div class="student-info">
-              <p class="student-name">{{ ach.student }}</p>
-              <p class="student-course">{{ ach.achievement }}</p>
-            </div>
-            <span class="student-tag tag-orange">Pending</span>
-          </div>
-        </div>
-        <div class="violation-alert">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 4.5H14l-4 2.9 1.5 4.6L8 10.2 4.5 13l1.5-4.6-4-2.9h4.5L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>{{ secStats.pendingVerifications }} achievements need verification</span>
-          <button>Verify Now →</button>
-        </div>
-      </div>
-
-    </div>
-    <!-- END SECRETARY BOTTOM GRID -->
-
-    <!-- ==================== CHAIR BOTTOM GRID ==================== -->
-    <div v-else-if="authStore.isChair" class="bottom-grid">
-
-      <!-- Academic Performance Trend -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <div><h3 class="card-title">Academic Performance Trends</h3><p class="card-sub">Department avg GWA per semester</p></div>
-          <router-link to="/chair/performance" class="card-link">Full report →</router-link>
-        </div>
-        <div class="chart-bars">
-          <div class="chart-bar-col" v-for="(bar, i) in chairChartData" :key="i">
-            <div class="chart-bar-wrap">
-              <div class="chart-bar-fill" :class="{ current: i === chairChartData.length - 1 }" :style="{ height: bar.pct + '%' }">
-                <span class="chart-tooltip">{{ bar.sem }}: {{ bar.gwa }}</span>
-              </div>
-            </div>
-            <span class="chart-bar-label">{{ bar.sem }}</span>
-          </div>
-        </div>
-        <div class="chart-legend">
-          <span class="legend-dot current"></span><span class="legend-text">Current sem</span>
-          <span class="legend-dot"></span><span class="legend-text">Previous</span>
-        </div>
-      </div>
-
-      <!-- Top Performing Students -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Top Performing Students</h3><p class="card-sub">Ranked by GWA · current semester</p></div>
-          <router-link to="/chair/students" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="(s, i) in chairTopStudents" :key="i">
-            <span class="rank">{{ i + 1 }}</span>
-            <div class="student-avatar" :style="{ background: s.color }">{{ s.name.charAt(0) }}</div>
-            <div class="student-info"><p class="student-name">{{ s.name }}</p><p class="student-course">{{ s.course }}</p></div>
-            <span class="student-tag" :class="s.tagClass">{{ s.tag }}</span>
-            <span class="student-gwa">{{ s.gwa }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pending Award Approvals -->
-      <div class="card">
-        <div class="card-header">
-          <div><h3 class="card-title">Pending Award Approvals</h3><p class="card-sub">Awaiting your review</p></div>
-          <router-link to="/chair/awards" class="card-link">View all →</router-link>
-        </div>
-        <div class="student-list">
-          <div class="student-row" v-for="ach in chairPendingAwards" :key="ach.student">
-            <div class="student-avatar" :style="{ background: ach.color }">{{ ach.student.charAt(0) }}</div>
-            <div class="student-info">
-              <p class="student-name">{{ ach.student }}</p>
-              <p class="student-course">{{ ach.award }}</p>
-            </div>
-            <span class="student-tag tag-orange">Pending</span>
-          </div>
-        </div>
-        <div class="violation-alert">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 4.5H14l-4 2.9 1.5 4.6L8 10.2 4.5 13l1.5-4.6-4-2.9h4.5L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>{{ chairStats.pendingAwards }} awards need your approval</span>
-          <router-link to="/chair/awards" style="background:none;border:none;color:#FF6B1A;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none">Approve Now →</router-link>
-        </div>
-      </div>
-
-    </div>
-    <!-- END CHAIR BOTTOM GRID -->
 
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '../../store/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
 const loading = ref(true)
 const stats = ref([])
-const profileIncomplete = ref(false)
 
-// ==================== STUDENT STATE ====================
-const studentProfile = ref({ gwa: '' })
-const studentActivities = ref([
-  { title: 'ICPEP.SE Hackathon' },
-  { title: 'Annual JS Summit 2026' },
-  { title: 'Campus Clean Drive' }
-])
-const studentAwards = ref([
-  { title: "Dean's List Awardee", semester: '1st Sem 2025-2026', badge: 'Academic', color: '#f59e0b' },
-  { title: 'Best Research Paper', semester: '2nd Sem 2024-2025', badge: 'Research', color: '#3b82f6' },
-  { title: 'Outstanding Student Leader', semester: '1st Sem 2024-2025', badge: 'Leadership', color: '#10b981' }
-])
-const studentViolations = ref([])
-const todaySchedule = ref([])
-const studentChartData = ref([
-  { sem: "1st '23", gwa: 1.95, pct: 45 }, { sem: "2nd '23", gwa: 1.88, pct: 55 },
-  { sem: "1st '24", gwa: 1.81, pct: 68 }, { sem: "2nd '24", gwa: 1.77, pct: 76 },
-  { sem: "1st '25", gwa: 1.74, pct: 83 }, { sem: "2nd '25", gwa: 1.72, pct: 90 }
-])
+// Tab state
+const activeTab = ref('faculty')
 
-// ==================== FACULTY STATE ====================
-const facultyStats = ref({ totalSubjects: 4, totalStudents: 142 })
-const facultyScheduleToday = ref([
-  { time: '7:30 AM', duration: '1.5 hrs', subject: 'Data Structures & Algorithms', section: 'BSCS 3-A', room: 'CS Lab 3', enrolled: 38, color: '#8b5cf6' },
-  { time: '10:00 AM', duration: '1.5 hrs', subject: 'Algorithms & Complexity', section: 'BSCS 3-B', room: 'Room 204', enrolled: 35, color: '#FF6B1A' },
-  { time: '1:00 PM', duration: '3 hrs', subject: 'Data Structures Lab', section: 'BSCS 3-A', room: 'CS Lab 3', enrolled: 38, color: '#3b82f6' }
-])
-const facultyTopStudents = ref([
-  { name: 'Aira Mae Reyes', subject: 'Data Structures', grade: '1.00', color: '#f59e0b' },
-  { name: 'Jose Miguel Cruz', subject: 'Algorithms', grade: '1.25', color: '#3b82f6' },
-  { name: 'Katrina Villanueva', subject: 'Data Structures', grade: '1.25', color: '#10b981' },
-  { name: 'Mark Dela Cruz', subject: 'Data Structures Lab', grade: '1.50', color: '#8b5cf6' }
-])
-const facultyPendingActions = ref([
-  { label: 'Grades to submit', count: 2, color: '#FF6B1A' },
-  { label: 'Award recommendations', count: 3, color: '#f59e0b' },
-  { label: 'Violation reports', count: 1, color: '#ef4444' }
-])
-const facultySubjects = ref([
-  { code: 'CS301', name: 'Data Structures & Algorithms', section: 'BSCS 3-A', enrolled: 38, color: '#8b5cf6' },
-  { code: 'CS301L', name: 'Data Structures Lab', section: 'BSCS 3-A', enrolled: 38, color: '#3b82f6' },
-  { code: 'CS401', name: 'Algorithms & Complexity', section: 'BSCS 3-B', enrolled: 35, color: '#FF6B1A' },
-  { code: 'CS401L', name: 'Algorithms Lab', section: 'BSCS 3-B', enrolled: 31, color: '#10b981' }
-])
+// Dean tabs configuration
+const deanTabs = [
+  { id: 'faculty', label: 'Faculty', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M3 10h12M3 6h12M3 14h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { id: 'students', label: 'Students', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { id: 'violations', label: 'Violations', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M9 6v3m0 3v.5M3.5 14.5h11a1 1 0 00.87-1.5l-5.5-9.5a1 1 0 00-1.74 0l-5.5 9.5A1 1 0 003.5 14.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { id: 'performance', label: 'Performance', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M2 12l3-6 3 4 3-3 5 5H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+  { id: 'curriculum', label: 'Curriculum', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M3 4h12M3 9h12M3 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { id: 'courses', label: 'Courses', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M3 4h12a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/></svg>' },
+  { id: 'reports', label: 'Reports', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M4 12V7m3 5V3m3 7V5m3 5V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { id: 'approvals', label: 'Approvals', icon: '<svg viewBox="0 0 18 18" fill="none"><path d="M9 2l2 4 5 1-4 4 1 5L9 13l-4 3 1-5-4-4 5-1 2-4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+]
 
-const todayLabel = computed(() => new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }))
+// Summary data
+const summaryData = ref({
+  totalStudents: 0,
+  totalFaculty: 0,
+  avgGwa: 0,
+  activeViolations: 0,
+  activitiesThisWeek: 0,
+  pendingApprovals: 0
+})
 
-// ==================== CHAIR STATE ====================
-const chairStats = ref({ totalStudents: 842, totalFaculty: 38, avgGwa: '1.87', activeViolations: 12, pendingAwards: 5 })
-const chairTopStudents = ref([
-  { name: 'Aira Mae Reyes', course: 'BSCS', gwa: '1.21', color: '#f59e0b', tagClass: 'tag-green', tag: "Dean's List" },
-  { name: 'Jose Miguel Cruz', course: 'BSIT', gwa: '1.34', color: '#3b82f6', tagClass: 'tag-green', tag: "Dean's List" },
-  { name: 'Katrina Villanueva', course: 'BSCS', gwa: '1.38', color: '#10b981', tagClass: 'tag-green', tag: "Dean's List" }
-])
-const chairPendingAwards = ref([
-  { student: 'Aira Mae Reyes', award: "Dean's List Nomination", faculty: 'Dr. R. Villanueva', color: '#f59e0b' },
-  { student: 'Jose Miguel Cruz', award: 'Best Research Paper', faculty: 'Prof. A. Reyes', color: '#3b82f6' },
-  { student: 'Mark Dela Cruz', award: "Dean's List Nomination", faculty: 'Dr. J. Cruz', color: '#8b5cf6' }
-])
-const chairChartData = ref([
-  { sem: "1st '22", gwa: 2.14, pct: 38 }, { sem: "2nd '22", gwa: 2.08, pct: 50 },
-  { sem: "1st '23", gwa: 2.01, pct: 60 }, { sem: "2nd '23", gwa: 1.96, pct: 68 },
-  { sem: "1st '24", gwa: 1.91, pct: 75 }, { sem: "2nd '24", gwa: 1.87, pct: 85 }
-])
+// Faculty data
+const faculty = ref([])
+const facultySearch = ref('')
+const facultyFilter = ref('')
 
-// ==================== SECRETARY STATE ====================
-const secStats = ref({ totalStudents: 842, totalFaculty: 38, pendingAccounts: 5, pendingVerifications: 8 })
-const secAccountRequests = ref([
-  { name: 'Juan dela Cruz', type: 'Student', course: 'BSCS', status: 'Pending', statusClass: 'tag-orange', color: '#FF6B1A' },
-  { name: 'Ana Reyes', type: 'Student', course: 'BSIT', status: 'Pending', statusClass: 'tag-orange', color: '#3b82f6' },
-  { name: 'Prof. R. Santos', type: 'Faculty', course: 'CCS Dept', status: 'Pending', statusClass: 'tag-orange', color: '#8b5cf6' },
-  { name: 'Maria Cruz', type: 'Student', course: 'BSCS', status: 'Pending', statusClass: 'tag-orange', color: '#10b981' }
-])
-const secFacultyWorkload = ref([
-  { name: 'Dr. R. Villanueva', department: 'CS Department', subjects: 3, students: 95, color: '#FF6B1A' },
-  { name: 'Prof. A. Reyes', department: 'CS Department', subjects: 2, students: 70, color: '#3b82f6' },
-  { name: 'Dr. J. Cruz', department: 'Math Department', subjects: 4, students: 140, color: '#8b5cf6' },
-  { name: 'Prof. L. Garcia', department: 'CS Department', subjects: 2, students: 65, color: '#10b981' }
-])
-const secPendingAchievements = ref([
-  { student: 'Aira Mae Reyes', achievement: "Dean's List Nomination", color: '#f59e0b' },
-  { student: 'Jose Miguel Cruz', achievement: 'Best Research Paper', color: '#3b82f6' },
-  { student: 'Katrina Villanueva', achievement: 'Leadership Award', color: '#10b981' },
-  { student: 'Mark Dela Cruz', achievement: "Dean's List Nomination", color: '#8b5cf6' }
+// Students data
+const students = ref([])
+const studentSearch = ref('')
+const programFilter = ref('')
+
+// Violations data
+const violations = ref([])
+const violationSearch = ref('')
+
+// Curriculum data
+const curriculum = ref([])
+const programs = ref([])
+const curriculumProgram = ref('')
+
+// Courses data
+const courses = ref([])
+const courseSearch = ref('')
+
+// Report data
+const reportFilters = ref({ skill_name: '', award_name: '', academic_activity: '', year_level: '' })
+const reportData = ref([])
+const reportLoading = ref(false)
+
+// Performance data
+const performanceData = ref({
+  summary: { deans_list: 0, satisfactory: 0, at_risk: 0, failed: 0 },
+  distribution: [],
+  trend: [],
+  highestGwa: '1.21',
+  lowestGwa: '3.45',
+  avgGwa: '1.87'
+})
+
+// Pending approvals
+const pendingApprovals = ref([
+  { id: 1, student: 'Aira Mae Reyes', award: "Dean's List Nomination", faculty: 'Dr. R. Villanueva', color: '#f59e0b' },
+  { id: 2, student: 'Jose Miguel Cruz', award: 'Best Research Paper', faculty: 'Prof. A. Reyes', color: '#3b82f6' },
+  { id: 3, student: 'Mark Dela Cruz', award: "Dean's List Nomination", faculty: 'Dr. J. Cruz', color: '#8b5cf6' }
 ])
 
-// ==================== FETCH ====================
+// Computed
+const filteredFaculty = computed(() => {
+  return faculty.value.filter(f => {
+    const matchesSearch = f.name.toLowerCase().includes(facultySearch.value.toLowerCase())
+    const matchesStatus = facultyFilter.value
+      ? (facultyFilter.value === 'Overloaded' ? f.load >= 30 : f.load < 30)
+      : true
+    return matchesSearch && matchesStatus
+  })
+})
+
+const filteredStudents = computed(() => {
+  return students.value.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(studentSearch.value.toLowerCase())
+    const matchesProgram = programFilter.value ? s.course === programFilter.value : true
+    return matchesSearch && matchesProgram
+  })
+})
+
+const filteredViolations = computed(() => {
+  return violations.value.filter(v => {
+    return v.name.toLowerCase().includes(violationSearch.value.toLowerCase())
+  })
+})
+
+const filteredCourses = computed(() => {
+  return courses.value.filter(c => {
+    return c.course_code.toLowerCase().includes(courseSearch.value.toLowerCase()) ||
+           c.course_name.toLowerCase().includes(courseSearch.value.toLowerCase())
+  })
+})
+
+const violationCounts = computed(() => ({
+  major: violations.value.filter(v => v.severity === 'Major').length,
+  moderate: violations.value.filter(v => v.severity === 'Moderate').length,
+  minor: violations.value.filter(v => v.severity === 'Minor').length
+}))
+
+const groupedCurriculum = computed(() => {
+  if (curriculum.value.length === 0) return []
+  const filtered = curriculumProgram.value 
+    ? curriculum.value.filter(c => c.program_id == curriculumProgram.value)
+    : curriculum.value
+  
+  const years = {}
+  filtered.forEach(item => {
+    const y = item.year_level
+    if (!years[y]) years[y] = {}
+    const s = item.semester
+    if (!years[y][s]) years[y][s] = []
+    years[y][s].push(item)
+  })
+  return Object.keys(years).sort().map(y => ({
+    year: y,
+    semesters: Object.keys(years[y]).sort().map(s => ({
+      semester: s,
+      courses: years[y][s]
+    }))
+  }))
+})
+
+// Methods
+const getYearSuffix = (y) => y == 1 ? 'st' : y == 2 ? 'nd' : y == 3 ? 'rd' : 'th'
+
 const fetchSummary = async () => {
   loading.value = true
   try {
-    if (authStore.isDean || authStore.isChair || authStore.isSecretary) {
-      const response = await axios.get('/analytics/summary')
-      const data = response.data
-      stats.value = [
-        { label: 'Total Students', value: data.total_students.toString(), delta: 'Real-time sync', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Total Faculty', value: data.total_faculty.toString(), delta: 'Active members', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Dept. Avg GWA', value: data.dept_avg_gwa.toFixed(2), delta: 'Target: 1.75', deltaClass: 'warning', fill: '60%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'With Violations', value: data.active_violations.toString(), delta: 'Active cases', deltaClass: 'negative', fill: '25%', iconBg: '#fff1f2', iconColor: '#ef4444', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Awards Logged', value: data.total_awards.toString(), delta: 'Recognitions', deltaClass: 'positive', fill: '100%', iconBg: '#fffbeb', iconColor: '#f59e0b', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' }
-      ]
-    } else if (authStore.isStudent) {
-      const response = await axios.get('/student/profile')
-      const s = response.data
-      profileIncomplete.value = !s.gender || !s.contact_number || !s.address
-      studentProfile.value = { ...s }
-      stats.value = [
-        { label: 'My GWA', value: s.gwa || '0.00', delta: 'Academic', deltaClass: 'positive', fill: '80%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', route: '/student/academic-history', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Subjects', value: '7', delta: 'Enrolled', deltaClass: 'positive', fill: '70%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/student/schedule', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h6M6 9h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Awards', value: '3', delta: 'This year', deltaClass: 'positive', fill: '60%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/student/awards', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Violations', value: '0', delta: 'Clear record', deltaClass: 'positive', fill: '0%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/student/violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Activities', value: '6', delta: 'Non-academic', deltaClass: 'positive', fill: '50%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/student/activities', iconPath: '<circle cx="9" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 16c0-4 3-6 7-6s7 2 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
-      ]
-    } else if (authStore.isFaculty) {
-      // Replace with real API call when backend is ready
-      // const response = await axios.get('/faculty/dashboard/summary')
-      stats.value = [
-        { label: 'My Subjects', value: '4', delta: 'This semester', deltaClass: 'positive', fill: '80%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/faculty/subjects', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h8M5 9h6M5 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Total Students', value: '142', delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/faculty/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Avg Class GWA', value: '1.87', delta: 'All classes', deltaClass: 'positive', fill: '75%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Violations Filed', value: '3', delta: 'This semester', deltaClass: 'negative', fill: '15%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/faculty/violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Awards Given', value: '5', delta: 'Recommended', deltaClass: 'positive', fill: '50%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/faculty/awards', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' }
-      ]
-    } else if (authStore.isSecretary) {
-      // Replace with real API call when backend is ready
-      // const response = await axios.get('/secretary/dashboard/summary')
-      stats.value = [
-        { label: 'Total Students', value: secStats.value.totalStudents.toString(), delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/secretary/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Total Faculty', value: secStats.value.totalFaculty.toString(), delta: 'Active', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/secretary/faculty', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Pending Accounts', value: secStats.value.pendingAccounts.toString(), delta: 'To create', deltaClass: 'warning', fill: '30%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', route: '/secretary/students', iconPath: '<path d="M9 1v10M9 1L6 4M9 1l3 3M2 13h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Pending Verify', value: secStats.value.pendingVerifications.toString(), delta: 'Achievements', deltaClass: 'warning', fill: '40%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/secretary/achievements', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Dept Reports', value: '12', delta: 'Generated', deltaClass: 'positive', fill: '80%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/secretary/reports', iconPath: '<path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
-      ]
-    } else if (authStore.isChair) {
-      // Replace with real API call when backend is ready
-      // const response = await axios.get('/chair/dashboard/summary')
-      stats.value = [
-        { label: 'Total Students', value: chairStats.value.totalStudents.toString(), delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/chair/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Total Faculty', value: chairStats.value.totalFaculty.toString(), delta: 'Active', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/chair/faculty', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Dept Avg GWA', value: chairStats.value.avgGwa, delta: 'This semester', deltaClass: 'positive', fill: '75%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', route: '/chair/performance', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Active Violations', value: chairStats.value.activeViolations.toString(), delta: 'This semester', deltaClass: 'negative', fill: '20%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/chair/violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-        { label: 'Pending Awards', value: chairStats.value.pendingAwards.toString(), delta: 'To approve', deltaClass: 'warning', fill: '35%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/chair/awards', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' }
-      ]
+    const response = await axios.get('/analytics/summary')
+    const data = response.data
+    summaryData.value = {
+      totalStudents: data.total_students,
+      totalFaculty: data.total_faculty,
+      avgGwa: data.dept_avg_gwa,
+      activeViolations: data.active_violations,
+      activitiesThisWeek: 47,
+      pendingApprovals: 3
     }
+    stats.value = [
+      { label: 'Total Students', value: data.total_students.toString(), delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', action: () => activeTab.value = 'students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+      { label: 'Total Faculty', value: data.total_faculty.toString(), delta: 'Active', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', action: () => activeTab.value = 'faculty', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4"/>' },
+      { label: 'Avg GWA', value: data.dept_avg_gwa.toFixed(2), delta: 'Target: 1.75', deltaClass: 'warning', fill: '60%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', action: () => activeTab.value = 'performance', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+      { label: 'Violations', value: data.active_violations.toString(), delta: 'Active', deltaClass: 'negative', fill: '25%', iconBg: '#fff1f2', iconColor: '#ef4444', action: () => activeTab.value = 'violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4"/>' },
+      { label: 'Awards', value: data.total_awards.toString(), delta: 'Recognitions', deltaClass: 'positive', fill: '100%', iconBg: '#fffbeb', iconColor: '#f59e0b', action: () => activeTab.value = 'approvals', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4"/>' }
+    ]
   } catch (err) {
-    console.error('Failed to fetch dashboard summary:', err)
+    console.error('Failed to fetch summary:', err)
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => { fetchSummary() })
+const fetchFaculty = async () => {
+  try {
+    const res = await axios.get('/faculty')
+    faculty.value = res.data.map(f => ({
+      id: f.id,
+      name: `Prof. ${f.first_name} ${f.last_name}`,
+      expertise: f.position || 'N/A',
+      initials: (f.first_name?.[0] || '?') + (f.last_name?.[0] || '?'),
+      load: f.load || 0,
+      subjects: f.subject_loads?.map(l => l.subject?.subject_code).filter(Boolean) || []
+    }))
+  } catch (err) {
+    console.error('Failed to fetch faculty:', err)
+  }
+}
 
-// ==================== DEAN STATIC DATA ====================
-const chartData = [
-  { sem: "1st '22", gwa: 2.14, pct: 38 }, { sem: "2nd '22", gwa: 2.08, pct: 50 },
-  { sem: "1st '23", gwa: 2.01, pct: 60 }, { sem: "2nd '23", gwa: 1.96, pct: 68 },
-  { sem: "1st '24", gwa: 1.91, pct: 75 }, { sem: "2nd '24", gwa: 1.87, pct: 85 }
-]
-const topStudents = [
-  { name: 'Aira Mae Reyes', course: 'BSCS', tag: "Dean's List", gwa: '1.21', color: '#f59e0b', tagClass: 'tag-green' },
-  { name: 'Jose Miguel Cruz', course: 'BSIT', tag: "Dean's List", gwa: '1.34', color: '#3b82f6', tagClass: 'tag-green' },
-  { name: 'Katrina Villanueva', course: 'BSCS', tag: "Dean's List", gwa: '1.38', color: '#10b981', tagClass: 'tag-green' }
-]
-const deanViolations = [
-  { name: 'Ryan Santos', type: 'Academic Dishonesty', severity: 'Major', color: '#b91c1c', severityClass: 'sev-major' },
-  { name: 'Luis Pascual', type: 'Excessive Absences', severity: 'Moderate', color: '#c2410c', severityClass: 'sev-moderate' }
-]
+const fetchStudents = async () => {
+  try {
+    const res = await axios.get('/students')
+    students.value = res.data.map(s => ({
+      id: s.id,
+      studentNumber: s.user?.student_number || 'N/A',
+      name: `${s.first_name} ${s.last_name}`,
+      course: s.program?.program_code || 'N/A',
+      year: s.section?.year_level ? `${s.section.year_level}${getYearSuffix(s.section.year_level)}` : 'N/A',
+      gwa: s.gwa || '0.00',
+      violations: s.violations_count || 0,
+      status: s.user?.status === 'active' ? 'Active' : 'Pending',
+      statusClass: s.user?.status === 'active' ? 'st-good' : 'st-monitor'
+    }))
+  } catch (err) {
+    console.error('Failed to fetch students:', err)
+  }
+}
+
+const fetchViolations = async () => {
+  try {
+    const res = await axios.get('/violations')
+    violations.value = res.data.map(v => ({
+      id: v.id,
+      name: `${v.student.first_name} ${v.student.last_name}`,
+      type: v.violation_type,
+      severity: v.severity,
+      date: v.date_filed,
+      status: v.status,
+      color: v.severity === 'Major' ? '#ef4444' : v.severity === 'Moderate' ? '#f59e0b' : '#6b7280',
+      severityClass: v.severity === 'Major' ? 'sev-major' : v.severity === 'Moderate' ? 'sev-moderate' : 'sev-minor',
+      statusClass: v.status === 'Resolved' ? 'st-resolved' : v.status === 'Warned' ? 'st-warned' : 'st-review'
+    }))
+  } catch (err) {
+    console.error('Failed to fetch violations:', err)
+  }
+}
+
+const fetchCourses = async () => {
+  try {
+    const [coursesRes, programsRes] = await Promise.all([
+      axios.get('/courses'),
+      axios.get('/programs')
+    ])
+    courses.value = coursesRes.data
+    programs.value = programsRes.data
+    if (programs.value.length > 0 && !curriculumProgram.value) {
+      curriculumProgram.value = programs.value[0].id
+    }
+  } catch (err) {
+    console.error('Failed to fetch courses:', err)
+  }
+}
+
+const fetchCurriculum = async () => {
+  try {
+    if (curriculumProgram.value) {
+      const res = await axios.get('/dean/curriculum', { params: { program_id: curriculumProgram.value } })
+      curriculum.value = res.data
+    }
+  } catch (err) {
+    console.error('Failed to fetch curriculum:', err)
+  }
+}
+
+const fetchPerformance = async () => {
+  try {
+    const res = await axios.get('/analytics/performance')
+    performanceData.value = res.data
+  } catch (err) {
+    console.error('Failed to fetch performance:', err)
+  }
+}
+
+const generateReport = async () => {
+  reportLoading.value = true
+  try {
+    const res = await axios.get('/profiling/report', { params: reportFilters.value })
+    reportData.value = res.data
+  } catch (err) {
+    console.error('Failed to generate report:', err)
+  } finally {
+    reportLoading.value = false
+  }
+}
+
+const resetReportFilters = () => {
+  reportFilters.value = { skill_name: '', award_name: '', academic_activity: '', year_level: '' }
+  reportData.value = []
+}
+
+const approveAward = (id) => {
+  pendingApprovals.value = pendingApprovals.value.filter(a => a.id !== id)
+  summaryData.value.pendingApprovals--
+}
+
+const rejectAward = (id) => {
+  pendingApprovals.value = pendingApprovals.value.filter(a => a.id !== id)
+  summaryData.value.pendingApprovals--
+}
+
+// Modals (simplified - would open modal dialogs)
+const showAddCurriculum = ref(false)
+const showAddCourse = ref(false)
+
+// Watch for curriculum program change
+watch(curriculumProgram, () => {
+  fetchCurriculum()
+})
+
+// Fetch all dean data on mount
+onMounted(async () => {
+  if (authStore.isDean) {
+    await Promise.all([
+      fetchSummary(),
+      fetchFaculty(),
+      fetchStudents(),
+      fetchViolations(),
+      fetchCourses()
+    ])
+  }
+})
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
 /* ===== HERO ===== */
 .hero-banner { background: linear-gradient(130deg, #1a0a00 0%, #3d1500 55%, #FF6B1A 130%); border-radius: 20px; padding: 28px 32px; position: relative; overflow: hidden; margin-bottom: 20px; }
 .profile-warning-banner { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 20px; }
@@ -732,107 +816,180 @@ const deanViolations = [
 .stat-icon svg { width: 16px; height: 16px; }
 .stat-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; margin-bottom: 12px; }
 .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #1a0a00; line-height: 1; }
-.stat-delta { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; white-space: nowrap; }
-.stat-delta.positive { background: #f0fdf4; color: #16a34a; }
-.stat-delta.negative { background: #fff1f2; color: #e11d48; }
-.stat-delta.warning { background: #fff5ef; color: #c94000; }
-.stat-bar { height: 3px; background: #f0e8e0; border-radius: 2px; overflow: hidden; }
-.stat-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.stat-delta { font-size: 10px; font-weight: 500; color: #9a8070; }
+.stat-delta.positive { color: #10b981; }
+.stat-delta.negative { color: #ef4444; }
+.stat-delta.warning { color: #f59e0b; }
+.stat-bar { height: 4px; background: #f0e8e0; border-radius: 2px; overflow: hidden; }
+.stat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
 
-/* ===== GRID & CARDS ===== */
-.bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 20px; }
-.card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; padding: 22px; }
-.card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-.card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
-.card-sub { font-size: 11px; color: #b89f90; margin-top: 3px; }
-.card-link { font-size: 11px; font-weight: 600; color: #FF6B1A; text-decoration: none; white-space: nowrap; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.card-link:hover { text-decoration: underline; }
+/* ===== DEAN TABS ===== */
+.dean-tabs-container { margin-top: 24px; }
 
-/* ===== CHART ===== */
-.chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-bottom: 4px; }
-.chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; gap: 4px; }
-.chart-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
-.chart-bar-fill { width: 100%; background: #fde8d8; border-radius: 5px 5px 0 0; transition: height 0.8s ease; position: relative; cursor: pointer; }
-.chart-bar-fill.current { background: #FF6B1A; }
-.chart-bar-fill:hover .chart-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
-.chart-tooltip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%) translateY(4px); background: #1a0a00; color: #fff; font-size: 10px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; opacity: 0; transition: all 0.15s; pointer-events: none; }
-.chart-bar-label { font-size: 8px; color: #b89f90; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; white-space: nowrap; }
-.chart-legend { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #fde8d8; }
-.legend-dot.current { background: #FF6B1A; }
-.legend-text { font-size: 10px; color: #b89f90; }
+.tabs-nav { display: flex; gap: 4px; background: #fff; padding: 6px; border-radius: 14px; border: 1px solid #f0e8e0; margin-bottom: 20px; overflow-x: auto; }
+.tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; background: transparent; border-radius: 10px; font-size: 13px; font-weight: 500; color: #9a8070; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.tab-btn:hover { background: #faf8f6; color: #1a0a00; }
+.tab-btn.active { background: #FF6B1A; color: #fff; }
+.tab-icon { display: flex; align-items: center; }
+.tab-icon svg { width: 16px; height: 16px; }
 
-/* ===== STUDENT LIST (shared) ===== */
-.student-list { display: flex; flex-direction: column; gap: 10px; }
-.student-row { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; transition: background 0.15s; }
-.student-row:hover { background: #faf8f6; }
-.rank { font-size: 11px; font-weight: 700; color: #ddd0c8; width: 14px; flex-shrink: 0; text-align: center; }
-.student-avatar { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.student-info { flex: 1; min-width: 0; }
-.student-name { font-size: 12px; font-weight: 600; color: #1a0a00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.student-course { font-size: 10px; color: #b89f90; }
-.student-tag { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
-.tag-green { background: #f0fdf4; color: #16a34a; }
-.tag-orange { background: #fff5ef; color: #c94000; }
-.student-gwa { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #1a0a00; flex-shrink: 0; }
+.tab-content { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; padding: 24px; }
+.tab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.tab-header h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; }
+.tab-actions { display: flex; gap: 10px; align-items: center; }
+.tab-search { padding: 10px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; min-width: 180px; }
+.tab-search:focus { border-color: #FF6B1A; }
+.tab-select { padding: 10px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
+.tab-btn-action { padding: 10px 18px; background: #FF6B1A; color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-/* ===== VIOLATIONS (shared) ===== */
-.violation-list { display: flex; flex-direction: column; gap: 10px; }
-.violation-row { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; transition: background 0.15s; }
-.violation-row:hover { background: #faf8f6; }
-.violation-avatar { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.violation-info { flex: 1; min-width: 0; }
-.violation-name { font-size: 12px; font-weight: 600; color: #1a0a00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.violation-type { font-size: 10px; color: #b89f90; }
-.violation-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
-.sev-major { background: #fff1f2; color: #e11d48; }
-.sev-moderate { background: #fff7ed; color: #ea580c; }
-.sev-minor { background: #fffbeb; color: #d97706; }
-.violation-alert { margin-top: 16px; padding: 12px; background: #1a0a00; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: #fff; font-size: 11px; }
-.violation-alert svg { width: 14px; height: 14px; color: #FF6B1A; }
-.violation-alert span { flex: 1; }
-.violation-alert button { background: none; border: none; color: #FF6B1A; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+/* Faculty Grid */
+.faculty-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.faculty-card { border: 1.5px solid #f0e8e0; border-radius: 14px; padding: 16px; transition: all 0.2s; }
+.faculty-card:hover { border-color: #FF6B1A; transform: translateY(-2px); }
+.faculty-card-header { display: flex; gap: 12px; margin-bottom: 12px; }
+.faculty-avatar { width: 48px; height: 48px; background: #FF6B1A; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.faculty-info h4 { font-size: 14px; font-weight: 600; color: #1a0a00; }
+.faculty-info p { font-size: 12px; color: #9a8070; }
+.faculty-status { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-top: 4px; }
+.faculty-status.normal { background: #f0fdf4; color: #16a34a; }
+.faculty-status.overloaded { background: #fff1f2; color: #ef4444; }
+.faculty-load-bar { margin-bottom: 12px; }
+.load-bar-track { height: 6px; background: #f0e8e0; border-radius: 3px; overflow: hidden; }
+.load-bar-fill { height: 100%; background: #FF6B1A; border-radius: 3px; transition: width 0.3s; }
+.faculty-subjects { display: flex; flex-wrap: wrap; gap: 6px; }
+.subject-tag { background: #1a0a00; color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 6px; }
 
-/* ===== SCHEDULE (shared) ===== */
-.schedule-list { display: flex; flex-direction: column; }
-.schedule-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; }
-.schedule-time-col { width: 64px; flex-shrink: 0; }
-.schedule-time { display: block; font-size: 11px; font-weight: 700; color: #1a0a00; }
-.schedule-duration { font-size: 9px; color: #b89f90; }
-.schedule-dot-col { display: flex; flex-direction: column; align-items: center; width: 18px; flex-shrink: 0; padding-top: 3px; }
-.schedule-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.schedule-line { flex: 1; width: 2px; background: #f0e8e0; margin-top: 4px; min-height: 20px; }
-.schedule-row:last-child .schedule-line { display: none; }
-.schedule-info { flex: 1; min-width: 0; }
-.schedule-subject { font-size: 12px; font-weight: 600; color: #1a0a00; }
-.schedule-prof { font-size: 10px; color: #b89f90; margin-top: 2px; }
-.schedule-type-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; align-self: flex-start; margin-top: 3px; }
+/* Table Styles */
+.table-card { border: 1px solid #f0e8e0; border-radius: 14px; overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { padding: 14px 16px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; border-bottom: 1px solid #f0e8e0; }
+.data-table td { padding: 14px 16px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover { background: #fffaf8; }
+.student-id { font-weight: 600; color: #64748b; font-size: 12px; }
+.violation-count { font-weight: 700; color: #10b981; }
+.violation-count.has-violations { color: #ef4444; }
 
-/* ===== STUDENT violations mini ===== */
-.violations-mini { border-top: 1px solid #f0e8e0; padding-top: 14px; margin-top: 10px; }
-.vm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.vm-label { font-size: 11px; font-weight: 700; color: #1a0a00; text-transform: uppercase; letter-spacing: 0.5px; }
-.vm-clear { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #10b981; font-weight: 500; }
+.student-cell { display: flex; align-items: center; gap: 10px; }
+.cell-avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; }
 
-/* ===== FACULTY SPECIFIC ===== */
-.pending-actions-list { display: flex; flex-direction: column; gap: 8px; }
-.pending-action-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; background: #faf8f6; }
-.pending-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.pending-text { flex: 1; font-size: 12px; color: #1a0a00; font-weight: 500; }
-.pending-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.status-badge { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.st-good { background: #ecfeff; color: #0891b2; }
+.st-monitor { background: #fff7ed; color: #ea580c; }
+.st-resolved { background: #fff; color: #1a0a00; border: 1px solid #f0e8e0; }
+.st-warned { background: #1a0a00; color: #fff; }
+.st-review { background: #FF6B1A; color: #fff; }
 
-.faculty-subjects-list { display: flex; flex-direction: column; gap: 10px; }
-.faculty-subject-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px solid #f0e8e0; border-radius: 12px; transition: all 0.15s; }
-.faculty-subject-row:hover { border-color: #FF6B1A; background: #fffaf8; }
-.fsubj-left { display: flex; align-items: center; gap: 10px; }
-.fsubj-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.fsubj-icon svg { width: 16px; height: 16px; }
-.fsubj-code { font-size: 11px; font-weight: 700; color: #FF6B1A; }
-.fsubj-name { font-size: 12px; font-weight: 500; color: #1a0a00; margin-top: 1px; }
-.fsubj-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.fsubj-section { font-size: 11px; font-weight: 600; color: #1a0a00; }
-.fsubj-enrolled { font-size: 10px; color: #b89f90; }
+.severity-badge { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.sev-major { background: #ef4444; color: #fff; }
+.sev-moderate { background: #f59e0b; color: #fff; }
+.sev-minor { background: #fff; color: #1a0a00; border: 1px solid #f0e8e0; }
 
-/* ===== EMPTY ===== */
-.empty-small { font-size: 12px; color: #b89f90; font-style: italic; padding: 8px 0; }
+.review-btn { background: #1a0a00; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; }
+.review-btn:hover { background: #FF6B1A; }
+
+.code-badge { background: #fff1e6; color: #FF6B1A; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+.type-badge { font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.type-badge.lec { background: #eff6ff; color: #3b82f6; }
+.type-badge.lab { background: #f5f3ff; color: #8b5cf6; }
+.type-badge.lec\+lab { background: #fff7ed; color: #f59e0b; }
+
+/* Summary Tags */
+.summary-tags { display: flex; gap: 8px; }
+.summary-tag { font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 8px; }
+.summary-tag.major { background: #ef4444; color: #fff; }
+.summary-tag.moderate { background: #1a0a00; color: #fff; }
+.summary-tag.minor { background: #fff; color: #1a0a00; border: 1px solid #f0e8e0; }
+
+/* Performance Grid */
+.performance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.perf-card { background: #faf8f6; border-radius: 14px; padding: 20px; }
+.perf-card .card-header { margin-bottom: 16px; }
+.perf-card h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
+.perf-card p { font-size: 11px; color: #9a8070; margin-top: 2px; }
+
+.dist-list { display: flex; flex-direction: column; gap: 14px; }
+.dist-row { display: flex; flex-direction: column; gap: 6px; }
+.dist-label { display: flex; gap: 6px; }
+.dist-label .range { font-size: 12px; font-weight: 700; color: #1a0a00; }
+.dist-label .desc { font-size: 11px; color: #9a8070; }
+.dist-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.dist-bar { flex: 1; height: 8px; background: #f0e8e0; border-radius: 4px; overflow: hidden; }
+.dist-fill { height: 100%; border-radius: 4px; }
+.dist-stats { font-size: 11px; color: #9a8070; min-width: 70px; text-align: right; }
+
+.trend-chart { height: 160px; margin-bottom: 16px; }
+.trend-chart .chart-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 100%; padding: 10px 0; }
+.trend-chart .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.trend-chart .bar-wrap { flex: 1; width: 30px; display: flex; align-items: flex-end; }
+.trend-chart .bar-fill { width: 100%; background: #FF6B1A; border-radius: 4px 4px 0 0; }
+.trend-chart .bar-label { font-size: 9px; color: #9a8070; text-transform: uppercase; }
+
+.trend-stats { display: flex; justify-content: space-between; background: #fff; padding: 12px 16px; border-radius: 10px; }
+.trend-stat { display: flex; flex-direction: column; gap: 2px; }
+.ts-label { font-size: 10px; color: #9a8070; text-transform: uppercase; }
+.ts-value { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
+
+/* Curriculum */
+.curriculum-container { display: flex; flex-direction: column; gap: 24px; }
+.year-section { display: flex; flex-direction: column; gap: 12px; }
+.year-header h4 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; border-left: 3px solid #FF6B1A; padding-left: 10px; }
+.semester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.sem-card { border: 1px solid #f0e8e0; border-radius: 12px; overflow: hidden; }
+.sem-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fffaf8; border-bottom: 1px solid #f0e8e0; }
+.sem-header h5 { font-size: 13px; font-weight: 600; color: #1a0a00; }
+.course-count { font-size: 10px; color: #9a8070; background: #f0e8e0; padding: 2px 8px; border-radius: 6px; }
+.sem-table { width: 100%; }
+.sem-table td { padding: 10px 16px; font-size: 12px; }
+.sem-table .code { font-weight: 700; color: #FF6B1A; width: 80px; }
+.sem-table .units { width: 50px; text-align: center; }
+
+/* Reports */
+.filter-card { background: #faf8f6; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 11px; font-weight: 600; color: #9a8070; text-transform: uppercase; }
+.form-group input, .form-group select { padding: 10px 12px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; }
+.form-group input:focus, .form-group select:focus { border-color: #FF6B1A; }
+.filter-actions { display: flex; gap: 10px; }
+.primary-btn { background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ghost-btn { background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+.report-results { margin-top: 20px; }
+.report-results h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; margin-bottom: 12px; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 5px; }
+.skill-tag { background: #eff6ff; color: #3b82f6; }
+.award-tag { background: #fffbeb; color: #f59e0b; }
+
+/* Approvals */
+.approvals-grid { display: grid; gap: 12px; }
+.approval-card { display: flex; align-items: center; gap: 16px; padding: 16px; border: 1px solid #f0e8e0; border-radius: 14px; }
+.approval-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.approval-icon svg { width: 20px; height: 20px; }
+.approval-info { flex: 1; }
+.approval-info h4 { font-size: 14px; font-weight: 600; color: #1a0a00; }
+.approval-info p { font-size: 12px; color: #9a8070; }
+.approval-meta { font-size: 10px; color: #9a8070; }
+.approval-actions { display: flex; gap: 8px; }
+.approve-btn { background: #10b981; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.reject-btn { background: #fff; color: #ef4444; border: 1px solid #ef4444; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+.empty-state { padding: 40px; text-align: center; color: #9a8070; }
+
+/* Bottom Grid (disabled) */
+.bottom-grid { display: none; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .performance-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .tabs-nav { flex-wrap: nowrap; overflow-x: auto; }
+  .tab-header { flex-direction: column; align-items: flex-start; }
+  .tab-actions { width: 100%; flex-wrap: wrap; }
+}
 </style>
