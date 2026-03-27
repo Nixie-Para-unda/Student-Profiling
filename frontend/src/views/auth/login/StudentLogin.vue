@@ -149,10 +149,12 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../../store/auth'
+import { useAuthStore } from '../../../store/auth';
+import { useAuthRedirect } from '../../../composables/useAuthRedirect';
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { redirect } = useAuthRedirect()
 
 const studentId = ref('')
 const password = ref('')
@@ -168,7 +170,7 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(studentId.value, password.value, 'student')
-    router.push('/')
+    redirect();
   } catch (err) {
     error.value = err.response?.data?.message || 'Invalid student number or password'
   } finally {

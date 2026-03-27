@@ -151,7 +151,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useAuthStore } from '../../../store/auth'
+import { useAuthStore } from '../../../store/auth';
+import { useAuthRedirect } from '../../../composables/useAuthRedirect';
 import { useRouter } from 'vue-router'
 
 const email = ref('')
@@ -164,6 +165,7 @@ const passwordFocused = ref(false)
 
 const authStore = useAuthStore()
 const router = useRouter()
+const { redirect } = useAuthRedirect()
 
 const handleLogin = async () => {
   loading.value = true
@@ -171,7 +173,7 @@ const handleLogin = async () => {
   try {
     // Attempt login allowing all faculty-related roles (dean, chair, secretary, etc.)
     await authStore.login(email.value, password.value, 'faculty_portal')
-    router.push('/')
+    redirect();
   } catch (err) {
     error.value = err.response?.data?.message || 'Invalid email or password'
   } finally {

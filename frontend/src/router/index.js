@@ -5,7 +5,7 @@ import SetupPassword from '../views/auth/setup/SetupPassword.vue'
 import SetupPasswordFaculty from '../views/auth/setup/SetupPasswordFaculty.vue'
 import ActivateAccount from '../views/auth/activate/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
-import DashboardHome from '../views/shared/DashboardHome.vue'
+
 import StudentsList from '../views/dean/StudentsList.vue'
 import StudentProfile from '../views/student/StudentProfile.vue'
 import FacultyList from '../views/dean/FacultyList.vue'
@@ -84,14 +84,20 @@ const routes = [
     component: MainLayout,
     meta: { requiresAuth: true },
     children: [
-
-      // ── Shared ──────────────────────────────────
       {
         path: '',
-        name: 'Dashboard',
-        component: DashboardHome,
-        meta: { title: 'Dashboard' }
+        redirect: to => {
+          const authStore = useAuthStore()
+          if (authStore.isStudent) return '/student/profile';
+          if (authStore.isFaculty) return '/faculty/schedule';
+          if (authStore.isDean) return '/students';
+          if (authStore.isChair) return '/chair/students';
+          if (authStore.isSecretary) return '/secretary/students';
+          return '/login';
+        }
       },
+      // ── Shared ──────────────────────────────────
+      
       {
         path: 'settings',
         name: 'Settings',
@@ -229,6 +235,10 @@ const routes = [
       // ── Redirect old /profile ────────────────────
       { path: 'profile', redirect: 'student/profile' }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
@@ -248,7 +258,12 @@ router.beforeEach((to, from) => {
     return '/login'
   }
   if (to.meta.guest && authStore.isAuthenticated) {
-    return '/'
+    if (authStore.isStudent) return '/student/profile';
+    if (authStore.isFaculty) return '/faculty/schedule';
+    if (authStore.isDean) return '/students';
+    if (authStore.isChair) return '/chair/students';
+    if (authStore.isSecretary) return '/secretary/students';
+    return '/'; // Fallback
   }
 })
 
