@@ -7,11 +7,11 @@ export function useAuthRedirect() {
   const authStore = useAuthStore();
 
   const getDashboardRoute = () => {
-    if (authStore.isStudent) return '/student/profile';
-    if (authStore.isFaculty) return '/faculty/schedule';
-    if (authStore.isDean) return '/students';
-    if (authStore.isChair) return '/chair/students';
-    if (authStore.isSecretary) return '/secretary/students';
+    if (authStore.isStudent) return '/student/dashboard';
+    if (authStore.isFaculty) return '/faculty/dashboard';
+    if (authStore.isDean) return '/dean/dashboard';
+    if (authStore.isChair) return '/chair/dashboard';
+    if (authStore.isSecretary) return '/secretary/dashboard';
     return '/'; // Fallback route
   };
 

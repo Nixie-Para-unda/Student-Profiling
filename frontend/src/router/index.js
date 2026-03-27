@@ -16,6 +16,13 @@ import CurriculumManagement from '../views/dean/CurriculumManagement.vue'
 import CourseManagement from '../views/dean/CourseManagement.vue'
 import FacultySchedule from '../views/faculty/FacultySchedule.vue'
 
+// Dashboard imports
+import DeanDashboard from '../views/dean/DeanDashboard.vue'
+import FacultyDashboard from '../views/faculty/FacultyDashboard.vue'
+import SecretaryDashboard from '../views/secretary/SecretaryDashboard.vue'
+import ChairDashboard from '../views/chair/DepartmentChairDashboard.vue'
+import StudentDashboard from '../views/student/StudentDashboard.vue'
+
 // ✅ Student page imports
 import MyAffiliations from '../views/student/StudentAffiliation.vue'
 import MyActivities from '../views/student/StudentActivities.vue'
@@ -88,11 +95,11 @@ const routes = [
         path: '',
         redirect: to => {
           const authStore = useAuthStore()
-          if (authStore.isStudent) return '/student/profile';
-          if (authStore.isFaculty) return '/faculty/schedule';
-          if (authStore.isDean) return '/students';
-          if (authStore.isChair) return '/chair/students';
-          if (authStore.isSecretary) return '/secretary/students';
+          if (authStore.isStudent) return '/student/dashboard';
+          if (authStore.isFaculty) return '/faculty/dashboard';
+          if (authStore.isDean) return '/dean/dashboard';
+          if (authStore.isChair) return '/chair/dashboard';
+          if (authStore.isSecretary) return '/secretary/dashboard';
           return '/login';
         }
       },
@@ -106,6 +113,12 @@ const routes = [
       },
 
       // ── Dean routes ──────────────────────────────
+      {
+        path: 'dean/dashboard',
+        name: 'DeanDashboard',
+        component: DeanDashboard,
+        meta: { title: 'Dashboard' }
+      },
       {
         path: 'students',
         name: 'Students',
@@ -154,6 +167,12 @@ const routes = [
 
       // ── Faculty routes ──────────────────────────
       {
+        path: 'faculty/dashboard',
+        name: 'FacultyDashboard',
+        component: FacultyDashboard,
+        meta: { title: 'Dashboard' }
+      },
+      {
         path: 'faculty/schedule',
         name: 'FacultySchedule',
         component: FacultySchedule,
@@ -166,6 +185,12 @@ const routes = [
       { path: 'faculty/profile', name: 'FacultyProfile', component: { template: '<div>Faculty Profile</div>' } },
 
       // ── Student routes ───────────────────────────
+      {
+        path: 'student/dashboard',
+        name: 'StudentDashboard',
+        component: StudentDashboard,
+        meta: { title: 'Dashboard' }
+      },
       {
         path: 'student/profile',
         name: 'StudentProfile',
@@ -216,6 +241,12 @@ const routes = [
       },
 
       // ── Secretary routes ─────────────────────────
+      {
+        path: 'secretary/dashboard',
+        name: 'SecretaryDashboard',
+        component: SecretaryDashboard,
+        meta: { title: 'Dashboard' }
+      },
       { path: 'secretary/students', name: 'SecretaryStudents', component: SecretaryStudents, meta: { title: 'Student Accounts' } },
       { path: 'secretary/faculty', name: 'SecretaryFaculty', component: SecretaryFaculty, meta: { title: 'Faculty Accounts' } },
       { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload' } },
@@ -224,6 +255,12 @@ const routes = [
       { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports' } },
 
       // ── Chair routes ─────────────────────────────
+      {
+        path: 'chair/dashboard',
+        name: 'ChairDashboard',
+        component: ChairDashboard,
+        meta: { title: 'Dashboard' }
+      },
       { path: 'chair/students', name: 'DepartmentChairStudents', component: ChairStudents, meta: { title: 'Student Profiles' } },
       { path: 'chair/faculty', name: 'DepartmentChairFaculty', component: ChairFaculty, meta: { title: 'Faculty Members' } },
       { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations' } },
@@ -258,11 +295,11 @@ router.beforeEach((to, from) => {
     return '/login'
   }
   if (to.meta.guest && authStore.isAuthenticated) {
-    if (authStore.isStudent) return '/student/profile';
-    if (authStore.isFaculty) return '/faculty/schedule';
-    if (authStore.isDean) return '/students';
-    if (authStore.isChair) return '/chair/students';
-    if (authStore.isSecretary) return '/secretary/students';
+    if (authStore.isStudent) return '/student/dashboard';
+    if (authStore.isFaculty) return '/faculty/dashboard';
+    if (authStore.isDean) return '/dean/dashboard';
+    if (authStore.isChair) return '/chair/dashboard';
+    if (authStore.isSecretary) return '/secretary/dashboard';
     return '/'; // Fallback
   }
 })

@@ -39,7 +39,7 @@
 
         <!-- ── OVERVIEW (all roles) ── -->
         <div class="nav-section-label" v-show="!sidebarCollapsed">Overview</div>
-        <router-link to="/" class="nav-item" active-class="active">
+        <router-link :to="dashboardRoute" class="nav-item" active-class="active">
           <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
           <span v-show="!sidebarCollapsed">Dashboard</span>
         </router-link>
@@ -312,11 +312,15 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '../store/auth'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthRedirect } from '../composables/useAuthRedirect'
 
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const { getDashboardRoute } = useAuthRedirect()
 const sidebarCollapsed = ref(false)
+
+const dashboardRoute = computed(() => getDashboardRoute())
 
 const userRoleDisplay = computed(() => {
   if (!authStore.user) return 'User'
