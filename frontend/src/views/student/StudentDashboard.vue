@@ -838,4 +838,33 @@ function buildStats(s) {
   gap: 8px; padding: 24px 0;
   font-size: 12px; color: #c0a898; font-style: italic;
 }
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .stats-strip { grid-template-columns: repeat(3, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .hero-body { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .hero-right { width: 100%; }
+  .kpi-tile { flex: 1; }
+  .hero-heading { font-size: 24px; white-space: normal; }
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero-banner { padding: 20px; border-radius: 16px; }
+  .hero-heading { font-size: 20px; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+  .hero-right { flex-direction: column; }
+  .kpi-tile { width: 100%; }
+  .stats-strip { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-chip { padding: 12px; }
+  .sc-value { font-size: 18px; }
+  .bottom-grid { gap: 12px; }
+  .panel { padding: 16px; border-radius: 16px; }
+}
 </style>
