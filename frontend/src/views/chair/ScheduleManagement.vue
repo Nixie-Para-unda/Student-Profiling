@@ -24,8 +24,25 @@
 
     <div class="filter-bar pcard">
       <div class="filter-group">
+        <label>Program</label>
+        <select v-model="filterProgram">
+          <option value="">All Programs</option>
+          <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Year Level</label>
+        <select v-model="filterYear">
+          <option value="">All Years</option>
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year</option>
+        </select>
+      </div>
+      <div class="filter-group">
         <label>Section</label>
-        <select v-model="filterSection" @change="fetchSchedules">
+        <select v-model="filterSection">
           <option value="">All Sections</option>
           <option v-for="s in sections" :key="s.id" :value="s.id">{{ s.section_name }}</option>
         </select>
@@ -42,45 +59,45 @@
           <thead>
             <tr>
               <th>Section</th>
-              <th>Course</th>
+              <th>Course Code</th>
+              <th>Course Name</th>
+              <th>Lec Lab Units</th>
               <th>Type</th>
-              <th>Faculty</th>
-              <th>Schedule</th>
-              <th>Room</th>
+              <th>Days</th>
+              <th>Time</th>
+              <th>Proctor</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in schedules" :key="item.id">
+            <tr v-for="item in groupedSchedules" :key="item.id">
               <td><span class="section-badge">{{ item.section.section_name }}</span></td>
-              <td>
-                <div class="course-info">
-                  <span class="c-code">{{ item.course.course_code }}</span>
-                  <span class="c-name">{{ item.course.course_name }}</span>
-                </div>
+              <td><span class="c-code">{{ item.course.course_code }}</span></td>
+              <td><span class="c-name">{{ item.course.course_name }}</span></td>
+              <td class="units-cell">
+                <span v-if="item.course.lec_units">{{ item.course.lec_units }}L</span>
+                <span v-if="item.course.lec_units && item.course.lab_units"> / </span>
+                <span v-if="item.course.lab_units">{{ item.course.lab_units }}B</span>
               </td>
               <td><span class="type-badge" :class="item.class_type || 'lec'">{{ (item.class_type || 'lec').toUpperCase() }}</span></td>
+              <td><span class="day-badge">{{ formatDays(item.days) }}</span></td>
+              <td><span class="time-text">{{ formatTime(item.startTime) }} - {{ formatTime(item.endTime) }}</span></td>
               <td>
-                <span v-if="item.faculty">{{ item.faculty.first_name }} {{ item.faculty.last_name }}</span>
+                <span v-if="item.faculty" class="proctor-name">{{ item.faculty.first_name }} {{ item.faculty.last_name }}</span>
                 <button v-else class="assign-btn" @click="openAssignModal(item)">
                   Assign Faculty
                 </button>
               </td>
               <td>
-                <div class="time-info">
-                  <span class="day">{{ item.dayOfWeek }}</span>
-                  <span class="time">{{ formatTime(item.startTime) }} - {{ formatTime(item.endTime) }}</span>
+                <div class="action-btns">
+                  <button class="delete-btn" @click="deleteSchedule(item.id)" title="Remove all sessions of this course">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M7 6V4a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v10a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
                 </div>
               </td>
-              <td><strong>{{ item.room || 'TBA' }}</strong></td>
-              <td>
-                <button class="delete-btn" @click="deleteSchedule(item.id)">
-                  <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M7 6V4a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v10a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </td>
             </tr>
-            <tr v-if="schedules.length === 0">
-              <td colspan="7" class="empty-row">No schedules found.</td>
+            <tr v-if="groupedSchedules.length === 0">
+              <td colspan="9" class="empty-row">No schedules found matching your filters.</td>
             </tr>
           </tbody>
         </table>
@@ -116,6 +133,13 @@
 
               <div class="form-row">
                 <div class="form-group">
+                  <label>Type</label>
+                  <select v-model="form.class_type">
+                    <option value="lec">Lecture</option>
+                    <option value="lab">Laboratory</option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label>Day</label>
                   <select v-model="form.dayOfWeek">
                     <option value="Monday">Monday</option>
@@ -125,10 +149,6 @@
                     <option value="Friday">Friday</option>
                     <option value="Saturday">Saturday</option>
                   </select>
-                </div>
-                <div class="form-group">
-                  <label>Room</label>
-                  <input v-model="form.room" type="text" placeholder="e.g. Lab 1" />
                 </div>
               </div>
 
@@ -141,6 +161,11 @@
                   <label>End Time</label>
                   <input v-model="form.endTime" type="time" />
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label>Room</label>
+                <input v-model="form.room" type="text" placeholder="e.g. Lab 1" />
               </div>
             </div>
           </div>
@@ -238,7 +263,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
 const schedules = ref([])
@@ -256,11 +281,50 @@ const showAssignModal = ref(false)
 const showAutoModal = ref(false)
 const selectedSchedule = ref(null)
 const filterSection = ref('')
+const filterProgram = ref('')
+const filterYear = ref('')
 const fileInput = ref(null)
+
+// Group schedules by course for better UI (as requested)
+const groupedSchedules = computed(() => {
+  if (schedules.value.length === 0) return []
+  
+  const grouped = {}
+  
+  schedules.value.forEach(item => {
+    const key = `${item.section_id}-${item.course_id}-${item.class_type}`
+    if (!grouped[key]) {
+      grouped[key] = {
+        ...item,
+        days: [item.dayOfWeek],
+        sessions: [item]
+      }
+    } else {
+      grouped[key].days.push(item.dayOfWeek)
+      grouped[key].sessions.push(item)
+    }
+  })
+
+  return Object.values(grouped).filter(item => {
+    const matchesSection = !filterSection.value || item.section_id == filterSection.value
+    const matchesProgram = !filterProgram.value || item.section.program_id == filterProgram.value
+    const matchesYear = !filterYear.value || item.section.year_level == filterYear.value
+    return matchesSection && matchesProgram && matchesYear
+  }).sort((a, b) => a.section.section_name.localeCompare(b.section.section_name))
+})
+
+const formatDays = (days) => {
+  const dayMap = { 'Monday': 'M', 'Tuesday': 'T', 'Wednesday': 'W', 'Thursday': 'Th', 'Friday': 'F', 'Saturday': 'Sat' }
+  const sortedDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  return days.sort((a, b) => sortedDays.indexOf(a) - sortedDays.indexOf(b))
+            .map(d => dayMap[d] || d)
+            .join('/')
+}
 
 const form = ref({
   section_id: '',
   course_id: '',
+  class_type: 'lec',
   dayOfWeek: 'Monday',
   startTime: '08:00',
   endTime: '09:00',
@@ -280,7 +344,7 @@ const assignForm = ref({
 const fetchSchedules = async () => {
   loading.value = true
   try {
-    const res = await axios.get('/schedules', { params: { section_id: filterSection.value } })
+    const res = await axios.get('/schedules')
     schedules.value = res.data
   } catch (err) {
     console.error('Failed to fetch schedules:', err)
@@ -382,10 +446,18 @@ const saveAssignment = async () => {
   }
 }
 
-const deleteSchedule = async (id) => {
-  if (!confirm('Are you sure you want to remove this schedule?')) return
+const deleteSchedule = async (item) => {
+  if (!confirm(`Are you sure you want to remove all sessions of ${item.course.course_code} for ${item.section.section_name}?`)) return
   try {
-    await axios.delete(`/schedules/${id}`)
+    // We send section_id and course_id to a new bulk delete endpoint or handle it in a loop
+    // For now, let's assume we want to delete all sessions sharing these IDs
+    await axios.delete('/schedules/bulk-delete', { 
+      data: { 
+        section_id: item.section_id, 
+        course_id: item.course_id,
+        class_type: item.class_type
+      } 
+    })
     fetchSchedules()
   } catch (err) {
     alert('Failed to delete schedule.')
@@ -421,6 +493,7 @@ const resetForm = () => {
   form.value = {
     section_id: '',
     course_id: '',
+    class_type: 'lec',
     dayOfWeek: 'Monday',
     startTime: '08:00',
     endTime: '09:00',
@@ -457,20 +530,23 @@ onMounted(() => {
 .type-badge { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 10px; text-transform: uppercase; }
 .type-badge.lec { background: #e0f2fe; color: #0369a1; }
 .type-badge.lab { background: #fef3c7; color: #92400e; }
-.course-info { display: flex; flex-direction: column; }
-.c-code { font-weight: 700; color: #1a0a00; }
-.c-name { font-size: 12px; color: #9a8070; }
-.time-info { display: flex; flex-direction: column; }
-.day { font-weight: 700; color: #1a0a00; }
-.time { font-size: 12px; color: #9a8070; }
+.c-code { font-weight: 700; color: #1a0a00; font-size: 13px; }
+.c-name { font-size: 13px; color: #1a0a00; font-weight: 500; }
+.units-cell { font-size: 12px; color: #9a8070; font-weight: 600; text-align: center; }
+.day-badge { background: #f0fdf4; color: #166534; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+.time-text { font-size: 12px; color: #1a0a00; font-weight: 500; white-space: nowrap; }
+.proctor-name { font-weight: 600; color: #1a0a00; font-size: 13px; }
+
+.primary-btn { background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.primary-btn:hover { background: #e85500; }
+.primary-btn:disabled { background: #f0e8e0; cursor: not-allowed; }
+.outline-btn { background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.btn-icon { width: 16px; height: 16px; }
 
 .assign-btn { background: #fff; color: #FF6B1A; border: 1.5px solid #FF6B1A; padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
 .assign-btn:hover { background: #FF6B1A; color: #fff; }
 
-.primary-btn { background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-.outline-btn { background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-.btn-icon { width: 16px; height: 16px; }
-
+.action-btns { display: flex; gap: 8px; justify-content: flex-end; }
 .delete-btn { background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }
 .delete-btn:hover { background: #fee2e2; }
 .delete-btn svg { width: 18px; height: 18px; }

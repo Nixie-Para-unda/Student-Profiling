@@ -97,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/schedules/auto-generate', [ScheduleController::class, 'autoGenerate']);
         Route::post('/schedules/{id}/assign-faculty', [ScheduleController::class, 'assignFaculty']);
         Route::get('/curriculum-courses', [ScheduleController::class, 'getCurriculumCourses']);
+        Route::delete('/schedules/bulk-delete', [ScheduleController::class, 'bulkDelete']);
         Route::delete('/schedules/{id}', [ScheduleController::class, 'destroy']);
 
         Route::get('/analytics/summary', [AnalyticsController::class, 'deanSummary']);

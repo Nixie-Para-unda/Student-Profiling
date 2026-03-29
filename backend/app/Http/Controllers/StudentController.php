@@ -148,6 +148,7 @@ class StudentController extends Controller
                         'user_id' => $user->id,
                         'program_id' => $program->id,
                         'section_id' => $section->id,
+                        'year_level' => $year,
                         'first_name' => $firstName,
                         'last_name' => $lastName,
                         'middle_name' => $middleName,
@@ -210,6 +211,9 @@ class StudentController extends Controller
                 'program_id' => $program ? $program->id : $student->program_id,
                 'section_id' => $section ? $section->id : $student->section_id,
                 'year_level' => $request->year_level,
+                'first_name' => $request->first_name ?? $student->first_name,
+                'last_name' => $request->last_name ?? $student->last_name,
+                'middle_name' => $request->middle_name ?? $student->middle_name,
             ]);
 
             return response()->json([

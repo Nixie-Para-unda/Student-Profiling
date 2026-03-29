@@ -63,6 +63,7 @@ class ScheduleController extends Controller
             'startTime' => 'required',
             'endTime' => 'required',
             'room' => 'required|string',
+            'class_type' => 'required|in:lec,lab',
         ]);
 
         if ($validator->fails()) {
@@ -74,14 +75,31 @@ class ScheduleController extends Controller
             $conflict = Schedule::where('faculty_id', $request->faculty_id)
                 ->where('dayOfWeek', $request->dayOfWeek)
                 ->where(function($q) use ($request) {
-                    $q->whereBetween('startTime', [$request->startTime, $request->endTime])
-                      ->orWhereBetween('endTime', [$request->startTime, $request->endTime]);
+                    $q->where(function($sub) use ($request) {
+                        $sub->where('startTime', '<', $request->endTime)
+                            ->where('endTime', '>', $request->startTime);
+                    });
                 })
                 ->exists();
 
             if ($conflict) {
                 return response()->json(['message' => 'Faculty has a schedule conflict at this time.'], 422);
             }
+        }
+
+        // Section conflict check
+        $sectionConflict = Schedule::where('section_id', $request->section_id)
+            ->where('dayOfWeek', $request->dayOfWeek)
+            ->where(function($q) use ($request) {
+                $q->where(function($sub) use ($request) {
+                    $sub->where('startTime', '<', $request->endTime)
+                        ->where('endTime', '>', $request->startTime);
+                });
+            })
+            ->exists();
+
+        if ($sectionConflict) {
+            return response()->json(['message' => 'Section already has a class scheduled at this time.'], 422);
         }
 
         $schedule = Schedule::create($request->all());
@@ -243,6 +261,25 @@ class ScheduleController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Bulk delete schedules for a specific course in a section.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'section_id' => 'required|exists:sections,id',
+            'course_id' => 'required|exists:courses,id',
+            'class_type' => 'required|string',
+        ]);
+
+        Schedule::where('section_id', $request->section_id)
+            ->where('course_id', $request->course_id)
+            ->where('class_type', $request->class_type)
+            ->delete();
+
+        return response()->json(['message' => 'Schedules removed successfully.']);
     }
 
     /**
