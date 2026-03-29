@@ -2,10 +2,10 @@
   <div class="page">
     <div class="page-header">
       <div>
-        <h2 class="page-title">Faculty Accounts</h2>
-        <p class="page-sub">Create and manage initial faculty member accounts.</p>
+        <h2 class="page-title">Faculty Management</h2>
+        <p class="page-sub">View and manage faculty accounts, departments, and teaching loads.</p>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" v-if="isSecretary">
         <button class="ghost-btn" @click="showImport = !showImport">
           <svg viewBox="0 0 18 18" fill="none"><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1M9 2v9M6 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Import CSV
@@ -17,8 +17,8 @@
       </div>
     </div>
 
-    <!-- Import CSV Panel -->
-    <div v-if="showImport" class="import-panel">
+    <!-- Import CSV Panel (Secretary Only) -->
+    <div v-if="isSecretary && showImport" class="import-panel">
       <div class="import-panel-header">
         <div><h3>Import Faculty via CSV</h3><p>Upload a CSV file to create multiple faculty accounts at once.</p></div>
         <button class="close-btn" @click="showImport = false">×</button>
@@ -69,24 +69,22 @@
 
     <!-- Table -->
     <div class="table-card">
-      <div v-if="loading" class="loading-state">
+      <div v-if="loading" class="loading-overlay">
         <div class="spinner-lg"></div>
         <p>Loading faculty members...</p>
       </div>
-      <table v-else class="data-table">
+      <table class="data-table">
         <thead>
           <tr>
             <th>FACULTY</th>
-            <th>EMPLOYEE ID</th>
             <th>DEPARTMENT</th>
-            <th>POSITION</th>
-            <th>EMAIL</th>
+            <th>WORKLOAD</th>
             <th>STATUS</th>
-            <th>ACTIONS</th>
+            <th v-if="isSecretary">ACTIONS</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="f in filteredFaculty" :key="f.id">
+          <tr v-for="f in filteredFaculty" :key="f.id" @click="viewDetails(f)" class="clickable-row">
             <td>
               <div class="student-cell">
                 <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
@@ -96,12 +94,15 @@
                 </div>
               </div>
             </td>
-            <td><span class="code-badge">{{ f.employee_id }}</span></td>
             <td>{{ f.department_name }}</td>
-            <td>{{ f.position }}</td>
-            <td class="email-cell">{{ f.user?.email }}</td>
-            <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending Setup' }}</span></td>
             <td>
+              <div class="workload-mini">
+                <span class="wl-text">{{ f.load || 0 }} / 50 hrs</span>
+                <div class="wl-bar"><div class="wl-fill" :style="{ width: Math.min((f.load || 0)/50*100, 100) + '%', background: (f.load || 0) >= 50 ? '#ef4444' : '#16a34a' }"></div></div>
+              </div>
+            </td>
+            <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending' }}</span></td>
+            <td v-if="isSecretary" @click.stop>
               <div class="action-btns">
                 <button class="action-btn edit" @click="openEditModal(f)" title="Edit"><svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <button class="action-btn resend" @click="resendSetup(f)" title="Resend setup email"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -109,13 +110,69 @@
               </div>
             </td>
           </tr>
-          <tr v-if="filteredFaculty.length === 0"><td colspan="7" class="empty-row">No faculty members found.</td></tr>
+          <tr v-if="filteredFaculty.length === 0 && !loading"><td :colspan="isSecretary ? 6 : 5" class="empty-row">No faculty members found.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- CREATE / EDIT MODAL -->
-    <div v-if="showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
+    <!-- FACULTY DETAILS MODAL -->
+    <div v-if="viewingFaculty" class="modal-overlay" @click.self="viewingFaculty = null">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <div class="modal-student-info">
+            <div class="s-avatar lg" :style="{ background: viewingFaculty.color }">{{ viewingFaculty.first_name.charAt(0) }}</div>
+            <div>
+              <h3>{{ viewingFaculty.first_name }} {{ viewingFaculty.last_name }}</h3>
+              <p>{{ viewingFaculty.position }}</p>
+            </div>
+          </div>
+          <button class="close-btn" @click="viewingFaculty = null">×</button>
+        </div>
+        <div class="modal-body profile-body">
+          <div class="profile-section">
+            <h4 class="section-title">Professional Information</h4>
+            <div class="profile-info-grid">
+              <div class="pi-row"><span class="pi-label">Department</span><span class="pi-value">{{ viewingFaculty.department_name }}</span></div>
+              <div class="pi-row"><span class="pi-label">Position</span><span class="pi-value">{{ viewingFaculty.position }}</span></div>
+              <div class="pi-row"><span class="pi-label">Status</span><span class="pi-value">{{ viewingFaculty.status.toUpperCase() }}</span></div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h4 class="section-title">Teaching Workload</h4>
+            <div class="workload-detail">
+              <div class="wl-header-main">
+                <span class="wl-val-lg">{{ viewingFaculty.load || 0 }} hrs</span>
+                <span class="wl-limit-lg">/ 50 hrs total capacity</span>
+              </div>
+              <div class="wl-bar-lg"><div class="wl-fill-lg" :style="{ width: Math.min((viewingFaculty.load || 0)/50*100, 100) + '%', background: (viewingFaculty.load || 0) >= 50 ? '#ef4444' : '#FF6B1A' }"></div></div>
+            </div>
+            <div v-if="viewingFaculty.subject_loads?.length" class="assigned-subjects">
+              <p class="pi-label" style="margin-bottom: 8px">Assigned Subjects</p>
+              <div class="subj-tags">
+                <span v-for="load in viewingFaculty.subject_loads" :key="load.id" class="subj-tag">
+                  {{ load.subject?.subject_code }} - {{ load.subject?.subject_name }}
+                </span>
+              </div>
+            </div>
+            <p v-else class="empty-small">No subjects assigned yet.</p>
+          </div>
+          
+          <div class="profile-section">
+            <h4 class="section-title">Contact Information</h4>
+            <div class="profile-info-grid">
+              <div class="pi-row"><span class="pi-label">Email</span><span class="pi-value">{{ viewingFaculty.user?.email }}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="primary-btn" @click="viewingFaculty = null">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE / EDIT MODAL (Secretary Only) -->
+    <div v-if="isSecretary && showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
       <div class="modal">
         <div class="modal-header">
           <h3>{{ editingFaculty ? 'Edit Faculty Account' : 'Create Faculty Account' }}</h3>
@@ -157,8 +214,8 @@
       </div>
     </div>
 
-    <!-- DELETE MODAL -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+    <!-- DELETE CONFIRM MODAL (Secretary Only) -->
+    <div v-if="isSecretary && showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
       <div class="modal modal-sm">
         <div class="modal-header"><h3>Delete Faculty Account</h3><button class="close-btn" @click="showDeleteModal = false">×</button></div>
         <div class="modal-body"><p class="delete-msg">Are you sure you want to delete the account of <strong>{{ deletingFaculty?.first_name }} {{ deletingFaculty?.last_name }}</strong>? This action cannot be undone.</p></div>
@@ -174,6 +231,10 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from '@/store/auth'
+
+const authStore = useAuthStore()
+const isSecretary = computed(() => authStore.user?.role === 'secretary')
 
 const search = ref('')
 const filterDept = ref('')
@@ -186,6 +247,7 @@ const loading = ref(false)
 const loadingImport = ref(false)
 const editingFaculty = ref(null)
 const deletingFaculty = ref(null)
+const viewingFaculty = ref(null)
 const csvInput = ref(null)
 
 const form = ref({ 
@@ -214,19 +276,16 @@ const fetchData = async () => {
       ...f,
       color: colors[idx % colors.length],
       status: f.user?.status || 'pending',
-      employee_id: f.employee_id || 'N/A',
-      department_name: f.department?.department_name || 'N/A'
+      department_name: f.department?.department_name || 'N/A',
+      load: calculateLoad(f)
     }))
 
-    // Extract unique departments from sections or a dedicated endpoint if available
-    // For now, let's assume we can get them from the sections response or just use a default
     const depts = new Set()
     sectionsRes.data.forEach(s => {
       if (s.department) depts.add(JSON.stringify(s.department))
     })
     departments.value = Array.from(depts).map(d => JSON.parse(d))
     
-    // If no departments found, at least add CCS
     if (departments.value.length === 0) {
       departments.value = [{ id: 1, department_name: 'College of Computing Studies' }]
     }
@@ -237,12 +296,31 @@ const fetchData = async () => {
   }
 }
 
+const calculateLoad = (f) => {
+  if (!f.schedules || !f.schedules.length) return 0;
+  
+  // Create a unique key for each course in each section to avoid double-counting
+  // if there are multiple sessions for the same class
+  const uniqueClasses = new Set();
+  let totalUnits = 0;
+  
+  f.schedules.forEach(s => {
+    const classKey = `${s.course_id}-${s.section_id}`;
+    if (!uniqueClasses.has(classKey)) {
+      uniqueClasses.add(classKey);
+      totalUnits += s.course?.units || 0;
+    }
+  });
+  
+  return totalUnits;
+}
+
 onMounted(fetchData)
 
 const miniStats = computed(() => [
   { label: 'Total Faculty', value: faculty.value.length, color: '#FF6B1A' },
   { label: 'Active', value: faculty.value.filter(f => f.status === 'active').length, color: '#16a34a' },
-  { label: 'Pending Setup', value: faculty.value.filter(f => f.status === 'pending').length, color: '#f59e0b' },
+  { label: 'Overloaded', value: faculty.value.filter(f => f.load >= 50).length, color: '#ef4444' },
   { label: 'CCS Dept', value: faculty.value.filter(f => f.department_name.includes('Computing')).length, color: '#8b5cf6' }
 ])
 
@@ -254,29 +332,19 @@ const filteredFaculty = computed(() => faculty.value.filter(f => {
   return matchSearch && matchDept && matchStatus
 }))
 
+const viewDetails = (f) => {
+  viewingFaculty.value = f
+}
+
 const openCreateModal = () => { 
   editingFaculty.value = null; 
-  form.value = { 
-    first_name: '', 
-    last_name: '', 
-    middle_name: '', 
-    email: '', 
-    department_id: departments.value[0]?.id || '', 
-    position: 'Instructor' 
-  }; 
+  form.value = { first_name: '', last_name: '', middle_name: '', email: '', department_id: departments.value[0]?.id || '', position: 'Instructor' }; 
   showModal.value = true 
 }
 
 const openEditModal = (f) => { 
   editingFaculty.value = f; 
-  form.value = { 
-    first_name: f.first_name, 
-    last_name: f.last_name, 
-    middle_name: f.middle_name, 
-    email: f.user?.email, 
-    department_id: f.department_id, 
-    position: f.position 
-  }; 
+  form.value = { first_name: f.first_name, last_name: f.last_name, middle_name: f.middle_name, email: f.user?.email, department_id: f.department_id, position: f.position }; 
   showModal.value = true 
 }
 
@@ -285,29 +353,18 @@ const saveFaculty = async () => {
     alert('Please fill in all required fields.')
     return
   }
-
   saving.value = true
   try {
     if (editingFaculty.value) {
-      await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, {
-        department_id: form.value.department_id,
-        position: form.value.position
-      })
+      await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, { department_id: form.value.department_id, position: form.value.position })
       showModal.value = false
-      await nextTick()
       alert('Faculty account updated successfully.')
-      fetchData() // Refresh the list to show updated data
+      fetchData()
     } else {
-      const response = await axios.post('/secretary/faculty', form.value)
-      faculty.value.push({
-        ...response.data.faculty,
-        color: colors[faculty.value.length % colors.length],
-        status: 'pending',
-        department_name: departments.value.find(d => d.id == form.value.department_id)?.department_name || 'N/A'
-      })
+      await axios.post('/secretary/faculty', form.value)
       showModal.value = false
-      await nextTick()
       alert('Faculty account created successfully. Setup email sent.')
+      fetchData()
     }
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to save faculty.')
@@ -320,9 +377,9 @@ const confirmDelete = (f) => { deletingFaculty.value = f; showDeleteModal.value 
 const deleteFaculty = async () => {
   try {
     await axios.delete(`/secretary/faculty/${deletingFaculty.value.id}`)
-    faculty.value = faculty.value.filter(f => f.id !== deletingFaculty.value.id)
     showDeleteModal.value = false
     alert('Faculty account deleted successfully.')
+    fetchData()
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to delete faculty.')
   }
@@ -330,7 +387,6 @@ const deleteFaculty = async () => {
 
 const resendSetup = async (f) => {
   try {
-    // await axios.post(`/secretary/faculty/${f.id}/resend-setup`)
     alert(`Setup email resent to ${f.user?.email}`)
   } catch (err) {
     alert('Failed to resend setup email.')
@@ -340,20 +396,13 @@ const resendSetup = async (f) => {
 const handleCSV = async (e) => {
   const file = e.target.files[0]
   if (!file) return
-
   const formData = new FormData()
   formData.append('file', file)
-
   loadingImport.value = true
   try {
-    const response = await axios.post('/secretary/faculty/import', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    const response = await axios.post('/secretary/faculty/import', formData)
     alert(response.data.message)
-    if (response.data.errors && response.data.errors.length > 0) {
-      console.error('Import errors:', response.data.errors)
-    }
-    fetchData() // Refresh list
+    fetchData()
     showImport.value = false
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to import CSV.')
@@ -370,6 +419,8 @@ const handleCSV = async (e) => {
 .page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .header-actions { display: flex; gap: 10px; }
+
+/* Buttons */
 .primary-btn { display: flex; align-items: center; gap: 7px; background: #FF6B1A; color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
 .primary-btn:hover:not(:disabled) { background: #e85500; }
 .primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -378,23 +429,31 @@ const handleCSV = async (e) => {
 .ghost-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
 .ghost-btn svg { width: 15px; height: 15px; }
 .danger-btn { background: #ef4444; color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+/* Import Panel */
 .import-panel { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
 .import-panel-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #faf8f6; }
 .import-panel-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
 .import-panel-header p { font-size: 12px; color: #b89f90; margin-top: 3px; }
 .close-btn { background: none; border: none; font-size: 22px; color: #b89f90; cursor: pointer; padding: 0; line-height: 1; }
 .import-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-.drop-zone { border: 2px dashed #f0e8e0; border-radius: 14px; padding: 36px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
-.drop-zone:hover { border-color: #FF6B1A; background: #fffaf8; }
+.drop-zone { border: 2px dashed #f0e8e0; border-radius: 14px; padding: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; min-height: 160px; }
+.drop-zone:hover:not(.disabled) { border-color: #FF6B1A; background: #fffaf8; }
+.drop-zone.disabled { cursor: not-allowed; opacity: 0.7; background: #fafafa; }
+.spinner-lg { width: 32px; height: 32px; border: 3px solid rgba(255,107,26,0.1); border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
 .drop-zone svg { width: 40px; height: 40px; color: #c0b0a5; }
 .drop-title { font-size: 14px; font-weight: 600; color: #1a0a00; }
 .drop-sub { font-size: 12px; color: #b89f90; }
 .import-template { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9a8070; background: #faf8f6; padding: 10px 14px; border-radius: 9px; }
 .import-template svg { width: 14px; height: 14px; color: #FF6B1A; flex-shrink: 0; }
+
+/* Mini Stats */
 .mini-stats { display: flex; gap: 14px; }
 .mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
 .mini-stat-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
 .mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Toolbar */
 .table-toolbar { display: flex; gap: 12px; align-items: center; }
 .search-wrap { display: flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid #f0e8e0; border-radius: 10px; padding: 9px 14px; flex: 1; transition: all 0.2s; }
 .search-wrap:focus-within { border-color: #FF6B1A; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
@@ -403,19 +462,29 @@ const handleCSV = async (e) => {
 .search-wrap input::placeholder { color: #c0b0a5; }
 .filter-group { display: flex; gap: 8px; }
 .filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; }
-.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
+
+/* Table */
+.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; min-height: 200px; }
+.loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; gap: 10px; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { padding: 13px 18px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; white-space: nowrap; }
 .data-table td { padding: 13px 18px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
-.data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: #fdf9f7; }
+.clickable-row { cursor: pointer; }
+.clickable-row:hover td { background: #fff5ef !important; }
+
 .student-cell { display: flex; align-items: center; gap: 10px; }
 .s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-.email-cell { font-size: 12px; color: #6b7280; }
-.subjects-count { font-size: 11px; font-weight: 600; background: #eff6ff; color: #3b82f6; padding: 3px 9px; border-radius: 6px; }
+
+.workload-mini { display: flex; flex-direction: column; gap: 4px; width: 100px; }
+.wl-text { font-size: 11px; font-weight: 600; color: #9a8070; }
+.wl-bar { height: 4px; background: #f0e8e0; border-radius: 2px; overflow: hidden; }
+.wl-fill { height: 100%; border-radius: 2px; }
+
 .status-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
 .st-active { background: #f0fdf4; color: #16a34a; }
 .st-pending { background: #fffbeb; color: #d97706; }
@@ -426,12 +495,36 @@ const handleCSV = async (e) => {
 .action-btn.resend { color: #f59e0b; } .action-btn.resend:hover { background: #fffbeb; border-color: #f59e0b; }
 .action-btn.delete { color: #ef4444; } .action-btn.delete:hover { background: #fff1f2; border-color: #ef4444; }
 .empty-row { text-align: center; color: #b89f90; font-style: italic; padding: 40px; }
+
+/* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh; }
+.modal-lg { max-width: 650px; }
 .modal-sm { max-width: 420px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; }
 .modal-header h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
-.modal-body { padding: 24px; }
+.modal-student-info { display: flex; align-items: center; gap: 15px; }
+.modal-student-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #1a0a00; margin: 0; }
+.modal-student-info p { font-size: 13px; color: #b89f90; margin-top: 2px; }
+
+.modal-body { padding: 24px; overflow-y: auto; }
+.profile-body { display: flex; flex-direction: column; gap: 24px; }
+.profile-section { display: flex; flex-direction: column; gap: 12px; }
+.section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
+.profile-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.pi-row { display: flex; flex-direction: column; gap: 2px; }
+.pi-label { font-size: 11px; color: #9a8070; font-weight: 600; }
+.pi-value { font-size: 14px; color: #1a0a00; font-weight: 500; }
+
+.workload-detail { background: #fffaf8; border: 1px solid #f0e8e0; border-radius: 14px; padding: 18px; }
+.wl-header-main { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.wl-val-lg { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #1a0a00; }
+.wl-limit-lg { font-size: 13px; color: #9a8070; font-weight: 500; }
+.wl-bar-lg { height: 8px; background: #f0e8e0; border-radius: 4px; overflow: hidden; }
+.wl-fill-lg { height: 100%; border-radius: 4px; }
+.subj-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.subj-tag { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 5px 12px; border-radius: 20px; border: 1px solid #f0e8e0; }
+
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #faf8f6; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }
@@ -441,11 +534,5 @@ const handleCSV = async (e) => {
 .modal-notice { display: flex; align-items: flex-start; gap: 8px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #c94000; margin-top: 16px; }
 .modal-notice svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
 .delete-msg { font-size: 14px; color: #4a3020; line-height: 1.6; }
-.spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.drop-zone.disabled { opacity: 0.6; cursor: not-allowed; border-color: #f0e8e0 !important; background: #fafafa !important; }
-.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #b89f90; }
-.spinner-lg { width: 40px; height: 40px; border: 3px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 1s linear infinite; }
-.spinner-sm { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>

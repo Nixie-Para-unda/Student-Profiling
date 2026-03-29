@@ -153,7 +153,7 @@
             </button>
 
             <div class="form-footer">
-              <router-link to="/login" class="back-link">
+              <router-link to="/students/login" class="back-link">
                 <svg viewBox="0 0 20 20" fill="none">
                   <path d="M15 10H5M5 10l5-5m-5 5l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -199,7 +199,7 @@ const handleActivation = async () => {
     
     success.value = true
     setTimeout(() => {
-      router.push('/login')
+      router.push('/students/login')
     }, 2000)
   } catch (err) {
     error.value = err.response?.data?.message || 'Activation failed. Please check your credentials.'

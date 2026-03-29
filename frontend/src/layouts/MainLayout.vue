@@ -46,9 +46,9 @@
 
         <!-- ── DEAN NAV ── -->
         <template v-if="authStore.isDean">
-          <router-link to="/reports" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Reports</span>
+          <router-link to="/profiling/report" class="nav-item" active-class="active">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span v-show="!sidebarCollapsed">Profiling Report</span>
           </router-link>
           <router-link to="/dean/curriculum" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -62,12 +62,10 @@
           <router-link to="/students" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Students</span>
-            <span class="nav-badge" v-show="!sidebarCollapsed">842</span>
           </router-link>
           <router-link to="/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty</span>
-            <span class="nav-badge" v-show="!sidebarCollapsed">38</span>
           </router-link>
           <router-link to="/academic-performance" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -76,26 +74,12 @@
           <router-link to="/violations" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Violations</span>
-            <span class="nav-badge danger" v-show="!sidebarCollapsed">12</span>
-          </router-link>
-          <router-link v-if="authStore.isDean || authStore.isChair || authStore.isSecretary" to="/profiling/report" class="nav-item" active-class="active">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Profiling Report</span>
-          </router-link>
-          <router-link v-if="authStore.isFaculty" to="/faculty/schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Schedule</span>
           </router-link>
 
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
-          <router-link to="/faculty-schedule" class="nav-item" active-class="active">
+          <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Schedule</span>
-          </router-link>
-          <router-link to="/awards" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Awards & Recognition</span>
-            <span class="nav-badge warning" v-show="!sidebarCollapsed">3</span>
           </router-link>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -145,7 +129,7 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Student Profiles</span>
           </router-link>
-          <router-link to="/chair/faculty" class="nav-item" active-class="active">
+          <router-link to="/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Members</span>
           </router-link>
@@ -191,7 +175,7 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Student Accounts</span>
           </router-link>
-          <router-link to="/secretary/faculty" class="nav-item" active-class="active">
+          <router-link to="/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Accounts</span>
           </router-link>
@@ -228,9 +212,9 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">My Profile</span>
           </router-link>
-          <router-link to="/student/performance" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Performance</span>
+          <router-link to="/student/curriculum" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">My Curriculum</span>
           </router-link>
           <router-link to="/student/violations" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -238,27 +222,15 @@
           </router-link>
 
           <div class="nav-section-label" v-show="!sidebarCollapsed">My Activities</div>
-          <router-link to="/student/affiliations" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M1 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="7" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M13 17c0-2 1-3.5 2.5-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Affiliations</span>
-          </router-link>
-          <router-link to="/student/activities" class="nav-item" active-class="active">
+          <router-link to="/student/achievements" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Activities</span>
+            <span v-show="!sidebarCollapsed">My Achievements</span>
           </router-link>
 
           <div class="nav-section-label" v-show="!sidebarCollapsed">Academics</div>
           <router-link to="/student/schedule" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Schedule</span>
-          </router-link>
-          <router-link to="/student/academic-history" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h8M4 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Academic History</span>
-          </router-link>
-          <router-link to="/student/awards" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Awards</span>
+            <span v-show="!sidebarCollapsed">My Schedule</span>
           </router-link>
 
           <div class="nav-section-label" v-show="!sidebarCollapsed">Account</div>

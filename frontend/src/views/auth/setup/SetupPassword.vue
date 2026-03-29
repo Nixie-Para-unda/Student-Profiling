@@ -41,7 +41,7 @@
         <h2>Password Set!</h2>
         <p>{{ success || 'Your password has been created successfully.' }}</p>
         <div class="redirect-note">Redirecting to login in {{ countdown }} seconds...</div>
-        <button class="login-btn" @click="router.push('/student/login')">
+        <button class="login-btn" @click="router.push('/login')">
           Go to Login Now
         </button>
       </div>
@@ -221,7 +221,7 @@ const handleSetup = async () => {
       countdown.value--
       if (countdown.value <= 0) {
         clearInterval(timer)
-        router.push('/student/login')
+        router.push('/login')
       }
     }, 1000)
   } catch (err) {

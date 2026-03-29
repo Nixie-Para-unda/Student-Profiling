@@ -1,115 +1,95 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import FacultyLogin from '../views/auth/login/FacultyLogin.vue'
+import { useAuthStore } from '../store/auth'
+
+// ✅ Auth & Layout
 import StudentLogin from '../views/auth/login/StudentLogin.vue'
+import FacultyLogin from '../views/auth/login/FacultyLogin.vue'
 import SetupPassword from '../views/auth/setup/SetupPassword.vue'
 import SetupPasswordFaculty from '../views/auth/setup/SetupPasswordFaculty.vue'
 import ActivateAccount from '../views/auth/activate/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 
 import StudentProfile from '../views/student/StudentProfile.vue'
-import FacultyList from '../views/dean/FacultyList.vue'
+
+// ✅ Dean page imports
+import DeanDashboard from '../views/dean/DeanDashboard.vue'
+import CurriculumManagement from '../views/dean/CurriculumManagement.vue'
+import CourseManagement from '../views/dean/CourseManagement.vue'
 import PerformanceOverview from '../views/dean/PerformanceOverview.vue'
 import ViolationsList from '../views/dean/ViolationsList.vue'
 import ProfilingReport from '../views/dean/ProfilingReport.vue'
-import CurriculumManagement from '../views/dean/CurriculumManagement.vue'
-import CourseManagement from '../views/dean/CourseManagement.vue'
-import FacultySchedule from '../views/faculty/FacultySchedule.vue'
 
-// Dashboard imports
-import DeanDashboard from '../views/dean/DeanDashboard.vue'
-import FacultyDashboard from '../views/faculty/FacultyDashboard.vue'
+// ✅ Settings
+import Settings from '../views/shared/Settings.vue'
+import StudentManagement from '../views/shared/StudentManagement.vue'
+import FacultyManagement from '../views/shared/FacultyManagement.vue'
+
+// ✅ Secretary page imports
 import SecretaryDashboard from '../views/secretary/SecretaryDashboard.vue'
-import StudentDashboard from '../views/student/StudentDashboard.vue'
+import SecretaryFacultyWorkload from '../views/secretary/SecretaryFacultyWorkload.vue'
+import SecretaryAchievements from '../views/secretary/SecretaryAchievements.vue'
+import SecretaryReports from '../views/secretary/SecretaryReports.vue'
 
-// ✅ Student page imports
-import MyAffiliations from '../views/student/StudentAffiliation.vue'
-import MyActivities from '../views/student/StudentActivities.vue'
-import MySchedule from '../views/student/StudentSchedule.vue'
-import MyAcademicHistory from '../views/student/StudentAcademicHistory.vue'
-import MyAwards from '../views/student/StudentAwards.vue'
-import MyViolations from '../views/student/StudentViolations.vue'
-import MyPerformance from '../views/student/StudentPerformance.vue'
-
-// Department Chair page imports
+// ✅ Department Chair page imports
 import ChairDashboard from '../views/chair/DepartmentChairDashboard.vue'
-import ChairFaculty from '../views/chair/DepartmentChairFaculty.vue'
 import ChairViolations from '../views/chair/DepartmentChairViolations.vue'
 import ChairAwards from '../views/chair/DepartmentChairAwards.vue'
 import ChairPerformance from '../views/chair/DepartmentChairPerformance.vue'
 import ChairReports from '../views/chair/DepartmentChairReports.vue'
 import ChairSchedules from '../views/chair/ScheduleManagement.vue'
 
-// ✅ Settings
-import Settings from '../views/shared/Settings.vue'
-import StudentManagement from '../views/shared/StudentManagement.vue'
-
-// ✅ Secretary page imports
-import SecretaryFaculty from '../views/secretary/SecretaryFaculty.vue'
-import SecretaryFacultyWorkload from '../views/secretary/SecretaryFacultyWorkload.vue'
-import SecretaryAchievements from '../views/secretary/SecretaryAchievements.vue'
-import SecretaryReports from '../views/secretary/SecretaryReports.vue'
-
-// ✅ router/index.js is in src/router/ so store is ONE level up — NOT two
-import { useAuthStore } from '../store/auth'
-
 const routes = [
-  {
-    path: '/login',
-    name: 'Login',
-    component: FacultyLogin,
-    meta: { guest: true, title: 'Faculty Login' }
-  },
-  {
-    path: '/student/login',
-    name: 'StudentLogin',
-    component: StudentLogin,
-    meta: { guest: true, title: 'Student Login' }
-  },
-  {
-    path: '/setup-password',
-    name: 'SetupPassword',
-    component: SetupPassword,
-    meta: { guest: true }
-  },
-  {
-    path: '/faculty/setup-password',
-    name: 'SetupPasswordFaculty',
-    component: SetupPasswordFaculty,
-    meta: { guest: true }
-  },
-  {
-    path: '/activate',
-    name: 'ActivateAccount',
-    component: ActivateAccount,
-    meta: { guest: true }
-  },
+  { path: '/', redirect: '/login' },
+  { path: '/login', name: 'FacultyLogin', component: FacultyLogin },
+  { path: '/students/login', name: 'StudentLogin', component: StudentLogin },
+  { path: '/setup-password', name: 'SetupPassword', component: SetupPassword },
+  { path: '/setup-password-faculty', name: 'SetupPasswordFaculty', component: SetupPasswordFaculty },
+  { path: '/activate', name: 'ActivateAccount', component: ActivateAccount },
+
   {
     path: '/',
     component: MainLayout,
     meta: { requiresAuth: true },
     children: [
+      // ── Student routes ──────────────────────────
       {
-        path: '',
-        redirect: to => {
-          const authStore = useAuthStore()
-          if (authStore.isStudent) return '/student/dashboard';
-          if (authStore.isFaculty) return '/faculty/dashboard';
-          if (authStore.isDean) return '/dean/dashboard';
-          if (authStore.isChair) return '/chair/dashboard';
-          if (authStore.isSecretary) return '/secretary/dashboard';
-          return '/login';
-        }
+        path: 'student/dashboard',
+        name: 'StudentDashboard',
+        component: () => import('../views/student/StudentDashboard.vue'),
+        meta: { title: 'Dashboard' }
       },
-      // ── Shared ──────────────────────────────────
-      
       {
-        path: 'settings',
-        name: 'Settings',
-        component: Settings,
-        meta: { title: 'Settings' }
+        path: 'student/profile',
+        name: 'MyProfile',
+        component: StudentProfile,
+        meta: { title: 'My Profile' }
+      },
+      {
+        path: 'student/curriculum',
+        name: 'MyCurriculum',
+        component: () => import('../views/student/StudentSchedule.vue'),
+        meta: { title: 'My Curriculum' }
+      },
+      {
+        path: 'student/schedule',
+        name: 'MySchedule',
+        component: () => import('../views/student/StudentSchedule.vue'),
+        meta: { title: 'My Schedule' }
+      },
+      {
+        path: 'student/achievements',
+        name: 'MyAchievements',
+        component: () => import('../views/student/StudentAwards.vue'),
+        meta: { title: 'My Achievements' }
+      },
+      {
+        path: 'student/violations',
+        name: 'MyViolations',
+        component: () => import('../views/student/StudentViolations.vue'),
+        meta: { title: 'My Violations' }
       },
 
-      // ── Dean routes ──────────────────────────────
+      // ── Dean routes ─────────────────────────────
       {
         path: 'dean/dashboard',
         name: 'DeanDashboard',
@@ -124,9 +104,9 @@ const routes = [
       },
       {
         path: 'faculty',
-        name: 'Faculty',
-        component: FacultyList,
-        meta: { title: 'Faculty' }
+        name: 'FacultyManagement',
+        component: FacultyManagement,
+        meta: { title: 'Faculty Profiles' }
       },
       {
         path: 'academic-performance',
@@ -158,83 +138,19 @@ const routes = [
         component: CourseManagement,
         meta: { title: 'Course Management' }
       },
-      { path: 'reports', name: 'Reports', component: { template: '<div>Reports Page</div>' } },
-      { path: 'faculty-schedule', name: 'FacultyScheduleManagement', component: { template: '<div>Faculty Schedule Management Page</div>' } },
-      { path: 'awards', name: 'Awards', component: { template: '<div>Awards Page</div>' } },
 
       // ── Faculty routes ──────────────────────────
       {
         path: 'faculty/dashboard',
         name: 'FacultyDashboard',
-        component: FacultyDashboard,
+        component: () => import('../views/faculty/FacultyDashboard.vue'),
         meta: { title: 'Dashboard' }
       },
       {
         path: 'faculty/schedule',
         name: 'FacultySchedule',
-        component: FacultySchedule,
+        component: () => import('../views/faculty/FacultySchedule.vue'),
         meta: { title: 'My Schedule' }
-      },
-      { path: 'faculty/subjects', name: 'FacultySubjects', component: { template: '<div>My Subjects</div>' } },
-      { path: 'faculty/students', name: 'FacultyStudents', component: { template: '<div>Student Profiles</div>' } },
-      { path: 'faculty/violations', name: 'FacultyViolations', component: { template: '<div>Record Violation</div>' } },
-      { path: 'faculty/awards', name: 'FacultyAwards', component: { template: '<div>Recommend Awards</div>' } },
-      { path: 'faculty/profile', name: 'FacultyProfile', component: { template: '<div>Faculty Profile</div>' } },
-
-      // ── Student routes ───────────────────────────
-      {
-        path: 'student/dashboard',
-        name: 'StudentDashboard',
-        component: StudentDashboard,
-        meta: { title: 'Dashboard' }
-      },
-      {
-        path: 'student/profile',
-        name: 'StudentProfile',
-        component: StudentProfile,
-        meta: { title: 'My Profile' }
-      },
-      {
-        path: 'student/affiliations',
-        name: 'MyAffiliations',
-        component: MyAffiliations,
-        meta: { title: 'Affiliations' }
-      },
-      {
-        path: 'student/activities',
-        name: 'MyActivities',
-        component: MyActivities,
-        meta: { title: 'Activities' }
-      },
-      {
-        path: 'student/schedule',
-        name: 'MySchedule',
-        component: MySchedule,
-        meta: { title: 'My Schedule' }
-      },
-      {
-        path: 'student/academic-history',
-        name: 'MyAcademicHistory',
-        component: MyAcademicHistory,
-        meta: { title: 'Academic History' }
-      },
-      {
-        path: 'student/awards',
-        name: 'MyAwards',
-        component: MyAwards,
-        meta: { title: 'Awards' }
-      },
-      {
-        path: 'student/violations',
-        name: 'MyViolations',
-        component: MyViolations,
-        meta: { title: 'My Violations' }
-      },
-      {
-        path: 'student/performance',
-        name: 'MyPerformance',
-        component: MyPerformance,
-        meta: { title: 'My Performance' }
       },
 
       // ── Secretary routes ─────────────────────────
@@ -244,7 +160,6 @@ const routes = [
         component: SecretaryDashboard,
         meta: { title: 'Dashboard' }
       },
-      { path: 'secretary/faculty', name: 'SecretaryFaculty', component: SecretaryFaculty, meta: { title: 'Faculty Accounts' } },
       { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload' } },
       { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification' } },
       { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports' } },
@@ -256,45 +171,50 @@ const routes = [
         component: ChairDashboard,
         meta: { title: 'Dashboard' }
       },
-      { path: 'chair/faculty', name: 'DepartmentChairFaculty', component: ChairFaculty, meta: { title: 'Faculty Members' } },
       { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations' } },
       { path: 'chair/awards', name: 'DepartmentChairAwards', component: ChairAwards, meta: { title: 'Approve Awards' } },
       { path: 'chair/performance', name: 'DepartmentChairPerformance', component: ChairPerformance, meta: { title: 'Academic Performance' } },
       { path: 'chair/schedules', name: 'ChairSchedules', component: ChairSchedules, meta: { title: 'Schedule Management' } },
       { path: 'chair/reports', name: 'DepartmentChairReports', component: ChairReports, meta: { title: 'Generate Reports' } },
 
-      // ── Redirect old /profile ────────────────────
-      { path: 'profile', redirect: 'student/profile' }
+      // Shared
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: Settings,
+        meta: { title: 'Account Settings' }
+      }
     ]
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
-  // Update document title
-  const baseTitle = 'CCS Student Profiling System'
-  document.title = to.meta.title ? `${to.meta.title} | ${baseTitle}` : baseTitle
+  const isAuthenticated = !!authStore.token
+  const userRole = authStore.user?.role
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return '/login'
-  }
-  if (to.meta.guest && authStore.isAuthenticated) {
-    if (authStore.isStudent) return '/student/dashboard';
-    if (authStore.isFaculty) return '/faculty/dashboard';
-    if (authStore.isDean) return '/dean/dashboard';
-    if (authStore.isChair) return '/chair/dashboard';
-    if (authStore.isSecretary) return '/secretary/dashboard';
-    return '/'; // Fallback
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // If trying to access student routes, redirect to student login
+    if (to.path.startsWith('/student')) {
+      next('/students/login')
+    } else {
+      next('/login')
+    }
+  } else if (isAuthenticated && (to.path === '/login' || to.path === '/students/login')) {
+    // Redirect to respective dashboard based on role if already logged in
+    if (userRole === 'student') next('/student/dashboard')
+    else if (userRole === 'dean') next('/dean/dashboard')
+    else if (userRole === 'secretary') next('/secretary/dashboard')
+    else if (userRole === 'chair') next('/chair/dashboard')
+    else if (userRole === 'faculty') next('/faculty/dashboard')
+    else next('/')
+  } else {
+    next()
   }
 })
 
