@@ -173,6 +173,82 @@ class StudentController extends Controller
     }
 
     /**
+     * Store a new student account (for Secretary).
+     */
+    public function store(Request $request)
+    {
+        if (!$request->user()->isSecretary()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'student_number' => 'required|string|unique:users,student_number',
+            'email' => 'required|email|unique:users,email',
+            'course' => 'required|string',
+            'year_level' => 'required|integer|min:1|max:4',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $department = Department::firstOrCreate(['department_name' => 'College of Computing Studies']);
+            
+            $program = Program::where('program_code', $request->course)->first();
+            if (!$program) {
+                $program = Program::firstOrCreate(
+                    ['program_code' => $request->course, 'department_id' => $department->id],
+                    ['program_name' => $request->course === 'BSIT' ? 'Bachelor of Science in Information Technology' : 'Bachelor of Science in Computer Science']
+                );
+            }
+
+            // Find or create an appropriate section
+            $section = Section::where('program_id', $program->id)
+                ->where('year_level', $request->year_level)
+                ->first();
+
+            if (!$section) {
+                $section = Section::create([
+                    'section_name' => "{$request->course} {$request->year_level}-A",
+                    'program_id' => $program->id,
+                    'department_id' => $department->id,
+                    'year_level' => $request->year_level,
+                    'school_year' => '2026-2027'
+                ]);
+            }
+
+            $initialPassword = $request->last_name . substr(preg_replace('/[^0-9]/', '', $request->student_number), -3);
+            $setupToken = Str::random(60);
+
+            $user = User::create([
+                'email' => $request->email,
+                'student_number' => $request->student_number,
+                'password' => Hash::make($initialPassword),
+                'role' => 'student',
+                'password_setup_token' => $setupToken,
+                'status' => 'pending'
+            ]);
+
+            $student = Student::create([
+                'user_id' => $user->id,
+                'program_id' => $program->id,
+                'section_id' => $section->id,
+                'year_level' => $request->year_level,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'middle_name' => $request->middle_name,
+            ]);
+
+            $user->notify(new SetupPasswordNotification($setupToken, $request->email));
+
+            return response()->json([
+                'message' => 'Student account created successfully.',
+                'student' => $student->load('user', 'section', 'program')
+            ], 201);
+        });
+    }
+
+    /**
      * Update a student member (for Secretary).
      */
     public function update(Request $request, $id)

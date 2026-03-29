@@ -378,17 +378,26 @@ const saveStudent = async () => {
   try {
     if (editingStudent.value) {
       await axios.put(`/secretary/students/${editingStudent.value.id}`, {
+        first_name: form.value.first_name,
+        last_name: form.value.last_name,
         student_number: form.value.student_number,
         course: form.value.course,
         year_level: form.value.year_level
       })
-      showModal.value = false
       alert('Student account updated successfully.')
-      fetchStudents()
     } else {
-      alert('Account creation is processed through CSV import or manual entry (backend pending).')
-      showModal.value = false
+      await axios.post('/secretary/students', {
+        first_name: form.value.first_name,
+        last_name: form.value.last_name,
+        email: form.value.email,
+        student_number: form.value.student_number,
+        course: form.value.course,
+        year_level: form.value.year_level
+      })
+      alert('Student account created successfully.')
     }
+    showModal.value = false
+    fetchStudents()
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to save student.')
   } finally {

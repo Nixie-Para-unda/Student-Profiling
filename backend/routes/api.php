@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Secretary Specific
     Route::middleware('role:secretary')->group(function () {
+        Route::post('/secretary/students', [StudentController::class, 'store']);
         Route::post('/secretary/students/import', [StudentController::class, 'import']);
         Route::put('/secretary/students/{id}', [StudentController::class, 'update']);
         Route::delete('/secretary/students/{id}', [StudentController::class, 'destroy']);
