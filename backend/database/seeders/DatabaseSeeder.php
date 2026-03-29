@@ -67,22 +67,8 @@ class DatabaseSeeder extends Seeder
             'password_set_at' => now(),
         ]);
 
-        // Create Faculty
-        $facultyUser = User::create([
-            'email' => 'faculty@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'faculty',
-            'status' => 'active',
-            'password_set_at' => now(),
-        ]);
-
-        \App\Models\Faculty::create([
-            'user_id' => $facultyUser->id,
-            'department_id' => $dept->id,
-            'first_name' => 'Prof.',
-            'last_name' => 'Faculty',
-            'position' => 'Instructor'
-        ]);
+        // Call Faculty Seeder
+        $this->call(FacultySeeder::class);
 
         // Create Student
         $studentUser = User::create([
