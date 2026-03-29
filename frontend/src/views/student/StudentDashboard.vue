@@ -181,12 +181,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 .dashboard-home { display: flex; flex-direction: column; gap: 0; }
 .hero-banner { background: linear-gradient(130deg, #1a0a00 0%, #3d1500 55%, #FF6B1A 130%); border-radius: 20px; padding: 28px 32px; position: relative; overflow: hidden; margin-bottom: 20px; }
 .profile-warning-banner { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 20px; }
 .warning-content { display: flex; align-items: center; gap: 16px; }
 .warning-icon { width: 32px; height: 32px; color: #FF6B1A; }
-.warning-text h4 { color: #fff; font-family: 'Syne', sans-serif; font-size: 16px; margin-bottom: 2px; }
+.warning-text h4 { color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; margin-bottom: 2px; }
 .warning-text p { color: rgba(255,255,255,0.6); font-size: 13px; }
 .complete-btn { background: #fff; color: #1a0a00; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; transition: all 0.2s; white-space: nowrap; }
 .complete-btn:hover { background: #FF6B1A; color: #fff; }
@@ -196,19 +197,19 @@ onMounted(async () => {
 .hero-body { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .hero-eyebrow { display: flex; align-items: center; gap: 7px; font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
 .eyebrow-dot { width: 6px; height: 6px; background: #FF6B1A; border-radius: 50%; box-shadow: 0 0 8px #FF6B1A; }
-.hero-greeting { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 8px; }
+.hero-greeting { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 8px; }
 .hero-desc { font-size: 13.5px; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 400px; margin-bottom: 20px; }
 .hero-desc strong { color: rgba(255,255,255,0.85); font-weight: 500; }
 .hero-actions { display: flex; gap: 10px; }
-.hero-btn-primary { display: flex; align-items: center; gap: 8px; background: #FF6B1A; color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 16px rgba(255,107,26,0.4); text-decoration: none; }
+.hero-btn-primary { display: flex; align-items: center; gap: 8px; background: #FF6B1A; color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 16px rgba(255,107,26,0.4); text-decoration: none; }
 .hero-btn-primary:hover { background: #e85500; transform: translateY(-1px); }
-.hero-btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; backdrop-filter: blur(8px); text-decoration: none; }
+.hero-btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.15s; backdrop-filter: blur(8px); text-decoration: none; }
 .hero-btn-ghost:hover { background: rgba(255,255,255,0.18); }
 .hero-right { display: flex; gap: 12px; flex-shrink: 0; }
 .hero-stat-card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; backdrop-filter: blur(8px); min-width: 100px; }
 .hero-stat-card.accent { background: rgba(255,107,26,0.2); border-color: rgba(255,107,26,0.3); }
 .hsc-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.6px; }
-.hsc-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; line-height: 1; margin-top: 4px; }
+.hsc-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #fff; line-height: 1; margin-top: 4px; }
 .hsc-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 20px; }
 .stat-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 16px; padding: 18px 18px 14px; transition: all 0.2s; }
@@ -219,7 +220,7 @@ onMounted(async () => {
 .stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .stat-icon svg { width: 16px; height: 16px; }
 .stat-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; margin-bottom: 12px; }
-.stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #1a0a00; line-height: 1; }
+.stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #1a0a00; line-height: 1; }
 .stat-delta { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 5px; white-space: nowrap; }
 .stat-delta.positive { background: #f0fdf4; color: #16a34a; }
 .stat-delta.negative { background: #fff1f2; color: #e11d48; }
@@ -229,9 +230,9 @@ onMounted(async () => {
 .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 20px; }
 .card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; padding: 22px; }
 .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-.card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
+.card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
 .card-sub { font-size: 11px; color: #b89f90; margin-top: 3px; }
-.card-link { font-size: 11px; font-weight: 600; color: #FF6B1A; text-decoration: none; white-space: nowrap; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.card-link { font-size: 11px; font-weight: 600; color: #FF6B1A; text-decoration: none; white-space: nowrap; background: none; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; }
 .card-link:hover { text-decoration: underline; }
 .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-bottom: 4px; }
 .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; gap: 4px; }
