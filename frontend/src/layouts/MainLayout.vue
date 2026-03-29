@@ -285,10 +285,6 @@
           </div>
         </div>
         <div class="topbar-right">
-          <div class="search-box">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M9 17A8 8 0 109 1a8 8 0 000 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            <input type="text" placeholder="Search students, faculty…" />
-          </div>
           <button class="icon-btn">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6v2.5l-1.5 2.5h15L16 10.5V8a6 6 0 00-6-6zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span class="notif-dot"></span>
@@ -408,11 +404,6 @@ const handleLogout = () => {
 .page-breadcrumb { font-size: 11px; color: #b89f90; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
 .page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; margin-top: 1px; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
-.search-box { display: flex; align-items: center; gap: 8px; background: #faf8f6; border: 1.5px solid #f0e8e0; border-radius: 10px; padding: 8px 14px; width: 240px; transition: all 0.2s; }
-.search-box:focus-within { border-color: #FF6B1A; background: #fff; box-shadow: 0 0 0 3px rgba(255,107,26,0.08); }
-.search-box svg { width: 15px; height: 15px; color: #c0b0a5; flex-shrink: 0; }
-.search-box input { border: none; background: none; outline: none; font-size: 13px; color: #1a0a00; font-family: 'DM Sans', sans-serif; width: 100%; }
-.search-box input::placeholder { color: #c0b0a5; }
 .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #faf8f6; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.15s; }
 .icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
 .icon-btn svg { width: 17px; height: 17px; }
