@@ -154,6 +154,7 @@ const handleFileUpload = async (event) => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 .students-page {
   display: flex;
   flex-direction: column;
@@ -167,7 +168,7 @@ const handleFileUpload = async (event) => {
 }
 
 .section-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #1a0a00;
@@ -198,7 +199,7 @@ const handleFileUpload = async (event) => {
   color: #1a0a00;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   height: 40px;
 }
 
@@ -247,7 +248,7 @@ const handleFileUpload = async (event) => {
   border: 1.5px solid #f0e8e0;
   border-radius: 10px;
   font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   outline: none;
   transition: all 0.2s;
 }

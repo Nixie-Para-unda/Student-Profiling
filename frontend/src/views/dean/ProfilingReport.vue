@@ -134,20 +134,21 @@ const resetFilters = () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 .report-page { display: flex; flex-direction: column; gap: 24px; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
 .pcard-header { padding: 18px 22px; border-bottom: 1px solid #faf8f6; background: #fffaf8; }
-.pcard-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
+.pcard-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
 .pcard-body { padding: 22px; }
 
 .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }
 .form-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input, .form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'DM Sans', sans-serif; background: #faf8f6; transition: all 0.2s; }
+.form-group input, .form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; background: #faf8f6; transition: all 0.2s; }
 .form-group input:focus, .form-group select:focus { border-color: #FF6B1A; background: #fff; }
 
 .filter-actions { display: flex; gap: 12px; }

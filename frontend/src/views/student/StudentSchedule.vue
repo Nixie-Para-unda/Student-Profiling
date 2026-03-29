@@ -96,9 +96,10 @@ const getItemStyle = (item) => ({
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 16px; font-family: 'DM Sans', sans-serif; height: 100%; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 16px; font-family: 'Outfit', sans-serif; height: 100%; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 0; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 12px; color: #b89f90; margin-top: 2px; }
 
 .calendar-card {

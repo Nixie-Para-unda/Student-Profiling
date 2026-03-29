@@ -398,9 +398,10 @@ const roleLabel = computed(() => {
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 24px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 24px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 
 /* Layout */
@@ -412,7 +413,7 @@ const roleLabel = computed(() => {
 .settings-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
 .settings-card-header { padding: 16px 22px; border-bottom: 1px solid #faf8f6; display: flex; align-items: center; gap: 10px; }
 .settings-icon { width: 18px; height: 18px; color: #FF6B1A; flex-shrink: 0; }
-.settings-card-header h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; flex: 1; }
+.settings-card-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; flex: 1; }
 .coming-soon { font-size: 9px; font-weight: 700; background: #fff5ef; color: #FF6B1A; border: 1px solid #ffd5b0; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
 .settings-card-body { padding: 8px 0; }
 
@@ -425,8 +426,8 @@ const roleLabel = computed(() => {
 .setting-desc { font-size: 11px; color: #b89f90; margin-top: 2px; }
 
 /* Buttons */
-.setting-btn { background: #faf8f6; border: 1.5px solid #f0e8e0; color: #9a8070; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: not-allowed; font-family: 'DM Sans', sans-serif; opacity: 0.7; white-space: nowrap; }
-.danger-btn { background: #fff1f2; border: 1.5px solid #fecdd3; color: #ef4444; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: not-allowed; font-family: 'DM Sans', sans-serif; opacity: 0.7; white-space: nowrap; }
+.setting-btn { background: #faf8f6; border: 1.5px solid #f0e8e0; color: #9a8070; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: not-allowed; font-family: 'Outfit', sans-serif; opacity: 0.7; white-space: nowrap; }
+.danger-btn { background: #fff1f2; border: 1.5px solid #fecdd3; color: #ef4444; font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 8px; cursor: not-allowed; font-family: 'Outfit', sans-serif; opacity: 0.7; white-space: nowrap; }
 
 /* Toggle */
 .toggle { width: 38px; height: 22px; background: #e5e7eb; border-radius: 11px; position: relative; cursor: not-allowed; flex-shrink: 0; transition: all 0.2s; }
@@ -436,13 +437,13 @@ const roleLabel = computed(() => {
 
 /* Theme options */
 .theme-options { display: flex; gap: 6px; }
-.theme-btn { padding: 6px 14px; border: 1.5px solid #f0e8e0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #9a8070; background: #faf8f6; cursor: not-allowed; font-family: 'DM Sans', sans-serif; }
+.theme-btn { padding: 6px 14px; border: 1.5px solid #f0e8e0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #9a8070; background: #faf8f6; cursor: not-allowed; font-family: 'Outfit', sans-serif; }
 .theme-btn.active { background: #1a0a00; color: #fff; border-color: #1a0a00; }
 
 /* Role Card */
 .role-card { padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
-.role-icon { width: 56px; height: 56px; background: #FF6B1A; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-.role-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
+.role-icon { width: 56px; height: 56px; background: #FF6B1A; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.role-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
 .role-label { font-size: 11px; color: #b89f90; }
 .role-divider { width: 100%; height: 1px; background: #f0e8e0; margin: 10px 0; }
 .role-info-row { width: 100%; display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #faf8f6; }
@@ -452,7 +453,7 @@ const roleLabel = computed(() => {
 
 /* Notice Card */
 .notice-card { padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; background: #fffaf8; border-color: #ffd5b0; }
-.notice-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: #1a0a00; }
+.notice-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; color: #1a0a00; }
 .notice-desc { font-size: 11px; color: #b89f90; line-height: 1.6; margin-top: 6px; }
 
 /* Danger Card */

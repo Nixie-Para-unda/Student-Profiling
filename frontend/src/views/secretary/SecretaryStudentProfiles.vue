@@ -136,18 +136,19 @@ const viewProfile = (s) => { viewingStudent.value = s }
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .table-toolbar { display: flex; gap: 12px; align-items: center; }
 .search-wrap { display: flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid #f0e8e0; border-radius: 10px; padding: 9px 14px; flex: 1; transition: all 0.2s; }
 .search-wrap:focus-within { border-color: #FF6B1A; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
 .search-wrap svg { width: 15px; height: 15px; color: #c0b0a5; flex-shrink: 0; }
-.search-wrap input { border: none; outline: none; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1a0a00; width: 100%; background: none; }
+.search-wrap input { border: none; outline: none; font-size: 13px; font-family: 'Outfit', sans-serif; color: #1a0a00; width: 100%; background: none; }
 .search-wrap input::placeholder { color: #c0b0a5; }
 .filter-group { display: flex; gap: 8px; }
-.filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; }
+.filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'Outfit', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; }
 .table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { padding: 13px 18px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; }
@@ -160,17 +161,17 @@ const viewProfile = (s) => { viewingStudent.value = s }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; }
 .s-sub { font-size: 11px; color: #b89f90; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; }
-.gwa-val { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; }
+.gwa-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; }
 .gwa-good { color: #16a34a; }
 .gwa-ok { color: #FF6B1A; }
-.gwa-hl { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #FF6B1A; }
+.gwa-hl { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: #FF6B1A; }
 .v-count { font-size: 13px; font-weight: 700; }
 .v-danger { color: #ef4444; }
 .v-clear { color: #16a34a; }
 .status-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; }
 .st-active { background: #f0fdf4; color: #16a34a; }
 .st-pending { background: #fffbeb; color: #d97706; }
-.view-btn { background: #fff5ef; color: #FF6B1A; border: 1.5px solid #ffd5b0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.view-btn { background: #fff5ef; color: #FF6B1A; border: 1.5px solid #ffd5b0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; }
 .view-btn:hover { background: #FF6B1A; color: #fff; }
 .empty-row { text-align: center; color: #b89f90; font-style: italic; padding: 40px; }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
@@ -178,7 +179,7 @@ const viewProfile = (s) => { viewingStudent.value = s }
 .modal-lg { max-width: 520px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; }
 .modal-student-info { display: flex; align-items: center; gap: 14px; }
-.modal-student-info h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
+.modal-student-info h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
 .modal-student-info p { font-size: 12px; color: #b89f90; margin-top: 2px; }
 .close-btn { background: none; border: none; font-size: 22px; color: #b89f90; cursor: pointer; padding: 0; line-height: 1; }
 .modal-body { padding: 24px; }
@@ -188,5 +189,5 @@ const viewProfile = (s) => { viewingStudent.value = s }
 .pi-row:last-child { border-bottom: none; }
 .pi-label { font-size: 12px; color: #9a8070; font-weight: 500; }
 .pi-value { font-size: 13px; font-weight: 600; color: #1a0a00; }
-.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
 </style>

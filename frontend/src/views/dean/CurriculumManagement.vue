@@ -356,9 +356,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 .curriculum-page { display: flex; flex-direction: column; gap: 24px; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .header-actions { display: flex; gap: 12px; }
 
@@ -369,13 +370,13 @@ onMounted(() => {
 .filter-group select { padding: 8px 12px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
 
 .program-header-info { margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.program-full-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #1a0a00; letter-spacing: -0.5px; }
+.program-full-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: #1a0a00; letter-spacing: -0.5px; }
 .program-divider { width: 60px; height: 4px; background: #FF6B1A; border-radius: 2px; }
 
 .curriculum-container { display: flex; flex-direction: column; gap: 30px; }
 .year-section { display: flex; flex-direction: column; gap: 16px; }
 .year-header { display: flex; justify-content: space-between; align-items: center; }
-.year-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; border-left: 4px solid #FF6B1A; padding-left: 12px; }
+.year-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; border-left: 4px solid #FF6B1A; padding-left: 12px; }
 .program-badge { font-size: 12px; font-weight: 800; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 20px; border: 1px solid #f0e8e0; box-shadow: 0 2px 6px rgba(255,107,26,0.05); }
 
 .semester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
