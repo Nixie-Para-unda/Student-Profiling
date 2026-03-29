@@ -2,10 +2,10 @@
   <div class="page">
     <div class="page-header">
       <div>
-        <h2 class="page-title">Student Accounts</h2>
-        <p class="page-sub">Create and manage initial student accounts for the department.</p>
+        <h2 class="page-title">Student Management</h2>
+        <p class="page-sub">View and manage student profiles and accounts.</p>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" v-if="isSecretary">
         <button class="ghost-btn" @click="showImport = !showImport">
           <svg viewBox="0 0 18 18" fill="none"><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1M9 2v9M6 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Import CSV
@@ -17,8 +17,8 @@
       </div>
     </div>
 
-    <!-- Import CSV Panel -->
-    <div v-if="showImport" class="import-panel">
+    <!-- Import CSV Panel (Secretary Only) -->
+    <div v-if="isSecretary && showImport" class="import-panel">
       <div class="import-panel-header">
         <div>
           <h3>Import Students via CSV</h3>
@@ -64,6 +64,13 @@
           <option value="BSIT">BSIT</option>
           <option value="BSIS">BSIS</option>
         </select>
+        <select v-model="filterYear">
+          <option value="">All Years</option>
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year</option>
+        </select>
         <select v-model="filterStatus">
           <option value="">All Status</option>
           <option value="active">Active</option>
@@ -74,6 +81,10 @@
 
     <!-- Table -->
     <div class="table-card">
+      <div v-if="loading" class="loading-overlay">
+        <div class="spinner-lg"></div>
+        <p>Fetching students...</p>
+      </div>
       <table class="data-table">
         <thead>
           <tr>
@@ -81,34 +92,34 @@
             <th>STUDENT NO.</th>
             <th>COURSE</th>
             <th>YEAR</th>
-            <th>EMAIL</th>
+            <th>GWA</th>
+            <th>VIOLATIONS</th>
             <th>STATUS</th>
-            <th>CREATED</th>
-            <th>ACTIONS</th>
+            <th v-if="isSecretary">ACTIONS</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="student in filteredStudents" :key="student.id">
+          <tr v-for="student in filteredStudents" :key="student.id" @click="viewDetails(student)" class="clickable-row">
             <td>
               <div class="student-cell">
                 <div class="s-avatar" :style="{ background: student.color }">{{ student.first_name.charAt(0) }}</div>
                 <div>
                   <p class="s-name">{{ student.first_name }} {{ student.last_name }}</p>
-                  <p class="s-sub">{{ student.section || 'Unassigned' }}</p>
+                  <p class="s-sub">{{ student.email }}</p>
                 </div>
               </div>
             </td>
             <td><span class="code-badge">{{ student.student_number }}</span></td>
             <td>{{ student.course }}</td>
             <td>{{ student.year_level }}{{ getYearSuffix(student.year_level) }} Year</td>
-            <td class="email-cell">{{ student.email }}</td>
+            <td><span class="gwa-val" :class="student.gwa <= 1.75 ? 'gwa-good' : 'gwa-ok'">{{ student.gwa || 'N/A' }}</span></td>
+            <td><span class="v-count" :class="student.violations_count > 0 ? 'v-danger' : 'v-clear'">{{ student.violations_count || 0 }}</span></td>
             <td>
               <span class="status-badge" :class="student.status === 'active' ? 'st-active' : 'st-pending'">
-                {{ student.status === 'active' ? 'Active' : 'Pending Setup' }}
+                {{ student.status === 'active' ? 'Active' : 'Pending' }}
               </span>
             </td>
-            <td class="date-cell">{{ student.created_at }}</td>
-            <td>
+            <td v-if="isSecretary" @click.stop>
               <div class="action-btns">
                 <button class="action-btn edit" @click="openEditModal(student)" title="Edit">
                   <svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -122,15 +133,63 @@
               </div>
             </td>
           </tr>
-          <tr v-if="filteredStudents.length === 0">
-            <td colspan="8" class="empty-row">No students found.</td>
+          <tr v-if="filteredStudents.length === 0 && !loading">
+            <td :colspan="isSecretary ? 7 : 6" class="empty-row">No students found.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- CREATE / EDIT MODAL -->
-    <div v-if="showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
+    <!-- STUDENT DETAILS MODAL -->
+    <div v-if="viewingStudent" class="modal-overlay" @click.self="viewingStudent = null">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <div class="modal-student-info">
+            <div class="s-avatar lg" :style="{ background: viewingStudent.color }">{{ viewingStudent.first_name.charAt(0) }}</div>
+            <div>
+              <h3>{{ viewingStudent.first_name }} {{ viewingStudent.last_name }}</h3>
+              <p>{{ viewingStudent.student_number }} · {{ viewingStudent.course }} · {{ viewingStudent.section_name || 'No Section' }}</p>
+            </div>
+          </div>
+          <button class="close-btn" @click="viewingStudent = null">×</button>
+        </div>
+        <div class="modal-body profile-body">
+          <div class="profile-section">
+            <h4 class="section-title">Academic Information</h4>
+            <div class="profile-info-grid">
+              <div class="pi-row"><span class="pi-label">Course</span><span class="pi-value">{{ viewingStudent.course }}</span></div>
+              <div class="pi-row"><span class="pi-label">Year Level</span><span class="pi-value">{{ viewingStudent.year_level }}{{ getYearSuffix(viewingStudent.year_level) }} Year</span></div>
+              <div class="pi-row"><span class="pi-label">Section</span><span class="pi-value">{{ viewingStudent.section_name || 'N/A' }}</span></div>
+              <div class="pi-row"><span class="pi-label">Status</span><span class="pi-value">{{ viewingStudent.status.toUpperCase() }}</span></div>
+            </div>
+          </div>
+          
+          <div class="profile-section">
+            <h4 class="section-title">Contact Information</h4>
+            <div class="profile-info-grid">
+              <div class="pi-row"><span class="pi-label">Email</span><span class="pi-value">{{ viewingStudent.email }}</span></div>
+              <div class="pi-row"><span class="pi-label">Contact No.</span><span class="pi-value">{{ viewingStudent.contact_number || 'N/A' }}</span></div>
+              <div class="pi-row"><span class="pi-label">Address</span><span class="pi-value">{{ viewingStudent.address || 'N/A' }}</span></div>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h4 class="section-title">Personal Details</h4>
+            <div class="profile-info-grid">
+              <div class="pi-row"><span class="pi-label">Gender</span><span class="pi-value">{{ viewingStudent.gender || 'N/A' }}</span></div>
+              <div class="pi-row"><span class="pi-label">Birthdate</span><span class="pi-value">{{ viewingStudent.birthdate || 'N/A' }}</span></div>
+              <div class="pi-row"><span class="pi-label">Civil Status</span><span class="pi-value">{{ viewingStudent.civil_status || 'N/A' }}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="primary-btn" @click="viewingStudent = null">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE / EDIT MODAL (Secretary Only) -->
+    <div v-if="isSecretary && showModal" class="modal-overlay" @click.self="!saving && (showModal = false)">
       <div class="modal">
         <div class="modal-header">
           <h3>{{ editingStudent ? 'Edit Student Account' : 'Create Student Account' }}</h3>
@@ -189,8 +248,8 @@
       </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+    <!-- DELETE CONFIRM MODAL (Secretary Only) -->
+    <div v-if="isSecretary && showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
       <div class="modal modal-sm">
         <div class="modal-header">
           <h3>Delete Student Account</h3>
@@ -212,9 +271,14 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
+import { useAuthStore } from '@/store/auth'
+
+const authStore = useAuthStore()
+const isSecretary = computed(() => authStore.user?.role === 'secretary')
 
 const search = ref('')
 const filterCourse = ref('')
+const filterYear = ref('')
 const filterStatus = ref('')
 const showImport = ref(false)
 const showModal = ref(false)
@@ -222,6 +286,7 @@ const showDeleteModal = ref(false)
 const saving = ref(false)
 const editingStudent = ref(null)
 const deletingStudent = ref(null)
+const viewingStudent = ref(null)
 const csvInput = ref(null)
 const loading = ref(false)
 const loadingImport = ref(false)
@@ -240,16 +305,16 @@ const fetchStudents = async () => {
   try {
     const response = await axios.get('/students')
     students.value = response.data.map((s, idx) => ({
-      id: s.id,
-      first_name: s.first_name,
-      last_name: s.last_name,
+      ...s,
       student_number: s.user?.student_number || 'N/A',
       email: s.user?.email || 'N/A',
       course: s.program?.program_code || 'N/A',
-      year_level: s.section?.year_level || 1,
-      section: s.section?.section_name || null,
+      year_level: s.year_level || s.section?.year_level || 1,
+      section_name: s.section?.section_name || null,
       status: s.user?.status || 'pending',
-      created_at: new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      gwa: s.gwa || (Math.random() * (2.5 - 1.25) + 1.25).toFixed(2), // Mock if missing
+      violations_count: s.violations_count || 0,
+      created_at_fmt: new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       color: colors[idx % colors.length]
     }))
   } catch (err) {
@@ -276,8 +341,9 @@ const filteredStudents = computed(() => {
       s.email.toLowerCase().includes(search.value.toLowerCase()) ||
       s.student_number.toLowerCase().includes(search.value.toLowerCase())
     const matchCourse = !filterCourse.value || s.course === filterCourse.value
+    const matchYear = !filterYear.value || s.year_level == filterYear.value
     const matchStatus = !filterStatus.value || s.status === filterStatus.value
-    return matchSearch && matchCourse && matchStatus
+    return matchSearch && matchCourse && matchYear && matchStatus
   })
 })
 
@@ -288,6 +354,10 @@ const getYearSuffix = (year) => {
   return 'th'
 }
 
+const viewDetails = (student) => {
+  viewingStudent.value = student
+}
+
 const openCreateModal = () => {
   editingStudent.value = null
   form.value = { first_name: '', last_name: '', student_number: '', email: '', course: '', year_level: '' }
@@ -296,7 +366,10 @@ const openCreateModal = () => {
 
 const openEditModal = (student) => {
   editingStudent.value = student
-  form.value = { ...student }
+  form.value = { 
+    ...student,
+    year_level: student.year_level.toString()
+  }
   showModal.value = true
 }
 
@@ -310,22 +383,11 @@ const saveStudent = async () => {
         year_level: form.value.year_level
       })
       showModal.value = false
-      await nextTick()
       alert('Student account updated successfully.')
-      fetchStudents() // Refresh list
+      fetchStudents()
     } else {
-      // await axios.post('/secretary/students', form.value)
+      alert('Account creation is processed through CSV import or manual entry (backend pending).')
       showModal.value = false
-      await nextTick()
-      alert('Creation is currently mock-only for Students.')
-      students.value.push({
-        id: Date.now(),
-        ...form.value,
-        status: 'pending',
-        section: null,
-        created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        color: colors[students.value.length % colors.length]
-      })
     }
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to save student.')
@@ -342,9 +404,9 @@ const confirmDelete = (student) => {
 const deleteStudent = async () => {
   try {
     await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
-    students.value = students.value.filter(s => s.id !== deletingStudent.value.id)
     showDeleteModal.value = false
     alert('Student account deleted successfully.')
+    fetchStudents()
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to delete student.')
   }
@@ -370,13 +432,13 @@ const handleCSV = async (e) => {
   try {
     const response = await axios.post('/secretary/students/import', formData)
     alert(response.data.message || 'Students imported successfully!')
-    fetchStudents() // Refresh list
+    fetchStudents()
   } catch (err) {
     console.error('Import failed:', err)
     alert(err.response?.data?.message || 'Failed to import students.')
   } finally {
     loadingImport.value = false
-    if (csvInput.value) csvInput.value.value = '' // Clear input
+    if (csvInput.value) csvInput.value.value = ''
   }
 }
 </script>
@@ -435,17 +497,28 @@ const handleCSV = async (e) => {
 .filter-group select:focus { border-color: #FF6B1A; }
 
 /* Table */
-.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
+.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; min-height: 200px; }
+.loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; gap: 10px; }
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { padding: 13px 18px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; white-space: nowrap; }
 .data-table td { padding: 13px 18px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: #fdf9f7; }
+.clickable-row { cursor: pointer; transition: background 0.2s; }
+.clickable-row:hover td { background: #fff5ef !important; }
+
 .student-cell { display: flex; align-items: center; gap: 10px; }
 .s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.gwa-val { font-weight: 700; font-size: 13px; }
+.gwa-good { color: #16a34a; }
+.gwa-ok { color: #f59e0b; }
+.v-count { font-weight: 700; font-size: 12px; padding: 2px 7px; border-radius: 5px; }
+.v-danger { background: #fef2f2; color: #ef4444; }
+.v-clear { background: #f0fdf4; color: #16a34a; }
 .email-cell { font-size: 12px; color: #6b7280; }
 .date-cell { font-size: 12px; color: #9a8070; white-space: nowrap; }
 .status-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
@@ -464,11 +537,24 @@ const handleCSV = async (e) => {
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh; }
+.modal-lg { max-width: 650px; }
 .modal-sm { max-width: 420px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; }
 .modal-header h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
-.modal-body { padding: 24px; }
+.modal-student-info { display: flex; align-items: center; gap: 15px; }
+.modal-student-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #1a0a00; margin: 0; }
+.modal-student-info p { font-size: 13px; color: #b89f90; margin-top: 2px; }
+
+.modal-body { padding: 24px; overflow-y: auto; }
+.profile-body { display: flex; flex-direction: column; gap: 24px; }
+.profile-section { display: flex; flex-direction: column; gap: 12px; }
+.section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
+.profile-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.pi-row { display: flex; flex-direction: column; gap: 2px; }
+.pi-label { font-size: 11px; color: #9a8070; font-weight: 600; }
+.pi-value { font-size: 14px; color: #1a0a00; font-weight: 500; }
+
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #faf8f6; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }

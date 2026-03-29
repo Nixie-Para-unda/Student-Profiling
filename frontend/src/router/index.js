@@ -6,7 +6,6 @@ import SetupPasswordFaculty from '../views/auth/setup/SetupPasswordFaculty.vue'
 import ActivateAccount from '../views/auth/activate/ActivateAccount.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 
-import StudentsList from '../views/dean/StudentsList.vue'
 import StudentProfile from '../views/student/StudentProfile.vue'
 import FacultyList from '../views/dean/FacultyList.vue'
 import PerformanceOverview from '../views/dean/PerformanceOverview.vue'
@@ -20,7 +19,6 @@ import FacultySchedule from '../views/faculty/FacultySchedule.vue'
 import DeanDashboard from '../views/dean/DeanDashboard.vue'
 import FacultyDashboard from '../views/faculty/FacultyDashboard.vue'
 import SecretaryDashboard from '../views/secretary/SecretaryDashboard.vue'
-import ChairDashboard from '../views/chair/DepartmentChairDashboard.vue'
 import StudentDashboard from '../views/student/StudentDashboard.vue'
 
 // ✅ Student page imports
@@ -33,7 +31,7 @@ import MyViolations from '../views/student/StudentViolations.vue'
 import MyPerformance from '../views/student/StudentPerformance.vue'
 
 // Department Chair page imports
-import ChairStudents from '../views/chair/DepartmentChairStudents.vue'
+import ChairDashboard from '../views/chair/DepartmentChairDashboard.vue'
 import ChairFaculty from '../views/chair/DepartmentChairFaculty.vue'
 import ChairViolations from '../views/chair/DepartmentChairViolations.vue'
 import ChairAwards from '../views/chair/DepartmentChairAwards.vue'
@@ -43,12 +41,11 @@ import ChairSchedules from '../views/chair/ScheduleManagement.vue'
 
 // ✅ Settings
 import Settings from '../views/shared/Settings.vue'
+import StudentManagement from '../views/shared/StudentManagement.vue'
 
 // ✅ Secretary page imports
-import SecretaryStudents from '../views/secretary/SecretaryStudent.vue'
 import SecretaryFaculty from '../views/secretary/SecretaryFaculty.vue'
 import SecretaryFacultyWorkload from '../views/secretary/SecretaryFacultyWorkload.vue'
-import SecretaryStudentProfiles from '../views/secretary/SecretaryStudentProfiles.vue'
 import SecretaryAchievements from '../views/secretary/SecretaryAchievements.vue'
 import SecretaryReports from '../views/secretary/SecretaryReports.vue'
 
@@ -121,9 +118,9 @@ const routes = [
       },
       {
         path: 'students',
-        name: 'Students',
-        component: StudentsList,
-        meta: { title: 'Students' }
+        name: 'StudentManagement',
+        component: StudentManagement,
+        meta: { title: 'Student Profiles' }
       },
       {
         path: 'faculty',
@@ -247,10 +244,8 @@ const routes = [
         component: SecretaryDashboard,
         meta: { title: 'Dashboard' }
       },
-      { path: 'secretary/students', name: 'SecretaryStudents', component: SecretaryStudents, meta: { title: 'Student Accounts' } },
       { path: 'secretary/faculty', name: 'SecretaryFaculty', component: SecretaryFaculty, meta: { title: 'Faculty Accounts' } },
       { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload' } },
-      { path: 'secretary/profiles', name: 'SecretaryProfiles', component: SecretaryStudentProfiles, meta: { title: 'Student Profiles' } },
       { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification' } },
       { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports' } },
 
@@ -261,7 +256,6 @@ const routes = [
         component: ChairDashboard,
         meta: { title: 'Dashboard' }
       },
-      { path: 'chair/students', name: 'DepartmentChairStudents', component: ChairStudents, meta: { title: 'Student Profiles' } },
       { path: 'chair/faculty', name: 'DepartmentChairFaculty', component: ChairFaculty, meta: { title: 'Faculty Members' } },
       { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations' } },
       { path: 'chair/awards', name: 'DepartmentChairAwards', component: ChairAwards, meta: { title: 'Approve Awards' } },
