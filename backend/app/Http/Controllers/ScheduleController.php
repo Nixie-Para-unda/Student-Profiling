@@ -255,8 +255,10 @@ class ScheduleController extends Controller
             }
 
             return response()->json([
-                'message' => 'Schedules generated successfully.',
-                'count' => count($result['schedules'])
+                'message' => "Schedules generated successfully for {$result['section_count']} sections ({$result['student_count']} students detected).",
+                'count' => count($result['schedules']),
+                'student_count' => $result['student_count'],
+                'section_count' => $result['section_count']
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);

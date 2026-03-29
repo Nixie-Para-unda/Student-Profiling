@@ -25,27 +25,38 @@
     <div class="filter-bar pcard">
       <div class="filter-group">
         <label>Program</label>
-        <select v-model="filterProgram">
-          <option value="">All Programs</option>
+        <select v-model="filterProgram" @change="resetActiveSection">
+          <option value="">Select Program</option>
           <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
         </select>
       </div>
       <div class="filter-group">
         <label>Year Level</label>
-        <select v-model="filterYear">
-          <option value="">All Years</option>
+        <select v-model="filterYear" @change="resetActiveSection">
+          <option value="">Select Year</option>
           <option value="1">1st Year</option>
           <option value="2">2nd Year</option>
           <option value="3">3rd Year</option>
           <option value="4">4th Year</option>
         </select>
       </div>
-      <div class="filter-group">
-        <label>Section</label>
-        <select v-model="filterSection">
-          <option value="">All Sections</option>
-          <option v-for="s in sections" :key="s.id" :value="s.id">{{ s.section_name }}</option>
-        </select>
+    </div>
+
+    <!-- SECTION TABS -->
+    <div v-if="filterProgram && filterYear" class="section-tabs-container">
+      <div class="tabs-scroll">
+        <button 
+          v-for="s in filteredSections" 
+          :key="s.id" 
+          class="section-tab"
+          :class="{ active: activeSectionId === s.id }"
+          @click="activeSectionId = s.id"
+        >
+          {{ s.section_name }}
+        </button>
+        <div v-if="filteredSections.length === 0" class="no-sections-hint">
+          No sections found for this year level.
+        </div>
       </div>
     </div>
 
@@ -263,7 +274,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 
 const schedules = ref([])
@@ -283,7 +294,34 @@ const selectedSchedule = ref(null)
 const filterSection = ref('')
 const filterProgram = ref('')
 const filterYear = ref('')
+const activeSectionId = ref('')
 const fileInput = ref(null)
+
+// Compute filtered sections for tabs
+const filteredSections = computed(() => {
+  if (!filterProgram.value || !filterYear.value) return []
+  return sections.value.filter(s => 
+    s.program_id == filterProgram.value && 
+    s.year_level == filterYear.value
+  ).sort((a, b) => a.section_name.localeCompare(b.section_name))
+})
+
+const resetActiveSection = () => {
+  activeSectionId.value = ''
+  // Auto-select first section if available after filter change
+  setTimeout(() => {
+    if (filteredSections.value.length > 0) {
+      activeSectionId.value = filteredSections.value[0].id
+    }
+  }, 100)
+}
+
+// Watch for changes in sections to handle initial load
+watch(sections, () => {
+  if (filterProgram.value && filterYear.value && !activeSectionId.value) {
+    resetActiveSection()
+  }
+})
 
 // Group schedules by course for better UI (as requested)
 const groupedSchedules = computed(() => {
@@ -306,6 +344,11 @@ const groupedSchedules = computed(() => {
   })
 
   return Object.values(grouped).filter(item => {
+    // If a tab is active, prioritize that section
+    if (activeSectionId.value) {
+      return item.section_id == activeSectionId.value
+    }
+    
     const matchesSection = !filterSection.value || item.section_id == filterSection.value
     const matchesProgram = !filterProgram.value || item.section.program_id == filterProgram.value
     const matchesYear = !filterYear.value || item.section.year_level == filterYear.value
@@ -418,9 +461,22 @@ const handleAutoGenerate = async () => {
   generating.value = true
   try {
     const res = await axios.post('/schedules/auto-generate', autoForm.value)
+    
+    // Success message shows how many students/sections were handled
     alert(res.data.message)
+    
     showAutoModal.value = false
-    fetchSchedules()
+    
+    // 1. Refresh data
+    await Promise.all([
+      fetchSchedules(),
+      fetchSections()
+    ])
+
+    // 2. Force re-calculation of active section if it was empty
+    if (!activeSectionId.value && filteredSections.value.length > 0) {
+      activeSectionId.value = filteredSections.value[0].id
+    }
   } catch (err) {
     if (err.response?.status === 422 && err.response.data.conflicts) {
       alert('Conflict: ' + err.response.data.conflicts.join('\n'))
@@ -521,6 +577,15 @@ onMounted(() => {
 .filter-group { display: flex; flex-direction: column; gap: 4px; }
 .filter-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; }
 .filter-group select { padding: 8px 12px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; background: #fff; }
+
+.section-tabs-container { margin-top: 8px; margin-bottom: -8px; }
+.tabs-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }
+.tabs-scroll::-webkit-scrollbar { display: none; }
+
+.section-tab { padding: 10px 20px; background: #fff; border: 1.5px solid #f0e8e0; border-radius: 12px; font-size: 13px; font-weight: 700; color: #9a8070; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.section-tab:hover { border-color: #FF6B1A; color: #FF6B1A; }
+.section-tab.active { background: #FF6B1A; border-color: #FF6B1A; color: #fff; box-shadow: 0 4px 12px rgba(255,107,26,0.2); }
+.no-sections-hint { font-size: 13px; color: #b89f90; font-style: italic; padding: 10px 0; }
 
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th { text-align: left; padding: 14px 22px; background: #fffaf8; color: #9a8070; font-weight: 700; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid #f0e8e0; }

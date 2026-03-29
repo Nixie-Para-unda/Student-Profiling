@@ -26,7 +26,7 @@ class AutoScheduleService
         $program = Program::findOrFail($programId);
         
         // 1. Ensure sections exist based on student population
-        $this->ensureSectionsExist($program, $yearLevel);
+        $sectionInfo = $this->ensureSectionsExist($program, $yearLevel);
 
         $sections = Section::where('program_id', $programId)
             ->where('year_level', $yearLevel)
@@ -90,7 +90,12 @@ class AutoScheduleService
             }
 
             DB::commit();
-            return ['success' => true, 'schedules' => $generatedSchedules];
+            return [
+                'success' => true, 
+                'schedules' => $generatedSchedules,
+                'student_count' => $sectionInfo['student_count'],
+                'section_count' => $sections->count()
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -102,11 +107,34 @@ class AutoScheduleService
      */
     private function ensureSectionsExist(Program $program, string $yearLevel)
     {
+        // 1. Repair: Try to fill missing year_level from existing section assignments
+        DB::statement("UPDATE students s JOIN sections sec ON s.section_id = sec.id SET s.year_level = sec.year_level WHERE s.year_level IS NULL");
+
+        // 2. Count students for this year level (Robust check)
+        // Check for '1', '1st', '1st Year' etc.
         $studentCount = Student::where('program_id', $program->id)
-            ->where('year_level', $yearLevel)
+            ->where(function($q) use ($yearLevel) {
+                $q->where('year_level', $yearLevel)
+                  ->orWhere('year_level', 'LIKE', $yearLevel . '%'); // Handles '1' matches '1st', '1st Year'
+            })
             ->count();
 
-        // Determine how many sections we need (at least 1)
+        // If count is still 0, check if there are ANY students for this program without a year level
+        if ($studentCount === 0) {
+            $unassignedCount = Student::where('program_id', $program->id)
+                ->whereNull('year_level')
+                ->count();
+            
+            if ($unassignedCount > 0) {
+                $studentCount = $unassignedCount;
+                // Normalize them to the year level we're generating for
+                Student::where('program_id', $program->id)
+                    ->whereNull('year_level')
+                    ->update(['year_level' => $yearLevel]);
+            }
+        }
+
+        // Determine how many sections we need (at least 1, but up to D if count suggests it)
         $neededCount = max(1, ceil($studentCount / $this->studentsPerSection));
         
         $existingSections = Section::where('program_id', $program->id)
@@ -132,10 +160,13 @@ class AutoScheduleService
             ->orderBy('section_name', 'asc')
             ->get();
 
-        // Distribute students if they exist
+        // 3. Distribute ALL students (A-Z) into these sections
         if ($studentCount > 0) {
             $students = Student::where('program_id', $program->id)
-                ->where('year_level', $yearLevel)
+                ->where(function($q) use ($yearLevel) {
+                    $q->where('year_level', $yearLevel)
+                      ->orWhere('year_level', 'LIKE', $yearLevel . '%');
+                })
                 ->orderBy('last_name', 'asc')
                 ->orderBy('first_name', 'asc')
                 ->get();
@@ -143,10 +174,18 @@ class AutoScheduleService
             foreach ($students as $index => $student) {
                 $sectionIndex = floor($index / $this->studentsPerSection);
                 if (isset($allSections[$sectionIndex])) {
-                    $student->update(['section_id' => $allSections[$sectionIndex]->id]);
+                    $student->update([
+                        'section_id' => $allSections[$sectionIndex]->id,
+                        'year_level' => $yearLevel // Ensure normalization
+                    ]);
                 }
             }
         }
+
+        return [
+            'student_count' => $studentCount,
+            'section_count' => $allSections->count()
+        ];
     }
 
     private function placeSubject($section, $course, $type, $units, $vacantDay, &$generatedSchedules)
