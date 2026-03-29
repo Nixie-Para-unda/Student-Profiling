@@ -40,7 +40,8 @@
               <th>Program</th>
               <th>Type</th>
               <th>Year/Sem</th>
-              <th>Units</th>
+              <th>Lec/Lab Units</th>
+              <th>Total Units</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -51,6 +52,11 @@
               <td>{{ c.program?.program_code || 'N/A' }}</td>
               <td><span class="type-badge" :class="c.type">{{ c.type?.toUpperCase() }}</span></td>
               <td>{{ c.year_level }}{{ getYearSuffix(c.year_level) }} / {{ c.semester }}</td>
+              <td>
+                <span v-if="c.lec_units">{{ c.lec_units }} Lec</span>
+                <span v-if="c.lec_units && c.lab_units"> + </span>
+                <span v-if="c.lab_units">{{ c.lab_units }} Lab</span>
+              </td>
               <td>{{ c.units }}</td>
               <td class="actions-cell">
                 <button class="edit-btn" @click="openEditModal(c)" title="Edit">
@@ -115,15 +121,25 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Course Type</label>
-                <select v-model="form.type">
+                <select v-model="form.type" @change="updateUnits">
                   <option value="lec">Lecture (Lec)</option>
                   <option value="lab">Laboratory (Lab)</option>
                   <option value="lec+lab">Lec + Lab</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Units</label>
+                <label>Total Units</label>
                 <input v-model.number="form.units" type="number" placeholder="3" />
+              </div>
+            </div>
+            <div class="form-row" v-if="form.type === 'lec+lab' || form.type === 'lec' || form.type === 'lab'">
+              <div class="form-group" v-if="form.type !== 'lab'">
+                <label>Lecture Units</label>
+                <input v-model.number="form.lec_units" type="number" placeholder="2" @input="syncTotalUnits" />
+              </div>
+              <div class="form-group" v-if="form.type !== 'lec'">
+                <label>Lab Units</label>
+                <input v-model.number="form.lab_units" type="number" placeholder="1" @input="syncTotalUnits" />
               </div>
             </div>
             <div class="form-group">
@@ -163,6 +179,8 @@ const form = ref({
   year_level: '1',
   semester: '1st',
   type: 'lec',
+  lec_units: 3,
+  lab_units: 0,
   units: 3,
   prerequisites: ''
 })
@@ -177,6 +195,24 @@ const filteredCourses = computed(() => {
 })
 
 const getYearSuffix = (y) => y == 1 ? 'st' : y == 2 ? 'nd' : y == 3 ? 'rd' : 'th'
+
+const updateUnits = () => {
+  if (form.value.type === 'lec') {
+    form.value.lec_units = 3
+    form.value.lab_units = 0
+  } else if (form.value.type === 'lab') {
+    form.value.lec_units = 0
+    form.value.lab_units = 3
+  } else {
+    form.value.lec_units = 2
+    form.value.lab_units = 1
+  }
+  syncTotalUnits()
+}
+
+const syncTotalUnits = () => {
+  form.value.units = (form.value.lec_units || 0) + (form.value.lab_units || 0)
+}
 
 const fetchCourses = async () => {
   loading.value = true
@@ -220,6 +256,8 @@ const openEditModal = (course) => {
     year_level: course.year_level,
     semester: course.semester,
     type: course.type,
+    lec_units: course.lec_units,
+    lab_units: course.lab_units,
     units: course.units,
     prerequisites: course.prerequisites || ''
   }
@@ -296,6 +334,10 @@ onMounted(() => {
 .data-table th { text-align: left; padding: 14px 22px; background: #fffaf8; color: #9a8070; font-weight: 700; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid #f0e8e0; }
 .data-table td { padding: 14px 22px; border-bottom: 1px solid #faf8f6; color: #1a0a00; }
 .code-badge { background: #fff1e6; color: #ff6b1a; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+.type-badge { padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 10px; }
+.type-badge.lec { background: #e0f2fe; color: #0369a1; }
+.type-badge.lab { background: #fef3c7; color: #92400e; }
+.type-badge.lec\+lab { background: #f0fdf4; color: #166534; }
 
 .actions-cell { display: flex; gap: 8px; justify-content: flex-end; }
 .edit-btn, .delete-btn { background: none; border: none; padding: 6px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }

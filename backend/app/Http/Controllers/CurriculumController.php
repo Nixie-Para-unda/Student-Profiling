@@ -120,7 +120,7 @@ class CurriculumController extends Controller
 
     /**
      * Import curriculum via CSV.
-     * Expected CSV headers: program_code, course_code, course_name, units, prerequisites, year_level, semester
+     * Expected CSV headers: program_code, course_code, course_name, lec_units, lab_units, units, prerequisites, year_level, semester
      */
     public function import(Request $request)
     {
@@ -141,8 +141,8 @@ class CurriculumController extends Controller
         try {
             while (($row = fgetcsv($handle)) !== false) {
                 $rowNum++;
-                if (count($row) < 7) {
-                    $errors[] = "Row $rowNum: Not enough columns (Found " . count($row) . ", expected 7).";
+                if (count($row) < 9) {
+                    $errors[] = "Row $rowNum: Not enough columns (Found " . count($row) . ", expected 9).";
                     continue;
                 }
 
@@ -169,17 +169,27 @@ class CurriculumController extends Controller
                     continue;
                 }
 
+                // Determine course type
+                $lecUnits = (int)($data['lec_units'] ?? 0);
+                $labUnits = (int)($data['lab_units'] ?? 0);
+                $type = 'lec';
+                if ($lecUnits > 0 && $labUnits > 0) $type = 'lec+lab';
+                elseif ($labUnits > 0) $type = 'lab';
+
                 // Create or update course with detailed info
                 $course = Course::updateOrCreate(
                     ['course_code' => $data['course_code']],
                     [
                         'course_name' => $data['course_name'],
+                        'lec_units' => $lecUnits,
+                        'lab_units' => $labUnits,
                         'units' => $data['units'],
                         'program_id' => $program->id,
                         'department_id' => $program->department_id,
                         'year_level' => $data['year_level'],
                         'semester' => $semester,
-                        'type' => 'lec', // Default
+                        'type' => $type,
+                        'prerequisites' => $data['prerequisites'] !== 'none' ? $data['prerequisites'] : null,
                     ]
                 );
 

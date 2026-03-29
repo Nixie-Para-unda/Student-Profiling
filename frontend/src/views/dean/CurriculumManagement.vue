@@ -60,30 +60,36 @@
               <span class="course-count">{{ sem.courses.length }} Courses</span>
             </div>
             <div class="sem-body">
-              <table class="sem-table">
-                <thead>
-                  <tr>
-                    <th>Code</th>
-                    <th>Course Name</th>
-                    <th>Units</th>
-                    <th>Prerequisites</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in sem.courses" :key="item.id">
-                    <td class="code-cell">{{ item.course.course_code }}</td>
-                    <td>{{ item.course.course_name }}</td>
-                    <td class="units-cell text-center">{{ item.course.units }}</td>
-                    <td class="prereq-cell">{{ item.course.prerequisites || 'None' }}</td>
-                    <td class="action-cell">
-                      <button class="delete-btn-sm" @click="deleteEntry(item.id)" title="Remove from curriculum">
-                        <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M7 6V4a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v10a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="table-responsive">
+                <table class="sem-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Course Name</th>
+                      <th>Lec Units</th>
+                      <th>Lab Units</th>
+                      <th>Total Units</th>
+                      <th>Prerequisites</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in sem.courses" :key="item.id">
+                      <td class="code-cell">{{ item.course.course_code }}</td>
+                      <td class="name-cell">{{ item.course.course_name }}</td>
+                      <td class="units-cell text-center">{{ item.course.lec_units || 0 }}</td>
+                      <td class="units-cell text-center">{{ item.course.lab_units || 0 }}</td>
+                      <td class="units-cell text-center">{{ item.course.units }}</td>
+                      <td class="prereq-cell">{{ item.course.prerequisites || 'None' }}</td>
+                      <td class="action-cell">
+                        <button class="delete-btn-sm" @click="deleteEntry(item.id)" title="Remove from curriculum">
+                          <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M7 6V4a2 2 0 012-2h2a2 2 0 012 2v2m-7 0v10a2 2 0 002 2h4a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -145,6 +151,15 @@
                   <div class="course-info-sm">
                     <span class="c-code">{{ c.course_code }}</span>
                     <span class="c-name">{{ c.course_name }}</span>
+                    <div class="c-meta">
+                      <span class="type-badge" :class="c.type">{{ c.type?.toUpperCase() }}</span>
+                      <span class="unit-info">
+                        <span v-if="c.lec_units">{{ c.lec_units }} Lec</span>
+                        <span v-if="c.lec_units && c.lab_units"> + </span>
+                        <span v-if="c.lab_units">{{ c.lab_units }} Lab</span>
+                        ({{ c.units }} Total)
+                      </span>
+                    </div>
                   </div>
                 </label>
                 <div v-if="filteredCourses.length === 0" class="empty-small">No courses found matching your search.</div>
@@ -379,18 +394,29 @@ onMounted(() => {
 .program-badge { font-size: 12px; font-weight: 800; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 20px; border: 1px solid #f0e8e0; box-shadow: 0 2px 6px rgba(255,107,26,0.05); }
 
 .semester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
-.semester-card { display: flex; flex-direction: column; }
+@media (max-width: 900px) {
+  .semester-grid { grid-template-columns: 1fr; }
+  .semester-card { min-width: 0; }
+}
+.semester-card { display: flex; flex-direction: column; min-width: 400px; }
 .sem-header { padding: 14px 20px; background: #fffaf8; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
 .sem-header h4 { font-size: 14px; font-weight: 700; color: #1a0a00; }
 .course-count { font-size: 11px; font-weight: 600; color: #9a8070; background: #f0e8e0; padding: 2px 8px; border-radius: 10px; }
 .sem-body { padding: 0; }
 
-.sem-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.sem-table th { text-align: left; padding: 10px 20px; font-size: 11px; color: #9a8070; text-transform: uppercase; border-bottom: 1px solid #faf8f6; }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sem-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 650px; }
+.sem-table th { text-align: left; padding: 10px 20px; font-size: 11px; color: #9a8070; text-transform: uppercase; border-bottom: 1px solid #faf8f6; white-space: nowrap; }
 .sem-table td { padding: 12px 20px; border-bottom: 1px solid #faf8f6; }
 .code-cell { font-weight: 700; color: #FF6B1A; width: 100px; }
+.name-cell { min-width: 180px; font-weight: 600; color: #1a0a00; }
 .units-cell { font-weight: 600; color: #1a0a00; width: 60px; }
-.prereq-cell { color: #9a8070; font-size: 12px; }
+.prereq-cell { color: #9a8070; font-size: 12px; min-width: 120px; }
 .text-center { text-align: center; }
 .action-cell { text-align: right; width: 40px; }
 
@@ -425,9 +451,15 @@ onMounted(() => {
 .course-checkbox-item:hover { background: #faf8f6; }
 .course-checkbox-item:last-child { border-bottom: none; }
 .course-checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #FF6B1A; }
-.course-info-sm { display: flex; flex-direction: column; }
+.course-info-sm { display: flex; flex-direction: column; gap: 2px; }
 .c-code { font-size: 11px; font-weight: 700; color: #FF6B1A; }
-.c-name { font-size: 13px; color: #1a0a00; }
+.c-name { font-size: 13px; color: #1a0a00; font-weight: 600; }
+.c-meta { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.type-badge { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+.type-badge.lec { background: #e0f2fe; color: #0369a1; }
+.type-badge.lab { background: #fef3c7; color: #92400e; }
+.type-badge.lec\+lab { background: #f0fdf4; color: #166534; }
+.unit-info { font-size: 10px; color: #9a8070; font-weight: 500; }
 
 .empty-state { padding: 80px; text-align: center; color: #b89f90; }
 .loading-state { padding: 60px; text-align: center; color: #b89f90; }

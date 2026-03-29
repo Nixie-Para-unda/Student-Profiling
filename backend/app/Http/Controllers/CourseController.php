@@ -36,6 +36,8 @@ class CourseController extends Controller
             'year_level' => 'required|string',
             'semester' => 'required|string',
             'type' => 'required|in:lec,lab,lec+lab',
+            'lec_units' => 'nullable|integer',
+            'lab_units' => 'nullable|integer',
             'units' => 'required|integer',
         ]);
 
@@ -54,6 +56,8 @@ class CourseController extends Controller
             'year_level' => $request->year_level,
             'semester' => $request->semester,
             'type' => $request->type,
+            'lec_units' => $request->lec_units ?? 0,
+            'lab_units' => $request->lab_units ?? 0,
             'units' => $request->units,
             'prerequisites' => $request->prerequisites,
         ]);
@@ -78,6 +82,8 @@ class CourseController extends Controller
             'year_level' => 'required|string',
             'semester' => 'required|string',
             'type' => 'required|in:lec,lab,lec+lab',
+            'lec_units' => 'nullable|integer',
+            'lab_units' => 'nullable|integer',
             'units' => 'required|integer',
         ]);
 
@@ -95,6 +101,8 @@ class CourseController extends Controller
             'year_level' => $request->year_level,
             'semester' => $request->semester,
             'type' => $request->type,
+            'lec_units' => $request->lec_units ?? 0,
+            'lab_units' => $request->lab_units ?? 0,
             'units' => $request->units,
             'prerequisites' => $request->prerequisites,
         ]);
