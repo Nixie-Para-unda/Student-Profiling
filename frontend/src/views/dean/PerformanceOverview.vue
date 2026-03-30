@@ -127,6 +127,7 @@ const trend = [
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 .performance-page {
   display: flex;
   flex-direction: column;
@@ -134,7 +135,7 @@ const trend = [
 }
 
 .section-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #1a0a00;
@@ -176,7 +177,7 @@ const trend = [
 }
 
 .summary-value {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 32px;
   font-weight: 800;
   color: #1a0a00;
@@ -209,7 +210,7 @@ const trend = [
 }
 
 .card-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #1a0a00;
@@ -301,5 +302,5 @@ const trend = [
 
 .trend-stat { display: flex; flex-direction: column; gap: 4px; }
 .ts-label { font-size: 10px; color: #b89f90; text-transform: uppercase; letter-spacing: 0.4px; }
-.ts-value { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #1a0a00; }
+.ts-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: #1a0a00; }
 </style>

@@ -38,14 +38,15 @@ const violations = ref([])
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
 .pcard-body { padding: 22px; }
 .empty-clean { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; }
-.clean-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #10b981; }
+.clean-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #10b981; }
 .clean-sub { font-size: 13px; color: #b89f90; }
 .violation-list { display: flex; flex-direction: column; gap: 12px; }
 .violation-row { display: flex; align-items: center; gap: 14px; padding: 16px; border: 1px solid #fff1f2; border-radius: 14px; background: #fffafa; }

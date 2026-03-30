@@ -261,9 +261,10 @@ const exportToCSV = () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 .report-page { display: flex; flex-direction: column; gap: 24px; font-family: 'DM Sans', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: #1a0a00; }
 .page-sub { font-size: 14px; color: #b89f90; margin-top: 4px; max-width: 600px; }
 
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(26, 10, 0, 0.03); }

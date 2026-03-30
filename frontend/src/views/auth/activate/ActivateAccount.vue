@@ -210,6 +210,7 @@ const handleActivation = async () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 /* Reuse the Login.vue styling logic but adapted for activation */
 .activate-page {
   min-height: 100vh;
@@ -217,7 +218,7 @@ const handleActivation = async () => {
   align-items: center;
   justify-content: center;
   background: #f7f3f0;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   overflow: hidden;
   position: relative;
 }
@@ -287,7 +288,7 @@ const handleActivation = async () => {
 .logo-icon svg { width: 36px; height: 36px; }
 
 .brand-name {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -302,7 +303,7 @@ const handleActivation = async () => {
 }
 
 .hero-text {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 42px;
   font-weight: 800;
   line-height: 1.1;
@@ -354,7 +355,7 @@ const handleActivation = async () => {
 .form-card { width: 100%; }
 
 .form-header h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #1a0a00;
@@ -401,7 +402,7 @@ const handleActivation = async () => {
   background: none;
   padding: 12px 10px;
   font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   color: #1a0a00;
   outline: none;
 }
@@ -428,7 +429,7 @@ const handleActivation = async () => {
   padding: 14px;
   font-size: 15px;
   font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;

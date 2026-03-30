@@ -199,9 +199,10 @@ onMounted(fetchSchedule)
 </script>
 
 <style scoped>
-.faculty-page { display: flex; flex-direction: column; gap: 16px; font-family: 'DM Sans', sans-serif; height: 100%; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.faculty-page { display: flex; flex-direction: column; gap: 16px; font-family: 'Outfit', sans-serif; height: 100%; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 0; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 12px; color: #b89f90; margin-top: 2px; }
 
 .calendar-card {
@@ -336,7 +337,7 @@ onMounted(fetchSchedule)
 .modal-overlay { position: fixed; inset: 0; background: rgba(26,10,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
 .modal-content { background: #fff; border-radius: 24px; width: 100%; max-width: 850px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 85vh; }
 .modal-header-styled { padding: 20px 24px; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: flex-start; background: #fffaf8; }
-.modal-title-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; }
+.modal-title-info h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; }
 .modal-subtitle { font-size: 12px; color: #b89f90; margin-top: 2px; }
 .close-btn { background: none; border: none; font-size: 28px; color: #b89f90; cursor: pointer; line-height: 1; }
 .modal-body-styled { padding: 0; overflow-y: auto; }

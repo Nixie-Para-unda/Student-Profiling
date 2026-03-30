@@ -66,9 +66,10 @@ const gradeClass = (grade) => {
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 
 /* Semester Cards */
@@ -76,12 +77,12 @@ const gradeClass = (grade) => {
 .sem-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
 .sem-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; background: #faf8f6; border-bottom: 1px solid #f0e8e0; gap: 12px; }
 .sem-left { display: flex; align-items: center; gap: 10px; }
-.sem-label { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
+.sem-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: #1a0a00; }
 .sem-current-badge { font-size: 9px; font-weight: 700; background: #fff5ef; color: #FF6B1A; border: 1px solid #ffd5b0; padding: 2px 8px; border-radius: 5px; }
 .sem-right { display: flex; align-items: center; gap: 14px; }
 .sem-gwa-block { display: flex; align-items: baseline; gap: 5px; }
 .sem-gwa-label { font-size: 10px; color: #b89f90; text-transform: uppercase; letter-spacing: 0.5px; }
-.sem-gwa-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
+.sem-gwa-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; }
 .gwa-good { color: #16a34a; }
 .gwa-warn { color: #FF6B1A; }
 .sem-units { font-size: 11px; color: #9a8070; background: #f0e8e0; padding: 3px 9px; border-radius: 6px; }
@@ -96,7 +97,7 @@ const gradeClass = (grade) => {
 .s-code { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; }
 .s-name { font-size: 13px; color: #1a0a00; }
 .s-units { font-size: 12px; color: #9a8070; text-align: center; }
-.s-grade { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; text-align: center; }
+.s-grade { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; text-align: center; }
 .gr-ex { color: #16a34a; }
 .gr-good { color: #3b82f6; }
 .gr-avg { color: #f59e0b; }

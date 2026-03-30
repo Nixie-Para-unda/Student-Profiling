@@ -144,9 +144,10 @@ const generateReport = async () => {
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .reports-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .report-card { background: #fff; border: 1.5px solid #f0e8e0; border-radius: 16px; padding: 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
@@ -160,21 +161,21 @@ const generateReport = async () => {
 .report-select svg { width: 18px; height: 18px; }
 .report-options-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
 .roc-header { padding: 18px 22px; border-bottom: 1px solid #faf8f6; }
-.roc-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
+.roc-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
 .roc-body { padding: 22px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }
 .form-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'DM Sans', sans-serif; background: #faf8f6; color: #1a0a00; transition: all 0.2s; }
+.form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; background: #faf8f6; color: #1a0a00; transition: all 0.2s; }
 .form-group select:focus { border-color: #FF6B1A; background: #fff; }
 .roc-actions { display: flex; justify-content: flex-end; gap: 10px; }
-.primary-btn { display: flex; align-items: center; gap: 7px; background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.primary-btn { display: flex; align-items: center; gap: 7px; background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
 .primary-btn:hover:not(:disabled) { background: #e85500; }
 .primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .primary-btn svg { width: 15px; height: 15px; }
-.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
 .section-title-row { display: flex; align-items: center; justify-content: space-between; }
-.section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
+.section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
 .recent-reports { display: flex; flex-direction: column; gap: 10px; }
 .recent-report-row { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; transition: all 0.15s; }
 .recent-report-row:hover { border-color: #FF6B1A; background: #fffaf8; }
@@ -184,7 +185,7 @@ const generateReport = async () => {
 .rr-title { font-size: 13px; font-weight: 600; color: #1a0a00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rr-meta { font-size: 11px; color: #b89f90; margin-top: 2px; }
 .rr-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
-.download-btn { display: flex; align-items: center; gap: 6px; background: #faf8f6; border: 1.5px solid #f0e8e0; color: #9a8070; border-radius: 9px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; }
+.download-btn { display: flex; align-items: center; gap: 6px; background: #faf8f6; border: 1.5px solid #f0e8e0; color: #9a8070; border-radius: 9px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .download-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
 .download-btn svg { width: 13px; height: 13px; }
 .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }

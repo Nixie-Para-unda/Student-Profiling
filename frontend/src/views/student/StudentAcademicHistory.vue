@@ -133,23 +133,24 @@ const totalUnits = (subjects) => subjects.reduce((a, s) => a + s.units, 0)
 </script>
 
 <style scoped>
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'DM Sans', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 
 /* Summary Cards */
 .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .summary-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
 .summary-label { font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.6px; }
-.summary-value { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; }
+.summary-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; }
 .summary-sub { font-size: 11px; color: #b89f90; }
 
 /* Card */
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
 .pcard-header { padding: 18px 24px; border-bottom: 1px solid #faf8f6; display: flex; align-items: center; gap: 12px; }
 .pcard-icon { width: 20px; height: 20px; color: #FF6B1A; flex-shrink: 0; }
-.pcard-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
+.pcard-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: #1a0a00; }
 .pcard-body { padding: 24px; }
 
 /* Chart */
@@ -179,7 +180,7 @@ const totalUnits = (subjects) => subjects.reduce((a, s) => a + s.units, 0)
 .gwa-table-row:hover { background: #fdf9f7; }
 .gwa-sem-name { font-size: 13px; font-weight: 500; color: #1a0a00; display: flex; align-items: center; gap: 8px; }
 .current-tag { font-size: 9px; font-weight: 700; background: #fff5ef; color: #FF6B1A; border: 1px solid #ffd5b0; padding: 2px 7px; border-radius: 5px; }
-.gwa-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+.gwa-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; }
 .gwa-good { color: #16a34a; }
 .gwa-warn { color: #FF6B1A; }
 .gwa-units { font-size: 12px; color: #9a8070; }
