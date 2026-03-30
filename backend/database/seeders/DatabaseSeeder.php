@@ -92,5 +92,11 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Villanueva',
             'position' => 'College Secretary',
         ]);
+
+        // 4. Run additional seeders
+        $this->call([
+            FacultySeeder::class,
+            StudentSeeder::class,
+        ]);
     }
 }

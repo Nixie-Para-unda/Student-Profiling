@@ -4,16 +4,116 @@ namespace App\Http\Controllers;
 
 use App\Models\Faculty;
 use App\Models\User;
+use App\Models\Department;
+use App\Models\Schedule;
+use App\Models\Student;
+use App\Models\StudentViolation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Notifications\SetupPasswordNotification;
 
 class FacultyController extends Controller
 {
     /**
-     * Get all faculty members (for Dean).
+     * Get students handled by the authenticated faculty.
+     */
+    public function myStudents(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->isFaculty()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $facultyId = $user->faculty->id;
+        $schedules = Schedule::where('faculty_id', $facultyId)->with(['course', 'section'])->get();
+        $sectionIds = $schedules->pluck('section_id')->unique();
+
+        $subjects = $schedules->map(function($s) {
+            return [
+                'id' => $s->course->id,
+                'name' => $s->course->course_name,
+                'code' => $s->course->course_code,
+                'section_id' => $s->section_id,
+                'section_name' => $s->section->section_name
+            ];
+        })->values();
+
+        $students = Student::whereIn('section_id', $sectionIds)
+            ->with(['user', 'section', 'program', 'guardian'])
+            ->get();
+
+        return response()->json([
+            'students' => $students,
+            'subjects' => $subjects
+        ]);
+    }
+
+    /**
+     * Get violations reported by the authenticated faculty.
+     */
+    public function myViolations(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->isFaculty()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return StudentViolation::where('faculty_id', $user->faculty->id)
+            ->with(['student.user', 'student.section', 'student.program', 'course'])
+            ->latest()
+            ->get();
+    }
+
+    /**
+     * Store a new student violation.
+     */
+    public function storeViolation(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->isFaculty()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id',
+            'violationType' => 'required|string',
+            'severity' => 'required|in:Minor,Moderate,Major',
+            'description' => 'required|string',
+            'dateReported' => 'required|date',
+            'incident_time' => 'nullable|string',
+            'location' => 'nullable|string',
+            'course_id' => 'nullable|exists:courses,id',
+        ]);
+
+        $violations = [];
+        DB::transaction(function () use ($request, $user, &$violations) {
+            foreach ($request->student_ids as $studentId) {
+                $violations[] = StudentViolation::create([
+                    'student_id' => $studentId,
+                    'faculty_id' => $user->faculty->id,
+                    'course_id' => $request->course_id,
+                    'violationType' => $request->violationType,
+                    'severity' => $request->severity,
+                    'description' => $request->description,
+                    'dateReported' => $request->dateReported,
+                    'incident_time' => $request->incident_time,
+                    'location' => $request->location,
+                    'status' => 'active',
+                ]);
+            }
+        });
+
+        return response()->json([
+            'message' => count($violations) . ' violation(s) recorded successfully.',
+            'count' => count($violations)
+        ]);
+    }
+
+    /**
+     * Get all faculty members (for Dean/Secretary).
      */
     public function index(Request $request)
     {

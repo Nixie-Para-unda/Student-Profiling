@@ -38,7 +38,7 @@ class SetupPasswordNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $path = $notifiable->role === 'faculty' ? '/faculty/setup-password' : '/setup-password';
+        $path = $notifiable->isFacultyMember() ? '/setup-password-faculty' : '/setup-password';
         $url = env('FRONTEND_URL', 'http://localhost:5173') . $path . '?token=' . $this->token . '&email=' . urlencode($this->email);
 
         return (new MailMessage)

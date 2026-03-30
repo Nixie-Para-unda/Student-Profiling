@@ -139,10 +139,25 @@ onMounted(async () => {
   try {
     const response = await axios.get('/analytics/summary')
     const data = response.data
-    secStats.value.totalStudents = data.total_students
-    secStats.value.totalFaculty = data.total_faculty
-    stats.value[0].value = data.total_students.toString()
-    stats.value[1].value = data.total_faculty.toString()
+    
+    secStats.value = {
+      totalStudents: data.total_students,
+      totalFaculty: data.total_faculty,
+      pendingAccounts: data.pending_accounts,
+      pendingVerifications: data.pending_verifications
+    }
+
+    secAccountRequests.value = data.account_requests
+    secFacultyWorkload.value = data.faculty_workload
+    secPendingAchievements.value = data.pending_achievements
+
+    stats.value = [
+      { label: 'Total Students', value: data.total_students.toString(), delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+      { label: 'Total Faculty', value: data.total_faculty.toString(), delta: 'Active', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/faculty', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 6h1m-1 3h1m4-3h1m-1 3h1M6 13v-3a1 1 0 011-1h4a1 1 0 011-1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+      { label: 'Pending Accounts', value: data.pending_accounts.toString(), delta: 'To create', deltaClass: 'warning', fill: (data.pending_accounts > 0 ? '30%' : '0%'), iconBg: '#f5f3ff', iconColor: '#8b5cf6', route: '/students', iconPath: '<path d="M9 1v10M9 1L6 4M9 1l3 3M2 13h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
+      { label: 'Pending Verify', value: data.pending_verifications.toString(), delta: 'Achievements', deltaClass: 'warning', fill: (data.pending_verifications > 0 ? '40%' : '0%'), iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/secretary/achievements', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
+      { label: 'Dept Reports', value: '12', delta: 'Generated', deltaClass: 'positive', fill: '80%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/secretary/reports', iconPath: '<path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
+    ]
   } catch (err) {
     console.error('Failed to fetch secretary summary:', err)
   }

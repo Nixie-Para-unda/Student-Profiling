@@ -13,9 +13,13 @@ class StudentViolation extends Model
     protected $fillable = [
         'student_id',
         'faculty_id',
+        'course_id',
         'violationType',
+        'severity',
         'description',
         'dateReported',
+        'incident_time',
+        'location',
         'status',
         'action_taken',
     ];
@@ -28,5 +32,10 @@ class StudentViolation extends Model
     public function faculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
     }
 }

@@ -190,4 +190,20 @@ class StudentProfileController extends Controller
     {
         return UniversityOrganization::all();
     }
+
+    /**
+     * Get the authenticated student's violations.
+     */
+    public function getViolations(Request $request)
+    {
+        $user = $request->user();
+        if (!$user->isStudent()) return response()->json(['message' => 'Unauthorized'], 403);
+
+        $violations = \App\Models\StudentViolation::where('student_id', $user->student->id)
+            ->with(['faculty', 'course'])
+            ->latest()
+            ->get();
+
+        return response()->json($violations);
+    }
 }

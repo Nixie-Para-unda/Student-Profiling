@@ -39,6 +39,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:faculty')->group(function () {
         Route::get('/faculty/schedule', [FacultyScheduleController::class, 'index']);
         Route::get('/faculty/sections/{section_id}/students', [FacultyScheduleController::class, 'getSectionStudents']);
+        Route::get('/faculty/students', [FacultyController::class, 'myStudents']);
+        Route::get('/faculty/violations', [FacultyController::class, 'myViolations']);
+        Route::post('/faculty/violations', [FacultyController::class, 'storeViolation']);
+        Route::get('/analytics/faculty', [AnalyticsController::class, 'facultySummary']);
     });
 
     // Student Routes
@@ -52,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/student/affiliations', [StudentProfileController::class, 'addAffiliation']);
         Route::delete('/student/affiliations/{id}', [StudentProfileController::class, 'removeAffiliation']);
         Route::post('/student/activities', [StudentProfileController::class, 'addActivity']);
+        Route::get('/student/violations', [StudentProfileController::class, 'getViolations']);
     });
 
     // Curriculum Shared Routes (Dean and Secretary)
@@ -106,6 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/summary', [AnalyticsController::class, 'deanSummary']);
         Route::get('/analytics/performance', [AnalyticsController::class, 'academicPerformance']);
         Route::get('/violations', [ViolationController::class, 'index']);
+        Route::put('/violations/{id}', [ViolationController::class, 'update']);
         Route::get('/sections', [SectionController::class, 'index']);
     });
 });

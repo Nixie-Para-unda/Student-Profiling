@@ -118,41 +118,62 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../store/auth'
+import axios from 'axios'
 
 const authStore = useAuthStore()
-const facultyStats = ref({ totalSubjects: 4, totalStudents: 142 })
-const facultyScheduleToday = ref([
-  { time: '7:30 AM', duration: '1.5 hrs', subject: 'Data Structures & Algorithms', section: 'BSCS 3-A', room: 'CS Lab 3', enrolled: 38, color: '#8b5cf6' },
-  { time: '10:00 AM', duration: '1.5 hrs', subject: 'Algorithms & Complexity', section: 'BSCS 3-B', room: 'Room 204', enrolled: 35, color: '#FF6B1A' },
-  { time: '1:00 PM', duration: '3 hrs', subject: 'Data Structures Lab', section: 'BSCS 3-A', room: 'CS Lab 3', enrolled: 38, color: '#3b82f6' }
-])
-const facultyTopStudents = ref([
-  { name: 'Aira Mae Reyes', subject: 'Data Structures', grade: '1.00', color: '#f59e0b' },
-  { name: 'Jose Miguel Cruz', subject: 'Algorithms', grade: '1.25', color: '#3b82f6' },
-  { name: 'Katrina Villanueva', subject: 'Data Structures', grade: '1.25', color: '#10b981' },
-  { name: 'Mark Dela Cruz', subject: 'Data Structures Lab', grade: '1.50', color: '#8b5cf6' }
-])
-const facultyPendingActions = ref([
-  { label: 'Grades to submit', count: 2, color: '#FF6B1A' },
-  { label: 'Award recommendations', count: 3, color: '#f59e0b' },
-  { label: 'Violation reports', count: 1, color: '#ef4444' }
-])
-const facultySubjects = ref([
-  { code: 'CS301', name: 'Data Structures & Algorithms', section: 'BSCS 3-A', enrolled: 38, color: '#8b5cf6' },
-  { code: 'CS301L', name: 'Data Structures Lab', section: 'BSCS 3-A', enrolled: 38, color: '#3b82f6' },
-  { code: 'CS401', name: 'Algorithms & Complexity', section: 'BSCS 3-B', enrolled: 35, color: '#FF6B1A' },
-  { code: 'CS401L', name: 'Algorithms Lab', section: 'BSCS 3-B', enrolled: 31, color: '#10b981' }
-])
+const facultyStats = ref({ totalSubjects: 0, totalStudents: 0 })
+const facultyScheduleToday = ref([])
+const facultyTopStudents = ref([])
+const facultyPendingActions = ref([])
+const facultySubjects = ref([])
+
 const todayLabel = computed(() => new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }))
+
 const stats = ref([
-  { label: 'My Subjects', value: '4', delta: 'This semester', deltaClass: 'positive', fill: '80%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/faculty/subjects', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h8M5 9h6M5 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-  { label: 'Total Students', value: '142', delta: 'Enrolled', deltaClass: 'positive', fill: '100%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/faculty/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-  { label: 'Avg Class GWA', value: '1.87', delta: 'All classes', deltaClass: 'positive', fill: '75%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-  { label: 'Violations Filed', value: '3', delta: 'This semester', deltaClass: 'negative', fill: '15%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/faculty/violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
-  { label: 'Awards Given', value: '5', delta: 'Recommended', deltaClass: 'positive', fill: '50%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/faculty/awards', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' }
+  { label: 'My Subjects', value: '0', delta: 'This semester', deltaClass: 'positive', fill: '0%', iconBg: '#fff5ef', iconColor: '#FF6B1A', route: '/faculty/subjects', iconPath: '<rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h8M5 9h6M5 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+  { label: 'Total Students', value: '0', delta: 'Enrolled', deltaClass: 'positive', fill: '0%', iconBg: '#eff6ff', iconColor: '#3b82f6', route: '/faculty/students', iconPath: '<path d="M9 8a3 3 0 100-6 3 3 0 000 6zM2 16a7 7 0 0114 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+  { label: 'Avg Class GWA', value: 'N/A', delta: 'All classes', deltaClass: 'positive', fill: '0%', iconBg: '#f5f3ff', iconColor: '#8b5cf6', iconPath: '<path d="M2 13l3-5 3 3 3-4 5 6H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' },
+  { label: 'Violations Filed', value: '0', delta: 'This semester', deltaClass: 'negative', fill: '0%', iconBg: '#fff1f2', iconColor: '#ef4444', route: '/faculty/violations', iconPath: '<path d="M9 5v4M9 11.5v.5M2.5 14h13a1 1 0 00.87-1.5L10 2.5a1 1 0 00-1.74 0L2.5 12.5A1 1 0 002.5 14z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' },
+  { label: 'Awards Given', value: '0', delta: 'Recommended', deltaClass: 'positive', fill: '0%', iconBg: '#fffbeb', iconColor: '#f59e0b', route: '/faculty/awards', iconPath: '<path d="M9 1.5l1.6 4.8H16l-4.2 3.1 1.6 4.9L9 11.1l-4.4 3.2 1.6-4.9L2 7.3h5.4L9 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' }
 ])
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('/analytics/faculty')
+    const data = response.data
+    
+    facultyStats.value = {
+      totalSubjects: data.total_subjects,
+      totalStudents: data.total_students
+    }
+    
+    facultyScheduleToday.value = data.today_schedule
+    facultyTopStudents.value = data.top_students
+    facultyPendingActions.value = data.pending_actions
+    facultySubjects.value = data.subjects
+
+    stats.value[0].value = data.total_subjects.toString()
+    stats.value[0].fill = data.total_subjects > 0 ? '80%' : '0%'
+    
+    stats.value[1].value = data.total_students.toString()
+    stats.value[1].fill = '100%'
+    
+    // Average Class GWA (using top students average for now as a demo)
+    if (data.top_students.length > 0) {
+      const avg = data.top_students.reduce((acc, s) => acc + parseFloat(s.grade), 0) / data.top_students.length
+      stats.value[2].value = avg.toFixed(2)
+      stats.value[2].fill = '75%'
+    }
+
+    stats.value[3].value = data.pending_actions.find(a => a.label === 'Violation reports')?.count.toString() || '0'
+    stats.value[4].value = data.pending_actions.find(a => a.label === 'Award recommendations')?.count.toString() || '0'
+    
+  } catch (err) {
+    console.error('Failed to fetch faculty summary:', err)
+  }
+})
 </script>
 
 <style scoped>

@@ -154,6 +154,18 @@ const routes = [
         meta: { title: 'Dashboard' }
       },
       {
+        path: 'faculty/students',
+        name: 'FacultyStudents',
+        component: () => import('../views/faculty/FacultyStudentManagement.vue'),
+        meta: { title: 'Student Profiles' }
+      },
+      {
+        path: 'faculty/violations',
+        name: 'FacultyViolations',
+        component: () => import('../views/faculty/FacultyViolationManagement.vue'),
+        meta: { title: 'Student Violations' }
+      },
+      {
         path: 'faculty/schedule',
         name: 'FacultySchedule',
         component: () => import('../views/faculty/FacultySchedule.vue'),

@@ -5,7 +5,11 @@
     </div>
     <div class="pcard">
       <div class="pcard-body">
-        <div v-if="violations.length === 0" class="empty-clean">
+        <div v-if="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Fetching your records...</p>
+        </div>
+        <div v-else-if="violations.length === 0" class="empty-clean">
           <div class="clean-icon">
             <svg viewBox="0 0 48 48" fill="none" style="width:48px;height:48px"><circle cx="24" cy="24" r="20" stroke="#10b981" stroke-width="2"/><path d="M16 24l6 6 10-10" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
@@ -31,10 +35,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// Replace with real API call when backend is ready
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
 const violations = ref([])
-// Example: violations.value = [{ type: 'Excessive Absences', date: 'Feb 12, 2026', severity: 'Moderate', severityClass: 'sev-moderate', resolved: false }]
+const loading = ref(false)
+
+const fetchViolations = async () => {
+  loading.value = true
+  try {
+    const res = await axios.get('/student/violations')
+    violations.value = res.data.map(v => ({
+      ...v,
+      type: v.violationType,
+      date: formatDate(v.dateReported),
+      severityClass: 'sev-' + v.severity.toLowerCase(),
+      resolved: v.status === 'resolved'
+    }))
+  } catch (err) {
+    console.error('Failed to fetch violations:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+onMounted(() => {
+  fetchViolations()
+})
 </script>
 
 <style scoped>
@@ -45,6 +76,9 @@ const violations = ref([])
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
 .pcard-body { padding: 22px; }
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #b89f90; font-size: 14px; }
+.spinner { width: 32px; height: 32px; border: 3px solid rgba(255,107,26,0.1); border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .empty-clean { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; }
 .clean-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #10b981; }
 .clean-sub { font-size: 13px; color: #b89f90; }
