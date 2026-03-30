@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 class Course extends Model
 {
     use HasFactory;
@@ -24,6 +26,16 @@ class Course extends Model
         'units',
         'prerequisites',
     ];
+
+    public function prerequisiteCourses(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_prerequisites', 'course_id', 'prerequisite_course_id')->withTimestamps();
+    }
+
+    public function dependentCourses(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_prerequisites', 'prerequisite_course_id', 'course_id')->withTimestamps();
+    }
 
     public function department(): BelongsTo
     {

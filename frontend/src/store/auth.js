@@ -33,6 +33,15 @@ export const useAuthStore = defineStore('auth', {
         throw error
       }
     },
+    async fetchUser() {
+      try {
+        const response = await axios.get('/user')
+        this.user = response.data
+        localStorage.setItem('user', JSON.stringify(this.user))
+      } catch (error) {
+        console.error('Fetch user failed:', error)
+      }
+    },
     logout() {
       this.user = null
       this.token = null

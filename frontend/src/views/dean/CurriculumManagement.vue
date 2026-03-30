@@ -19,21 +19,66 @@
     </div>
 
     <div class="filter-bar pcard">
-      <div class="filter-group">
-        <label>Select Program to View</label>
-        <select v-model="filterProgram" @change="fetchCurriculum">
-          <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
-        </select>
+      <div class="filter-main">
+        <div class="filter-group search-group">
+          <label>Search Curriculum</label>
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/><path d="M14 14l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input 
+              v-model="curriculumSearch" 
+              type="text" 
+              placeholder="Search by code or name..." 
+              class="search-input"
+            />
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Program</label>
+          <div class="select-wrapper">
+            <svg class="select-icon" viewBox="0 0 20 20" fill="none"><path d="M4 6h12v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM10 2v4M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <select v-model="filterProgram" @change="fetchCurriculum">
+              <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>Year Level</label>
+          <div class="select-wrapper">
+            <svg class="select-icon" viewBox="0 0 20 20" fill="none"><path d="M8 2v16M12 2v16M4 6h12M4 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <select v-model="filterYear">
+              <option value="all">All Year Levels</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="curriculum-container">
       <div v-if="filterProgram" class="program-header-info">
-        <h2 class="program-full-title">
-          {{ programs.find(p => p.id === filterProgram)?.program_name || 'Curriculum' }} 
-          ({{ programs.find(p => p.id === filterProgram)?.program_code }})
-        </h2>
-        <div class="program-divider"></div>
+        <div class="program-info-left">
+          <div class="program-breadcrumb">Academic Program Curriculum</div>
+          <h2 class="program-full-title">
+            {{ programs.find(p => p.id === filterProgram)?.program_name || 'Curriculum' }} 
+            <span class="program-code-tag">{{ programs.find(p => p.id === filterProgram)?.program_code }}</span>
+          </h2>
+        </div>
+        
+        <div class="program-stats-row" v-if="curriculum.length > 0">
+          <div class="stat-pill">
+            <span class="pill-label">Total Courses</span>
+            <span class="pill-value">{{ curriculum.length }}</span>
+          </div>
+          <div class="stat-pill">
+            <span class="pill-label">Academic Years</span>
+            <span class="pill-value">{{ new Set(curriculum.map(c => c.year_level)).size }}</span>
+          </div>
+        </div>
       </div>
 
       <div v-if="loading" class="loading-state pcard">
@@ -53,7 +98,7 @@
           </span>
         </div>
         
-        <div class="semester-grid">
+        <div class="semester-list">
           <div v-for="sem in year.semesters" :key="sem.semester" class="semester-card pcard">
             <div class="sem-header">
               <h4>{{ sem.semester }} Semester</h4>
@@ -196,6 +241,8 @@ const importing = ref(false)
 const saving = ref(false)
 const showAddModal = ref(false)
 const filterProgram = ref('')
+const filterYear = ref('all')
+const curriculumSearch = ref('')
 const fileInput = ref(null)
 const courseSearch = ref('')
 
@@ -218,8 +265,24 @@ const filteredCourses = computed(() => {
 const groupedCurriculum = computed(() => {
   if (curriculum.value.length === 0) return []
   
+  let filtered = curriculum.value
+  
+  // Year Filter
+  if (filterYear.value !== 'all') {
+    filtered = filtered.filter(item => item.year_level == filterYear.value)
+  }
+
+  // Search Filter
+  if (curriculumSearch.value.trim()) {
+    const s = curriculumSearch.value.toLowerCase()
+    filtered = filtered.filter(item => 
+      item.course.course_code.toLowerCase().includes(s) || 
+      item.course.course_name.toLowerCase().includes(s)
+    )
+  }
+
   const years = {}
-  curriculum.value.forEach(item => {
+  filtered.forEach(item => {
     const y = item.year_level
     if (!years[y]) years[y] = {}
     
@@ -379,28 +442,40 @@ onMounted(() => {
 .header-actions { display: flex; gap: 12px; }
 
 .pcard { background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; overflow: hidden; }
-.filter-bar { padding: 16px 22px; display: flex; gap: 20px; align-items: center; }
-.filter-group { display: flex; flex-direction: column; gap: 4px; }
-.filter-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; }
-.filter-group select { padding: 8px 12px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
+.filter-bar { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; background: #fff; border: 1px solid #f0e8e0; border-radius: 20px; }
+.filter-main { display: flex; gap: 24px; width: 100%; align-items: flex-end; }
+.filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.search-group { flex: 2; }
+.filter-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+.select-wrapper, .search-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+.select-icon, .search-icon { position: absolute; left: 12px; width: 16px; height: 16px; color: #FF6B1A; pointer-events: none; }
+.filter-group select, .search-input { width: 100%; padding: 10px 12px 10px 38px; border: 1.5px solid #f0e8e0; border-radius: 12px; font-size: 14px; font-weight: 500; outline: none; background: #fff; cursor: pointer; transition: all 0.2s; color: #1a0a00; }
+.search-input { cursor: text; }
+.filter-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239a8070' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; }
+.filter-group select:hover, .search-input:hover { border-color: #FF6B1A; background-color: #fffaf8; }
+.filter-group select:focus, .search-input:focus { border-color: #FF6B1A; box-shadow: 0 0 0 4px rgba(255,107,26,0.1); }
 
-.program-header-info { margin-bottom: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.program-full-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: #1a0a00; letter-spacing: -0.5px; }
-.program-divider { width: 60px; height: 4px; background: #FF6B1A; border-radius: 2px; }
+.program-header-info { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; border-bottom: 2px solid #f0e8e0; width: 100%; gap: 24px; }
+.program-info-left { display: flex; flex-direction: column; gap: 4px; }
+.program-breadcrumb { font-size: 11px; font-weight: 700; color: #b89f90; text-transform: uppercase; letter-spacing: 0.8px; }
+.program-full-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: #1a0a00; letter-spacing: -0.8px; display: flex; align-items: center; gap: 12px; }
+.program-code-tag { font-size: 14px; font-weight: 700; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 8px; border: 1.5px solid #fef0e8; }
 
-.curriculum-container { display: flex; flex-direction: column; gap: 30px; }
-.year-section { display: flex; flex-direction: column; gap: 16px; }
-.year-header { display: flex; justify-content: space-between; align-items: center; }
-.year-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: #1a0a00; border-left: 4px solid #FF6B1A; padding-left: 12px; }
-.program-badge { font-size: 12px; font-weight: 800; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 20px; border: 1px solid #f0e8e0; box-shadow: 0 2px 6px rgba(255,107,26,0.05); }
+.program-stats-row { display: flex; gap: 16px; }
+.stat-pill { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.pill-label { font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.3px; }
+.pill-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: #FF6B1A; line-height: 1; }
 
-.semester-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
-@media (max-width: 900px) {
-  .semester-grid { grid-template-columns: 1fr; }
-  .semester-card { min-width: 0; }
-}
-.semester-card { display: flex; flex-direction: column; min-width: 400px; }
-.sem-header { padding: 14px 20px; background: #fffaf8; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
+.curriculum-container { display: flex; flex-direction: column; gap: 24px; }
+.year-section { display: flex; flex-direction: column; gap: 20px; }
+.year-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #f0e8e0; }
+.year-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; display: flex; align-items: center; gap: 10px; }
+.year-title::before { content: ''; display: block; width: 4px; height: 20px; background: #FF6B1A; border-radius: 2px; }
+.program-badge { font-size: 12px; font-weight: 800; color: #FF6B1A; background: #fffaf8; padding: 4px 12px; border-radius: 20px; border: 1px solid #fef0e8; }
+
+.semester-list { display: flex; flex-direction: column; gap: 24px; }
+.semester-card { width: 100%; display: flex; flex-direction: column; }
+.sem-header { padding: 16px 24px; background: #fffaf8; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
 .sem-header h4 { font-size: 14px; font-weight: 700; color: #1a0a00; }
 .course-count { font-size: 11px; font-weight: 600; color: #9a8070; background: #f0e8e0; padding: 2px 8px; border-radius: 10px; }
 .sem-body { padding: 0; }

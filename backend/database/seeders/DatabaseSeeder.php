@@ -12,93 +12,85 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     * Keeps only the essential structural data and administrative accounts.
      */
     public function run(): void
     {
-        // Create Department
-        $dept = \App\Models\Department::create(['department_name' => 'College of Computing Studies']);
+        // 1. Create Essential Department
+        $dept = \App\Models\Department::firstOrCreate(['department_name' => 'College of Computing Studies']);
 
-        // Create Programs
-        $programIT = \App\Models\Program::create([
+        // 2. Create Essential Programs
+        \App\Models\Program::firstOrCreate([
+            'program_code' => 'BSIT'
+        ], [
             'department_id' => $dept->id,
-            'program_code' => 'BSIT',
             'program_name' => 'Bachelor of Science in Information Technology'
         ]);
 
-        $programCS = \App\Models\Program::create([
+        \App\Models\Program::firstOrCreate([
+            'program_code' => 'BSCS'
+        ], [
             'department_id' => $dept->id,
-            'program_code' => 'BSCS',
             'program_name' => 'Bachelor of Science in Computer Science'
         ]);
 
-        // Create Section
-        $section = \App\Models\Section::create([
-            'department_id' => $dept->id,
-            'program_id' => $programIT->id,
-            'section_name' => 'BSIT 4-A',
-            'year_level' => '4',
-            'school_year' => '2026-2027'
-        ]);
-
-        // Create Dean
-        User::create([
-            'email' => 'dean@example.com',
+        // 3. Create Essential Administrative Accounts (So you can still log in)
+        
+        // Dean
+        $deanUser = User::firstOrCreate([
+            'email' => 'dean@example.com'
+        ], [
             'password' => bcrypt('password'),
             'role' => 'dean',
             'status' => 'active',
             'password_set_at' => now(),
         ]);
 
-        // Create Department Chair
-        User::create([
-            'email' => 'chair@example.com',
+        \App\Models\Faculty::firstOrCreate([
+            'user_id' => $deanUser->id
+        ], [
+            'department_id' => $dept->id,
+            'first_name' => 'Dr. Maria',
+            'last_name' => 'Santos',
+            'position' => 'College Dean',
+        ]);
+
+        // Department Chair
+        $chairUser = User::firstOrCreate([
+            'email' => 'chair@example.com'
+        ], [
             'password' => bcrypt('password'),
             'role' => 'department_chair',
             'status' => 'active',
             'password_set_at' => now(),
         ]);
 
-        // Create Secretary
-        User::create([
-            'email' => 'secretary@example.com',
+        \App\Models\Faculty::firstOrCreate([
+            'user_id' => $chairUser->id
+        ], [
+            'department_id' => $dept->id,
+            'first_name' => 'Engr. Roberto',
+            'last_name' => 'Dela Cruz',
+            'position' => 'Department Chair',
+        ]);
+
+        // Secretary
+        $secUser = User::firstOrCreate([
+            'email' => 'secretary@example.com'
+        ], [
             'password' => bcrypt('password'),
             'role' => 'secretary',
             'status' => 'active',
             'password_set_at' => now(),
         ]);
 
-        // Call Faculty Seeder
-        $this->call(FacultySeeder::class);
-
-        // Create Student
-        $studentUser = User::create([
-            'email' => 'student@example.com',
-            'student_number' => '2022-0001',
-            'password' => bcrypt('password'),
-            'role' => 'student',
-            'status' => 'active',
-            'password_set_at' => now(),
-        ]);
-
-        \App\Models\Student::create([
-            'user_id' => $studentUser->id,
-            'program_id' => $programIT->id,
-            'section_id' => $section->id,
-            'first_name' => 'Juan',
-            'last_name' => 'Dela Cruz',
-        ]);
-
-        // Create Organizations
-        \App\Models\UniversityOrganization::create([
-            'organization_name' => 'ICPEP.SE',
-            'organization_type' => 'Academic',
-            'description' => 'Institute of Computer Engineers of the Philippines Student Edition'
-        ]);
-
-        \App\Models\UniversityOrganization::create([
-            'organization_name' => 'GDSC',
-            'organization_type' => 'Technical',
-            'description' => 'Google Developer Student Clubs'
+        \App\Models\Faculty::firstOrCreate([
+            'user_id' => $secUser->id
+        ], [
+            'department_id' => $dept->id,
+            'first_name' => 'Ms. Clarisse',
+            'last_name' => 'Villanueva',
+            'position' => 'College Secretary',
         ]);
     }
 }

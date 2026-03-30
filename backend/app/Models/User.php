@@ -31,6 +31,13 @@ class User extends Authenticatable
         'status',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['name'];
+
     public function student(): HasOne
     {
         return $this->hasOne(Student::class);
@@ -66,13 +73,18 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
+    public function isFacultyMember(): bool
+    {
+        return in_array($this->role, ['faculty', 'dean', 'department_chair', 'secretary']);
+    }
+
     public function getNameAttribute()
     {
-        if ($this->isStudent()) {
-            return $this->student ? $this->student->first_name . ' ' . $this->student->last_name : $this->email;
+        if ($this->isStudent() && $this->student) {
+            return $this->student->first_name . ' ' . $this->student->last_name;
         }
-        if ($this->isFaculty()) {
-            return $this->faculty ? $this->faculty->first_name . ' ' . $this->faculty->last_name : $this->email;
+        if ($this->isFacultyMember() && $this->faculty) {
+            return $this->faculty->first_name . ' ' . $this->faculty->last_name;
         }
         return $this->email;
     }

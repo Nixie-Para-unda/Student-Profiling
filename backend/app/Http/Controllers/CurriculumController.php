@@ -136,6 +136,7 @@ class CurriculumController extends Controller
         $importedCount = 0;
         $errors = [];
         $rowNum = 1;
+        $prerequisitesMap = []; // Store course_id => prerequisites_text
 
         DB::beginTransaction();
         try {
@@ -193,6 +194,10 @@ class CurriculumController extends Controller
                     ]
                 );
 
+                if ($data['prerequisites'] && $data['prerequisites'] !== 'none') {
+                    $prerequisitesMap[$course->id] = $data['prerequisites'];
+                }
+
                 Curriculum::updateOrCreate(
                     [
                         'program_id' => $program->id,
@@ -206,6 +211,23 @@ class CurriculumController extends Controller
                 );
                 $importedCount++;
             }
+
+            // Process prerequisites after all courses are created
+            foreach ($prerequisitesMap as $courseId => $prereqText) {
+                $course = Course::find($courseId);
+                // Clear existing prerequisites to avoid duplicates
+                $course->prerequisiteCourses()->detach();
+
+                // Split by comma if there are multiple prerequisites
+                $prereqCodes = array_map('trim', explode(',', $prereqText));
+                foreach ($prereqCodes as $code) {
+                    $prereqCourse = Course::where('course_code', $code)->first();
+                    if ($prereqCourse) {
+                        $course->prerequisiteCourses()->attach($prereqCourse->id);
+                    }
+                }
+            }
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

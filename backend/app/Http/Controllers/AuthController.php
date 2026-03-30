@@ -49,7 +49,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $user->createToken('auth_token')->plainTextToken,
-            'user' => $user->load($user->role === 'student' ? 'student' : ($user->role === 'faculty' ? 'faculty' : [])),
+            'user' => $user->load($user->role === 'student' ? 'student' : ($user->isFacultyMember() ? 'faculty' : [])),
         ]);
     }
 

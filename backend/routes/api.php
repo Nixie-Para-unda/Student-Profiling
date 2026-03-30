@@ -28,7 +28,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user()->load($request->user()->role === 'student' ? 'student' : ($request->user()->role === 'faculty' ? 'faculty' : []));
+        return $request->user()->load($request->user()->role === 'student' ? 'student' : ($request->user()->isFacultyMember() ? 'faculty' : []));
     });
 
     // Profiling Query Engine (Dean, Chair, Secretary)

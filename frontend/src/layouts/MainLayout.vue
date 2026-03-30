@@ -282,7 +282,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../store/auth'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthRedirect } from '../composables/useAuthRedirect'
@@ -292,6 +292,12 @@ const router = useRouter()
 const route = useRoute()
 const { getDashboardRoute } = useAuthRedirect()
 const sidebarCollapsed = ref(false)
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    authStore.fetchUser()
+  }
+})
 
 const dashboardRoute = computed(() => getDashboardRoute())
 

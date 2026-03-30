@@ -92,7 +92,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="f in filteredFaculty" :key="f.id">
+          <tr v-for="f in filteredFaculty" :key="f.id" @click="viewDetails(f)" class="clickable-row">
             <td>
               <div class="student-cell">
                 <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
@@ -106,21 +106,23 @@
             <td>{{ f.position }}</td>
             <td class="email-cell">{{ f.user?.email }}</td>
             <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending Setup' }}</span></td>
-            <td>
+            <td v-if="isSecretary" @click.stop>
               <div class="action-btns">
                 <button class="action-btn edit" @click="openEditModal(f)" title="Edit"><svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 <button class="action-btn resend" @click="resendSetup(f)" title="Resend setup email"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                <button class="action-btn delete" @click="confirmDelete(f)" title="Delete"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="action-btn delete" @click="confirmArchive(f)" title="Delete"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
               </div>
             </td>
           </tr>
-          <tr v-if="filteredFaculty.length === 0"><td colspan="7" class="empty-row">No faculty members found.</td></tr>
+          <tr v-if="filteredFaculty.length === 0 && !loading">
+            <td :colspan="isSecretary ? 6 : 5" class="empty-row">No faculty members found.</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
-         FIX: VIEW MODAL — read-only faculty details
+         VIEW MODAL — read-only faculty details
          Includes resend email with 3-attempt limit
     ═══════════════════════════════════════════════════ -->
     <div v-if="viewingFaculty" class="modal-overlay" @click.self="viewingFaculty = null">
@@ -132,118 +134,52 @@
             </div>
             <div>
               <h3>{{ viewingFaculty.first_name }} {{ viewingFaculty.last_name }}</h3>
-              <p class="modal-sub">{{ viewingFaculty.employee_id }} · {{ viewingFaculty.department_name }} · {{ viewingFaculty.position }}</p>
+              <p class="modal-sub">{{ viewingFaculty.employee_id || 'N/A' }} · {{ viewingFaculty.department_name }} · {{ viewingFaculty.position }}</p>
             </div>
           </div>
           <button class="close-btn" @click="viewingFaculty = null">×</button>
         </div>
 
-        <div class="modal-body">
-          <div class="detail-grid">
-            <div class="detail-section">
-              <div class="detail-section-label">Personal Information</div>
-              <div class="detail-rows">
-                <div class="detail-row">
-                  <span class="detail-key">First Name</span>
-                  <span class="detail-val">{{ viewingFaculty.first_name }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Last Name</span>
-                  <span class="detail-val">{{ viewingFaculty.last_name }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Middle Name</span>
-                  <span class="detail-val">{{ viewingFaculty.middle_name || '—' }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Email Address</span>
-                  <span class="detail-val">{{ viewingFaculty.user?.email || '—' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="detail-section">
-              <div class="detail-section-label">Academic Information</div>
-              <div class="detail-rows">
-                <div class="detail-row">
-                  <span class="detail-key">Employee ID</span>
-                  <span class="detail-val">
-                    <span class="code-badge">{{ viewingFaculty.employee_id }}</span>
-                  </span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Department</span>
-                  <span class="detail-val">{{ viewingFaculty.department_name }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Position</span>
-                  <span class="detail-val">{{ viewingFaculty.position }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Account Status</span>
-                  <span class="detail-val">
-                    <span class="status-badge" :class="viewingFaculty.status === 'active' ? 'st-active' : 'st-pending'">
-                      {{ viewingFaculty.status === 'active' ? 'Active' : 'Pending Setup' }}
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- FIX: Resend email with max 3 limit -->
-          <div class="resend-row" v-if="viewingFaculty.status === 'pending'">
-            <div class="resend-info">
-              <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <span>Setup email <strong>resent {{ getResendCount(viewingFaculty.id) }}/3 times</strong></span>
-            </div>
-            <button
-              class="resend-btn"
-              @click="resendSetup(viewingFaculty)"
-              :disabled="getResendCount(viewingFaculty.id) >= 3"
-              :title="getResendCount(viewingFaculty.id) >= 3 ? 'Maximum resend limit reached' : 'Resend setup email'"
-            >
-              <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              {{ getResendCount(viewingFaculty.id) >= 3 ? 'Limit Reached' : 'Resend Email' }}
-            </button>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button class="ghost-btn" @click="viewingFaculty = null">Close</button>
-          <button class="ghost-btn edit-modal-btn" @click="openEditFromView">
-            <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Edit
-          </button>
-          <!-- Archive replaces delete — backend needs POST /secretary/faculty/{id}/archive -->
-          <button class="danger-btn" @click="confirmArchive(viewingFaculty)">
-            <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M2 5h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1V5zM1 2h14v3H1V2zM6 8h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Archive Account
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- FACULTY DETAILS MODAL -->
-    <div v-if="viewingFaculty" class="modal-overlay" @click.self="viewingFaculty = null">
-      <div class="modal modal-lg">
-        <div class="modal-header">
-          <div class="modal-student-info">
-            <div class="s-avatar lg" :style="{ background: viewingFaculty.color }">{{ viewingFaculty.first_name.charAt(0) }}</div>
-            <div>
-              <h3>{{ viewingFaculty.first_name }} {{ viewingFaculty.last_name }}</h3>
-              <p>{{ viewingFaculty.position }}</p>
-            </div>
-          </div>
-          <button class="close-btn" @click="viewingFaculty = null">×</button>
-        </div>
         <div class="modal-body profile-body">
           <div class="profile-section">
+            <h4 class="section-title">Personal Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Full Name</span>
+                <span class="detail-val">{{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name ? viewingFaculty.middle_name + ' ' : '' }}{{ viewingFaculty.last_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Email Address</span>
+                <span class="detail-val">{{ viewingFaculty.user?.email || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-section">
             <h4 class="section-title">Professional Information</h4>
-            <div class="profile-info-grid">
-              <div class="pi-row"><span class="pi-label">Department</span><span class="pi-value">{{ viewingFaculty.department_name }}</span></div>
-              <div class="pi-row"><span class="pi-label">Position</span><span class="pi-value">{{ viewingFaculty.position }}</span></div>
-              <div class="pi-row"><span class="pi-label">Status</span><span class="pi-value">{{ viewingFaculty.status.toUpperCase() }}</span></div>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Employee ID</span>
+                <span class="detail-val">
+                  <span class="code-badge">{{ viewingFaculty.employee_id || 'N/A' }}</span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Department</span>
+                <span class="detail-val">{{ viewingFaculty.department_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Position</span>
+                <span class="detail-val">{{ viewingFaculty.position }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Account Status</span>
+                <span class="detail-val">
+                  <span class="status-badge" :class="viewingFaculty.status === 'active' ? 'st-active' : 'st-pending'">
+                    {{ viewingFaculty.status === 'active' ? 'Active' : 'Pending Setup' }}
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -264,18 +200,37 @@
                 </span>
               </div>
             </div>
-            <p v-else class="empty-small">No subjects assigned yet.</p>
+            <p v-else class="empty-small" style="font-size: 11px; color: #b89f90; font-style: italic; margin-top: 8px;">No subjects assigned yet.</p>
           </div>
-          
-          <div class="profile-section">
-            <h4 class="section-title">Contact Information</h4>
-            <div class="profile-info-grid">
-              <div class="pi-row"><span class="pi-label">Email</span><span class="pi-value">{{ viewingFaculty.user?.email }}</span></div>
+
+          <!-- Resend email with max 3 limit -->
+          <div class="resend-row" v-if="viewingFaculty.status === 'pending' && isSecretary">
+            <div class="resend-info">
+              <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span>Setup email <strong>resent {{ getResendCount(viewingFaculty.id) }}/3 times</strong></span>
             </div>
+            <button
+              class="resend-btn"
+              @click="resendSetup(viewingFaculty)"
+              :disabled="getResendCount(viewingFaculty.id) >= 3"
+              :title="getResendCount(viewingFaculty.id) >= 3 ? 'Maximum resend limit reached' : 'Resend setup email'"
+            >
+              <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              {{ getResendCount(viewingFaculty.id) >= 3 ? 'Limit Reached' : 'Resend Email' }}
+            </button>
           </div>
         </div>
+
         <div class="modal-footer">
-          <button class="primary-btn" @click="viewingFaculty = null">Close</button>
+          <button class="ghost-btn" @click="viewingFaculty = null">Close</button>
+          <button v-if="isSecretary" class="ghost-btn" @click="openEditFromView">
+            <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Edit
+          </button>
+          <button v-if="isSecretary" class="danger-btn" @click="confirmArchive(viewingFaculty)">
+            <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Delete Account
+          </button>
         </div>
       </div>
     </div>
@@ -324,7 +279,7 @@
     </div>
 
     <!-- DELETE CONFIRM MODAL (Secretary Only) -->
-    <div v-if="isSecretary && showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+    <div v-if="isSecretary && showArchiveModal" class="modal-overlay" @click.self="showArchiveModal = false">
       <div class="modal modal-sm">
         <div class="modal-header">
           <h3>Archive Faculty Account</h3>
@@ -357,16 +312,21 @@ const isSecretary = computed(() => authStore.user?.role === 'secretary')
 
 const search = ref('')
 const filterDept = ref('')
+const filterPosition = ref('')
 const filterStatus = ref('')
 const showImport = ref(false)
 const showModal = ref(false)
 const showDeleteModal = ref(false)
+const showArchiveModal = ref(false)
+const viewingFaculty = ref(null)
+const archivingFaculty = ref(null)
+const editingFaculty = ref(null)
+const deletingFaculty = ref(null)
 const saving = ref(false)
 const loading = ref(false)
 const loadingImport = ref(false)
-const editingFaculty = ref(null)
-const deletingFaculty = ref(null)
 const csvInput = ref(null)
+const resendCounts = ref({})
 
 const form = ref({
   first_name: '',
@@ -389,7 +349,7 @@ const fetchData = async () => {
       axios.get('/sections')
     ])
 
-    faculty.value = facultyRes.data.map((f, idx) => ({
+    faculty.value = (facultyRes.data || []).map((f, idx) => ({
       ...f,
       color: colors[idx % colors.length],
       status: f.user?.status || 'pending',
@@ -398,9 +358,11 @@ const fetchData = async () => {
     }))
 
     const depts = new Set()
-    sectionsRes.data.forEach(s => {
-      if (s.department) depts.add(JSON.stringify(s.department))
-    })
+    if (Array.isArray(sectionsRes.data)) {
+      sectionsRes.data.forEach(s => {
+        if (s.department) depts.add(JSON.stringify(s.department))
+      })
+    }
     departments.value = Array.from(depts).map(d => JSON.parse(d))
     
     // If no departments found, at least add CCS
@@ -411,6 +373,16 @@ const fetchData = async () => {
     console.error('Failed to fetch data:', err)
   } finally {
     loading.value = false
+  }
+}
+
+const getResendCount = (facultyId) => resendCounts.value[facultyId] || 0
+
+const openEditFromView = () => {
+  if (viewingFaculty.value) {
+    const f = viewingFaculty.value
+    viewingFaculty.value = null
+    openEditModal(f)
   }
 }
 
@@ -492,19 +464,16 @@ const saveFaculty = async () => {
     if (editingFaculty.value) {
       await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, {
         department_id: form.value.department_id,
-        position: form.value.position
+        position: form.value.position,
+        first_name: form.value.first_name,
+        last_name: form.value.last_name,
+        middle_name: form.value.middle_name
       })
       showModal.value = false
       alert('Faculty account updated successfully.')
       fetchData()
     } else {
       const response = await axios.post('/secretary/faculty', form.value)
-      faculty.value.push({
-        ...response.data.faculty,
-        color: colors[faculty.value.length % colors.length],
-        status: 'pending',
-        department_name: departments.value.find(d => d.id == form.value.department_id)?.department_name || 'N/A'
-      })
       showModal.value = false
       alert('Faculty account created successfully. Setup email sent.')
       fetchData()
@@ -524,23 +493,27 @@ const confirmArchive = (f) => {
 }
 
 const archiveFaculty = async () => {
+  if (!archivingFaculty.value) return
   try {
-    await axios.delete(`/secretary/faculty/${deletingFaculty.value.id}`)
-    faculty.value = faculty.value.filter(f => f.id !== deletingFaculty.value.id)
-    showDeleteModal.value = false
+    await axios.delete(`/secretary/faculty/${archivingFaculty.value.id}`)
+    showArchiveModal.value = false
+    viewingFaculty.value = null
     alert('Faculty account deleted successfully.')
+    fetchData()
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to archive faculty.')
+    alert(err.response?.data?.message || 'Failed to delete faculty.')
   }
 }
 
 // ─── Resend setup email ───────────────────────────────────────────────────────
 // FIX: capped at 3 per faculty per session
 const resendSetup = async (f) => {
-  if (getResendCount(f.id) >= 3) return
+  const count = getResendCount(f.id)
+  if (count >= 3) return
   try {
-    // await axios.post(`/secretary/faculty/${f.id}/resend-setup`)
-    alert(`Setup email resent to ${f.user?.email}`)
+    await axios.post(`/secretary/faculty/${f.id}/resend-setup`)
+    resendCounts.value[f.id] = count + 1
+    alert(`Setup email resent to ${f.user?.email}. (${resendCounts.value[f.id]}/3 resends used)`)
   } catch (err) {
     alert('Failed to resend setup email.')
   }
