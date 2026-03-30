@@ -91,65 +91,89 @@
     </div>
 
     <!-- Table -->
-    <!-- DESIGN FIX: Removed ACTIONS column; rows are clickable -->
     <div class="table-card">
       <div v-if="loading" class="loading-overlay">
         <div class="spinner-lg"></div>
         <p>Fetching students...</p>
       </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>STUDENT</th>
-            <th>STUDENT NO.</th>
-            <th>COURSE</th>
-            <th>YEAR</th>
-            <th>GWA</th>
-            <th>VIOLATIONS</th>
-            <th>STATUS</th>
-            <th v-if="isSecretary">ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="student in filteredStudents" :key="student.id" @click="viewDetails(student)" class="clickable-row">
-            <td>
-              <div class="student-cell">
-                <div class="s-avatar" :style="{ background: student.color }">{{ student.first_name.charAt(0) }}</div>
-                <div>
-                  <p class="s-name">{{ student.first_name }} {{ student.last_name }}</p>
-                  <p class="s-sub">{{ student.email }}</p>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>STUDENT</th>
+              <th>STUDENT NO.</th>
+              <th>COURSE</th>
+              <th>YEAR</th>
+              <th>GWA</th>
+              <th>VIOLATIONS</th>
+              <th>STATUS</th>
+              <th v-if="isSecretary || authStore.isDean || authStore.isChair">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in paginatedStudents" :key="student.id" @click="viewDetails(student)" class="clickable-row">
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar" :style="{ background: student.color }">{{ student.first_name.charAt(0) }}</div>
+                  <div>
+                    <p class="s-name">{{ student.first_name }} {{ student.last_name }}</p>
+                    <p class="s-sub">{{ student.email }}</p>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td><span class="code-badge">{{ student.student_number }}</span></td>
-            <td>{{ student.course }}</td>
-            <td>{{ student.year_level }}{{ getYearSuffix(student.year_level) }} Year · {{ student.section || '—' }}</td>
-            <td><span class="gwa-val" :class="student.gwa <= 1.75 ? 'gwa-good' : 'gwa-ok'">{{ student.gwa || 'N/A' }}</span></td>
-            <td><span class="v-count" :class="student.violations_count > 0 ? 'v-danger' : 'v-clear'">{{ student.violations_count || 0 }}</span></td>
-            <td>
-              <span class="status-badge" :class="student.status === 'active' ? 'st-active' : 'st-pending'">
-                {{ student.status === 'active' ? 'Active' : 'Pending' }}
-              </span>
-            </td>
-            <td v-if="isSecretary" @click.stop>
-              <div class="action-btns">
-                <button class="action-btn edit" @click="openEditModal(student)" title="Edit">
-                  <svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <button class="action-btn resend" @click="resendSetup(student)" title="Resend setup email">
-                  <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <button class="action-btn delete" @click="confirmDelete(student)" title="Delete">
-                  <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredStudents.length === 0 && !loading">
-            <td :colspan="isSecretary ? 8 : 7" class="empty-row">No students found.</td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td><span class="code-badge">{{ student.student_number }}</span></td>
+              <td>{{ student.course }}</td>
+              <td>{{ student.year_level }}{{ getYearSuffix(student.year_level) }} Year · {{ student.section || '—' }}</td>
+              <td><span class="gwa-val" :class="student.gwa <= 1.75 ? 'gwa-good' : 'gwa-ok'">{{ student.gwa || 'N/A' }}</span></td>
+              <td><span class="v-count" :class="student.violations_count > 0 ? 'v-danger' : 'v-clear'">{{ student.violations_count || 0 }}</span></td>
+              <td>
+                <span class="status-badge" :class="student.status === 'active' ? 'st-active' : 'st-pending'">
+                  {{ student.status === 'active' ? 'Active' : 'Pending' }}
+                </span>
+              </td>
+              <td v-if="isSecretary || authStore.isDean || authStore.isChair" @click.stop>
+                <div class="action-btns">
+                  <button class="action-btn resend" v-if="student.status === 'pending' && isSecretary" @click="resendSetup(student)" title="Resend setup email">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button class="action-btn delete" @click="confirmDelete(student)" title="Archive Account">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredStudents.length === 0 && !loading">
+              <td :colspan="isSecretary || authStore.isDean || authStore.isChair ? 8 : 7" class="empty-row">No students found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar" v-if="filteredStudents.length > pageSize">
+        <div class="pagination-info">
+          Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> to <strong>{{ Math.min(currentPage * pageSize, filteredStudents.length) }}</strong> of <strong>{{ filteredStudents.length }}</strong> students
+        </div>
+        <div class="pagination-btns">
+          <button class="pag-btn" :disabled="currentPage === 1" @click="currentPage--">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="pag-pages">
+            <button 
+              v-for="p in totalPages" 
+              :key="p" 
+              class="pag-page-btn" 
+              :class="{ active: currentPage === p }"
+              @click="currentPage = p"
+            >
+              {{ p }}
+            </button>
+          </div>
+          <button class="pag-btn" :disabled="currentPage === totalPages" @click="currentPage++">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- STUDENT DETAILS MODAL -->
@@ -205,6 +229,25 @@
                 <option value="">Select Section</option>
                 <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.section_name }}</option>
               </select>
+            </div>
+
+            <!-- Guardian Fields -->
+            <div class="form-divider full-span">Guardian Information</div>
+            <div class="form-group">
+              <label>Guardian First Name</label>
+              <input v-model="form.guardian_first_name" type="text" placeholder="First name" :disabled="saving" />
+            </div>
+            <div class="form-group">
+              <label>Guardian Last Name</label>
+              <input v-model="form.guardian_last_name" type="text" placeholder="Last name" :disabled="saving" />
+            </div>
+            <div class="form-group">
+              <label>Relationship</label>
+              <input v-model="form.guardian_relationship" type="text" placeholder="e.g. Mother, Father" :disabled="saving" />
+            </div>
+            <div class="form-group">
+              <label>Guardian Contact Number</label>
+              <input v-model="form.guardian_contact_number" type="text" placeholder="Contact number" :disabled="saving" />
             </div>
           </div>
           <div v-if="!editingStudent" class="modal-notice">
@@ -294,6 +337,33 @@
             </div>
           </div>
 
+          <!-- Guardian Information -->
+          <div class="profile-section" v-if="viewingStudent.guardian">
+            <h4 class="section-title">Guardian Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Guardian Name</span>
+                <span class="detail-val">{{ viewingStudent.guardian.first_name }} {{ viewingStudent.guardian.last_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Relationship</span>
+                <span class="detail-val">{{ viewingStudent.guardian.relationship }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Contact Number</span>
+                <span class="detail-val">{{ viewingStudent.guardian.contact_number }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Guardian Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No guardian information provided.</span>
+              </div>
+            </div>
+          </div>
+
           <!-- RESEND limit notice -->
           <div class="resend-row" v-if="viewingStudent.status === 'pending' && isSecretary">
             <div class="resend-info">
@@ -319,36 +389,36 @@
         <div class="modal-footer">
           <button class="ghost-btn" @click="viewingStudent = null">Close</button>
           <!-- DESIGN FIX: Archive/delete button is inside modal, not in the table -->
-          <!-- Only visible to secretary role -->
+          <!-- Only visible to secretary, dean, or chair role -->
           <button
-            v-if="userRole === 'secretary'"
+            v-if="isSecretary || authStore.isDean || authStore.isChair"
             class="danger-btn"
             @click="confirmDelete(viewingStudent)"
           >
             <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Delete Account
+            Archive Account
           </button>
         </div>
       </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL (Secretary Only) -->
-    <div v-if="isSecretary && showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+    <!-- DELETE CONFIRM MODAL (Dean, Chair, Secretary) -->
+    <div v-if="(isSecretary || authStore.isDean || authStore.isChair) && showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
       <div class="modal modal-sm">
         <div class="modal-header">
-          <h3>Delete Student Account</h3>
+          <h3>Archive Student Account</h3>
           <button class="close-btn" @click="showDeleteModal = false">×</button>
         </div>
         <div class="modal-body">
           <p class="delete-msg">
-            Are you sure you want to delete the account of
+            Are you sure you want to archive the account of
             <strong>{{ deletingStudent?.first_name }} {{ deletingStudent?.last_name }}</strong>?
-            This action cannot be undone.
+            The account will be moved to the archive and can be recovered by the Dean.
           </p>
         </div>
         <div class="modal-footer">
           <button class="ghost-btn" @click="showDeleteModal = false">Cancel</button>
-          <button class="danger-btn" @click="deleteStudent">Delete Account</button>
+          <button class="danger-btn" @click="deleteStudent">Archive Account</button>
         </div>
       </div>
     </div>
@@ -382,9 +452,14 @@ const loadingImport = ref(false)
 const saving = ref(false)
 const resendCounts = ref({})
 
+const currentPage = ref(1)
+const pageSize = ref(50)
+
 const form = ref({
   first_name: '', last_name: '', student_number: '',
-  email: '', course: '', year_level: '', section_id: ''
+  email: '', course: '', year_level: '', section_id: '',
+  guardian_first_name: '', guardian_last_name: '', 
+  guardian_relationship: '', guardian_contact_number: ''
 })
 
 const colors  = ['#FF6B1A', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
@@ -413,7 +488,8 @@ const fetchStudents = async () => {
       gwa: s.gwa || (Math.random() * (2.5 - 1.25) + 1.25).toFixed(2),
       violations_count: s.violations_count || 0,
       created_at:     new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      color:          colors[idx % colors.length]
+      color:          colors[idx % colors.length],
+      guardian:       s.guardian || null
     }))
 
     sections.value = sectionsRes.data
@@ -458,10 +534,10 @@ const deleteStudent = async () => {
     await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
     showDeleteModal.value = false
     viewingStudent.value = null
-    alert('Student account deleted successfully.')
+    alert('Student account archived successfully.')
     fetchStudents()
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to delete student.')
+    alert(err.response?.data?.message || 'Failed to archive student.')
   }
 }
 
@@ -499,6 +575,13 @@ const filteredStudents = computed(() => {
   })
 })
 
+const totalPages = computed(() => Math.ceil(filteredStudents.value.length / pageSize.value))
+
+const paginatedStudents = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredStudents.value.slice(start, start + pageSize.value)
+})
+
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 const viewDetails = (student) => {
@@ -507,7 +590,10 @@ const viewDetails = (student) => {
 
 const openCreateModal = () => {
   editingStudent.value = null
-  form.value = { first_name: '', last_name: '', student_number: '', email: '', course: '', year_level: '', section_id: '' }
+  form.value = { 
+    first_name: '', last_name: '', student_number: '', email: '', course: '', year_level: '', section_id: '',
+    guardian_first_name: '', guardian_last_name: '', guardian_relationship: '', guardian_contact_number: ''
+  }
   showCreateModal.value = true
 }
 
@@ -516,7 +602,11 @@ const openEditModal = (student) => {
   form.value = { 
     ...student,
     year_level: student.year_level.toString(),
-    section_id: sections.value.find(sec => sec.section_name === student.section)?.id || ''
+    section_id: sections.value.find(sec => sec.section_name === student.section)?.id || '',
+    guardian_first_name: student.guardian?.first_name || '',
+    guardian_last_name: student.guardian?.last_name || '',
+    guardian_relationship: student.guardian?.relationship || '',
+    guardian_contact_number: student.guardian?.contact_number || ''
   }
   showCreateModal.value = true
 }
@@ -576,7 +666,7 @@ const handleCSV = async (e) => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; min-height: 100%; flex: 1; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
@@ -628,8 +718,22 @@ const handleCSV = async (e) => {
 .filter-group select:focus { border-color: #FF6B1A; }
 
 /* ── Table ── */
-.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; min-height: 200px; }
+.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; flex: 1; display: flex; flex-direction: column; min-height: 400px; }
+.table-container { flex: 1; overflow-y: auto; }
 .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; gap: 10px; }
+
+/* ── Pagination ── */
+.pagination-bar { padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #fff; display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.pagination-info { font-size: 13px; color: #9a8070; }
+.pagination-btns { display: flex; align-items: center; gap: 12px; }
+.pag-pages { display: flex; gap: 6px; }
+.pag-btn, .pag-page-btn { background: #fff; border: 1.5px solid #f0e8e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; }
+.pag-btn { width: 32px; height: 32px; color: #1a0a00; }
+.pag-page-btn { min-width: 32px; height: 32px; padding: 0 8px; font-size: 13px; font-weight: 600; color: #9a8070; }
+.pag-btn:hover:not(:disabled), .pag-page-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fffaf8; }
+.pag-page-btn.active { background: #FF6B1A; border-color: #FF6B1A; color: #fff; box-shadow: 0 4px 10px rgba(255,107,26,0.2); }
+.pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { padding: 13px 18px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; white-space: nowrap; }
 .data-table td { padding: 13px 18px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
@@ -695,6 +799,7 @@ const handleCSV = async (e) => {
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }
 .full-span { grid-column: span 2; }
+.form-divider { grid-column: span 2; font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; margin-top: 10px; }
 .form-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
 .req { color: #ef4444; }
 .form-group input,

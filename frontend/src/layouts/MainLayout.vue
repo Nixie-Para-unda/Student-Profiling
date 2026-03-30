@@ -47,8 +47,8 @@
         <!-- ── DEAN NAV ── -->
         <template v-if="authStore.isDean">
           <router-link to="/profiling/report" class="nav-item" active-class="active">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Profiling Report</span>
+            <svg viewBox="0 0 20 20" fill="none"><path d="M12 15V9m-4 6V5m-4 10v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Profiling Reports</span>
           </router-link>
           <router-link to="/dean/curriculum" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -77,6 +77,10 @@
           </router-link>
 
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
+          <router-link to="/dean/archive" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h12M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Archive Management</span>
+          </router-link>
           <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Schedule</span>
@@ -167,10 +171,6 @@
         <template v-if="authStore.isSecretary">
           <div class="nav-section-label" v-show="!sidebarCollapsed">Accounts</div>
           <!-- Secretary Links -->
-          <router-link to="/secretary/dashboard" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 13h14M3 7h14M3 10h14M3 16h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Dashboard</span>
-          </router-link>
           <router-link to="/students" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Student Accounts</span>
@@ -183,10 +183,6 @@
           <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Workload</span>
-          </router-link>
-          <router-link to="/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M9 12a3 3 0 100-6 3 3 0 000 6zM2 18a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Profiles</span>
           </router-link>
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
           <router-link to="/secretary/achievements" class="nav-item" active-class="active">

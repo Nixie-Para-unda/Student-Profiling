@@ -18,6 +18,7 @@ import CourseManagement from '../views/dean/CourseManagement.vue'
 import PerformanceOverview from '../views/dean/PerformanceOverview.vue'
 import ViolationsList from '../views/dean/ViolationsList.vue'
 import ProfilingReport from '../views/dean/ProfilingReport.vue'
+import ArchiveManagement from '../views/dean/ArchiveManagement.vue'
 
 // ✅ Settings
 import Settings from '../views/shared/Settings.vue'
@@ -137,6 +138,12 @@ const routes = [
         name: 'CourseManagement',
         component: CourseManagement,
         meta: { title: 'Course Management' }
+      },
+      {
+        path: 'dean/archive',
+        name: 'ArchiveManagement',
+        component: ArchiveManagement,
+        meta: { title: 'Archive Management', role: 'dean' }
       },
 
       // ── Faculty routes ──────────────────────────

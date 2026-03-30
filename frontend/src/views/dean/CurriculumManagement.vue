@@ -109,13 +109,13 @@
                 <table class="sem-table">
                   <thead>
                     <tr>
-                      <th>Code</th>
-                      <th>Course Name</th>
-                      <th>Lec Units</th>
-                      <th>Lab Units</th>
-                      <th>Total Units</th>
-                      <th>Prerequisites</th>
-                      <th></th>
+                      <th class="code-cell">Code</th>
+                      <th class="name-cell">Course Name</th>
+                      <th class="units-cell text-center">Lec Units</th>
+                      <th class="units-cell text-center">Lab Units</th>
+                      <th class="units-cell text-center">Total Units</th>
+                      <th class="prereq-cell">Prerequisites</th>
+                      <th class="action-cell"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -145,81 +145,110 @@
     <div v-if="showAddModal" class="modal-overlay" @click.self="showAddModal = false">
       <div class="modal modal-lg">
         <div class="modal-header">
-          <h3>Add Curriculum for Program</h3>
+          <div class="modal-student-meta">
+            <div class="s-avatar lg" style="background: #FF6B1A;">
+              <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><path d="M12 6.00012L12 18.0001M18 12.0001L6 12.0001" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <h3>Add Curriculum Entries</h3>
+              <p class="modal-sub">Assign multiple courses to a program, year level, and semester.</p>
+            </div>
+          </div>
           <button class="close-btn" @click="showAddModal = false">×</button>
         </div>
-        <div class="modal-body">
-          <div class="bulk-form-grid">
-            <div class="form-group">
-              <label>1. Select Program</label>
-              <div class="program-selector">
-                <button 
-                  v-for="p in programs" 
-                  :key="p.id" 
-                  class="prog-chip" 
-                  :class="{ active: form.program_id === p.id }"
-                  @click="form.program_id = p.id"
-                >
-                  {{ p.program_code }}
-                </button>
-              </div>
-            </div>
 
+        <div class="modal-body profile-body">
+          <div class="profile-section">
+            <h4 class="section-title">1. Target Program</h4>
+            <div class="program-selector-grid">
+              <button 
+                v-for="p in programs" 
+                :key="p.id" 
+                class="prog-chip-modern" 
+                :class="{ active: form.program_id === p.id }"
+                @click="form.program_id = p.id"
+              >
+                <span class="p-code">{{ p.program_code }}</span>
+                <span class="p-name">{{ p.program_name }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="profile-section">
+            <h4 class="section-title">2. Academic Period</h4>
             <div class="form-row">
               <div class="form-group">
-                <label>2. Year Level</label>
-                <select v-model="form.year_level">
-                  <option value="1">1st Year</option>
-                  <option value="2">2nd Year</option>
-                  <option value="3">3rd Year</option>
-                  <option value="4">4th Year</option>
-                </select>
+                <label class="detail-key">Year Level</label>
+                <div class="custom-select-wrap">
+                  <select v-model="form.year_level" class="form-control-modern">
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
               </div>
               <div class="form-group">
-                <label>3. Semester</label>
-                <select v-model="form.semester">
-                  <option value="1st">1st Semester</option>
-                  <option value="2nd">2nd Semester</option>
-                  <option value="Summer">Summer</option>
-                </select>
+                <label class="detail-key">Semester</label>
+                <div class="custom-select-wrap">
+                  <select v-model="form.semester" class="form-control-modern">
+                    <option value="1st">1st Semester</option>
+                    <option value="2nd">2nd Semester</option>
+                    <option value="Summer">Summer</option>
+                  </select>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>4. Select Courses</label>
-              <div class="course-search-wrap">
-                <input v-model="courseSearch" type="text" placeholder="Search courses by name or code..." class="course-search-input" />
+          <div class="profile-section">
+            <h4 class="section-title">3. Select Courses</h4>
+            <div class="course-selection-container">
+              <div class="course-search-bar">
+                <svg class="search-icon-sm" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/><path d="M14 14l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <input v-model="courseSearch" type="text" placeholder="Filter by code or name..." class="course-filter-input" />
               </div>
-              <div class="course-selection-list">
-                <label v-for="c in filteredCourses" :key="c.id" class="course-checkbox-item">
-                  <input type="checkbox" :value="c.id" v-model="form.course_ids" />
-                  <div class="course-info-sm">
-                    <span class="c-code">{{ c.course_code }}</span>
-                    <span class="c-name">{{ c.course_name }}</span>
-                    <div class="c-meta">
-                      <span class="type-badge" :class="c.type">{{ c.type?.toUpperCase() }}</span>
-                      <span class="unit-info">
-                        <span v-if="c.lec_units">{{ c.lec_units }} Lec</span>
-                        <span v-if="c.lec_units && c.lab_units"> + </span>
-                        <span v-if="c.lab_units">{{ c.lab_units }} Lab</span>
-                        ({{ c.units }} Total)
+              <div class="course-selection-list-modern">
+                <label v-for="c in filteredCourses" :key="c.id" class="course-item-modern" :class="{ selected: form.course_ids.includes(c.id) }">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" :value="c.id" v-model="form.course_ids" />
+                    <span class="custom-checkbox"></span>
+                  </div>
+                  <div class="course-details">
+                    <div class="c-top">
+                      <span class="c-code-badge">{{ c.course_code }}</span>
+                      <span class="c-name-text">{{ c.course_name }}</span>
+                    </div>
+                    <div class="c-bottom">
+                      <span class="type-tag" :class="c.type">{{ c.type?.toUpperCase() }}</span>
+                      <span class="units-label">
+                        {{ c.units }} {{ c.units === 1 ? 'Unit' : 'Units' }}
+                        <template v-if="c.lec_units || c.lab_units">
+                          · ({{ c.lec_units || 0 }}L + {{ c.lab_units || 0 }}B)
+                        </template>
                       </span>
                     </div>
                   </div>
                 </label>
-                <div v-if="filteredCourses.length === 0" class="empty-small">No courses found matching your search.</div>
+                <div v-if="filteredCourses.length === 0" class="empty-results">
+                  No courses found matching "{{ courseSearch }}"
+                </div>
               </div>
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
-          <div class="selected-summary">
-            <strong>{{ form.course_ids.length }}</strong> courses selected
+          <div class="selection-indicator">
+            <div class="indicator-dot" :class="{ active: form.course_ids.length > 0 }"></div>
+            <span><strong>{{ form.course_ids.length }}</strong> courses selected</span>
           </div>
-          <button class="ghost-btn" @click="showAddModal = false">Cancel</button>
-          <button class="primary-btn" @click="saveBulkEntry" :disabled="saving || form.course_ids.length === 0">
-            {{ saving ? 'Saving...' : 'Add to Curriculum' }}
-          </button>
+          <div class="footer-btns">
+            <button class="ghost-btn" @click="showAddModal = false">Cancel</button>
+            <button class="primary-btn" @click="saveBulkEntry" :disabled="saving || form.course_ids.length === 0">
+              {{ saving ? 'Processing...' : 'Add to Curriculum' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -486,15 +515,15 @@ onMounted(() => {
   -webkit-overflow-scrolling: touch;
 }
 
-.sem-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 650px; }
-.sem-table th { text-align: left; padding: 10px 20px; font-size: 11px; color: #9a8070; text-transform: uppercase; border-bottom: 1px solid #faf8f6; white-space: nowrap; }
-.sem-table td { padding: 12px 20px; border-bottom: 1px solid #faf8f6; }
-.code-cell { font-weight: 700; color: #FF6B1A; width: 100px; }
-.name-cell { min-width: 180px; font-weight: 600; color: #1a0a00; }
-.units-cell { font-weight: 600; color: #1a0a00; width: 60px; }
-.prereq-cell { color: #9a8070; font-size: 12px; min-width: 120px; }
+.sem-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; table-layout: fixed; }
+.sem-table th { text-align: left; padding: 14px 20px; font-size: 11px; color: #9a8070; text-transform: uppercase; border-bottom: 1px solid #faf8f6; white-space: nowrap; letter-spacing: 0.5px; }
+.sem-table td { padding: 16px 20px; border-bottom: 1px solid #faf8f6; vertical-align: middle; }
+.code-cell { font-weight: 700; color: #FF6B1A; width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.name-cell { width: auto; font-weight: 600; color: #1a0a00; line-height: 1.4; white-space: normal; }
+.units-cell { font-weight: 600; color: #1a0a00; width: 100px; white-space: nowrap; }
+.prereq-cell { color: #9a8070; font-size: 12px; width: 150px; white-space: normal; word-break: break-word; line-height: 1.5; }
 .text-center { text-align: center; }
-.action-cell { text-align: right; width: 40px; }
+.action-cell { text-align: right; width: 60px; }
 
 .delete-btn-sm { background: none; border: none; color: #c0b0a5; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }
 .delete-btn-sm:hover { color: #ef4444; background: #fee2e2; }
@@ -506,36 +535,86 @@ onMounted(() => {
 .outline-btn { background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .btn-icon { width: 16px; height: 16px; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(26,10,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.modal { background: #fff; border-radius: 24px; width: 100%; max-width: 500px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh; }
-.modal-lg { max-width: 600px; }
-.modal-header { padding: 20px 24px; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
-.modal-body { padding: 24px; overflow-y: auto; }
-.modal-footer { padding: 16px 24px; background: #faf8f6; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-.selected-summary { margin-right: auto; font-size: 13px; color: #9a8070; }
+/* ── MODAL ENHANCEMENTS ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,10,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: #fff; border-radius: 28px; width: 100%; max-width: 500px; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 92vh; border: 1px solid rgba(255,255,255,0.1); }
+.modal-lg { max-width: 650px; }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; background: #fff; gap: 12px; }
+.modal-student-meta { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.modal-student-meta h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; color: #1a0a00; margin: 0; }
+.modal-sub { font-size: 12px; color: #b89f90; margin-top: 3px; }
+.s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 
-.bulk-form-grid { display: flex; flex-direction: column; gap: 20px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.program-selector { display: flex; gap: 10px; }
-.prog-chip { flex: 1; padding: 12px; border: 1.5px solid #f0e8e0; border-radius: 12px; background: #fff; font-weight: 700; color: #9a8070; cursor: pointer; transition: all 0.2s; }
-.prog-chip.active { border-color: #FF6B1A; background: #fffaf8; color: #FF6B1A; box-shadow: 0 4px 12px rgba(255,107,26,0.1); }
+.close-btn { background: #faf8f6; border: none; font-size: 24px; color: #9a8070; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s; }
+.close-btn:hover { background: #f0e8e0; color: #1a0a00; }
 
-.course-search-wrap { margin-bottom: 10px; }
-.course-search-input { width: 100%; padding: 10px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; outline: none; }
-.course-selection-list { border: 1.5px solid #f0e8e0; border-radius: 12px; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; }
-.course-checkbox-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #faf8f6; cursor: pointer; transition: all 0.2s; }
-.course-checkbox-item:hover { background: #faf8f6; }
-.course-checkbox-item:last-child { border-bottom: none; }
-.course-checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #FF6B1A; }
-.course-info-sm { display: flex; flex-direction: column; gap: 2px; }
-.c-code { font-size: 11px; font-weight: 700; color: #FF6B1A; }
-.c-name { font-size: 13px; color: #1a0a00; font-weight: 600; }
-.c-meta { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
-.type-badge { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
-.type-badge.lec { background: #e0f2fe; color: #0369a1; }
-.type-badge.lab { background: #fef3c7; color: #92400e; }
-.type-badge.lec\+lab { background: #f0fdf4; color: #166534; }
-.unit-info { font-size: 10px; color: #9a8070; font-weight: 500; }
+.modal-body { padding: 24px; overflow-y: auto; background: #fff; }
+.profile-body { display: flex; flex-direction: column; gap: 24px; }
+.profile-section { display: flex; flex-direction: column; gap: 12px; }
+.section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
+.detail-key { font-size: 11px; color: #9a8070; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Program Selector Grid */
+.program-selector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.prog-chip-modern { display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; border: 2px solid #f0e8e0; border-radius: 16px; background: #fff; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-align: left; }
+.prog-chip-modern .p-code { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 800; color: #1a0a00; }
+.prog-chip-modern .p-name { font-size: 11px; color: #9a8070; margin-top: 2px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.prog-chip-modern:hover { border-color: #FF6B1A; background: #fffaf8; transform: translateY(-2px); }
+.prog-chip-modern.active { border-color: #FF6B1A; background: #FF6B1A; box-shadow: 0 8px 20px rgba(255,107,26,0.25); }
+.prog-chip-modern.active .p-code, .prog-chip-modern.active .p-name { color: #fff; }
+
+/* Modern Selects */
+.custom-select-wrap { position: relative; }
+.form-control-modern { width: 100%; padding: 12px 16px; border: 2px solid #f0e8e0; border-radius: 14px; font-size: 14px; font-weight: 600; color: #1a0a00; outline: none; transition: all 0.2s; appearance: none; background: #fff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239a8070' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 18px; }
+.form-control-modern:focus { border-color: #FF6B1A; box-shadow: 0 0 0 4px rgba(255,107,26,0.1); }
+
+/* Course Selection List */
+.course-selection-container { border: 2px solid #f0e8e0; border-radius: 20px; overflow: hidden; background: #fff; }
+.course-search-bar { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f0e8e0; background: #fff; }
+.search-icon-sm { width: 16px; height: 16px; color: #9a8070; margin-right: 10px; }
+.course-filter-input { flex: 1; background: none; border: none; outline: none; font-size: 13px; font-weight: 500; color: #1a0a00; }
+
+.course-selection-list-modern { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; padding: 8px; gap: 4px; }
+.course-item-modern { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 14px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+.course-item-modern:hover { background: #fafafa; }
+.course-item-modern.selected { background: #fff; border-color: #f0e8e0; }
+
+.checkbox-wrapper { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
+.checkbox-wrapper input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+.custom-checkbox { position: absolute; top: 0; left: 0; height: 22px; width: 22px; background-color: #fff; border: 2px solid #dcd0c8; border-radius: 6px; transition: all 0.2s; }
+.course-item-modern:hover .custom-checkbox { border-color: #FF6B1A; }
+.checkbox-wrapper input:checked ~ .custom-checkbox { background-color: #FF6B1A; border-color: #FF6B1A; }
+.custom-checkbox:after { content: ""; position: absolute; display: none; left: 7px; top: 3px; width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+.checkbox-wrapper input:checked ~ .custom-checkbox:after { display: block; }
+
+.course-details { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.c-top { display: flex; align-items: center; gap: 10px; }
+.c-code-badge { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: #FF6B1A; background: #fff; padding: 2px 8px; border-radius: 6px; border: 1px solid #f0e8e0; }
+.c-name-text { font-size: 14px; font-weight: 700; color: #1a0a00; }
+.c-bottom { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+.type-tag { font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 5px; letter-spacing: 0.5px; }
+.type-tag.lec { background: #e0f2fe; color: #0369a1; }
+.type-tag.lab { background: #fef3c7; color: #92400e; }
+.type-tag.lec\+lab { background: #f0fdf4; color: #166534; }
+.units-label { font-size: 11px; color: #9a8070; font-weight: 600; }
+
+.empty-results { padding: 40px 20px; text-align: center; color: #9a8070; font-size: 13px; font-weight: 500; font-style: italic; }
+
+/* Modal Footer */
+.modal-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #fff; }
+.selection-indicator { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #1a0a00; }
+.indicator-dot { width: 8px; height: 8px; background: #dcd0c8; border-radius: 50%; transition: all 0.3s; }
+.indicator-dot.active { background: #FF6B1A; box-shadow: 0 0 8px rgba(255,107,26,0.6); transform: scale(1.2); }
+.footer-btns { display: flex; gap: 12px; }
+
+.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
+.ghost-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
+
+.primary-btn { display: flex; align-items: center; gap: 7px; background: #FF6B1A; color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
+.primary-btn:hover:not(:disabled) { background: #e85500; }
+.primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
 
 .empty-state { padding: 80px; text-align: center; color: #b89f90; }
 .loading-state { padding: 60px; text-align: center; color: #b89f90; }

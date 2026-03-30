@@ -103,11 +103,11 @@ class FacultyController extends Controller
     }
 
     /**
-     * Delete a faculty member (for Secretary).
+     * Delete a faculty member (Soft Delete/Archive).
      */
     public function destroy(Request $request, $id)
     {
-        if (!$request->user()->isSecretary()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair() && !$request->user()->isSecretary()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -115,15 +115,16 @@ class FacultyController extends Controller
         $user = $faculty->user;
 
         return DB::transaction(function () use ($faculty, $user) {
-            // Delete faculty record first
+            // Soft delete faculty record
             $faculty->delete();
             
-            // Delete associated user account
+            // Soft delete associated user account and revoke tokens
             if ($user) {
+                $user->tokens()->delete(); // Revoke all active sessions
                 $user->delete();
             }
 
-            return response()->json(['message' => 'Faculty account deleted successfully.']);
+            return response()->json(['message' => 'Faculty account archived successfully.']);
         });
     }
 

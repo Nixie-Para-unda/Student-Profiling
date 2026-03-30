@@ -79,62 +79,96 @@
     <div class="table-card">
       <div v-if="loading" class="loading-overlay">
         <div class="spinner-lg"></div>
-        <p>Loading faculty members...</p>
+        <p>Fetching faculty...</p>
       </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>FACULTY</th>
-            <th>DEPARTMENT</th>
-            <th>WORKLOAD</th>
-            <th>STATUS</th>
-            <th v-if="isSecretary">ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="f in filteredFaculty" :key="f.id" @click="viewDetails(f)" class="clickable-row">
-            <td>
-              <div class="student-cell">
-                <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
-                <div>
-                  <p class="s-name">{{ f.first_name }} {{ f.last_name }}</p>
-                  <p class="s-sub">{{ f.position }}</p>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>FACULTY</th>
+              <th>DEPARTMENT</th>
+              <th>POSITION</th>
+              <th>WORKLOAD</th>
+              <th>STATUS</th>
+              <th v-if="isSecretary || authStore.isDean || authStore.isChair">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="f in paginatedFaculty" :key="f.id" @click="viewDetails(f)" class="clickable-row">
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
+                  <div>
+                    <p class="s-name">{{ f.first_name }} {{ f.last_name }}</p>
+                    <p class="s-sub">{{ f.user?.email }}</p>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>{{ f.department_name }}</td>
-            <td>{{ f.position }}</td>
-            <td class="email-cell">{{ f.user?.email }}</td>
-            <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending Setup' }}</span></td>
-            <td v-if="isSecretary" @click.stop>
-              <div class="action-btns">
-                <button class="action-btn edit" @click="openEditModal(f)" title="Edit"><svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                <button class="action-btn resend" @click="resendSetup(f)" title="Resend setup email"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                <button class="action-btn delete" @click="confirmArchive(f)" title="Delete"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredFaculty.length === 0 && !loading">
-            <td :colspan="isSecretary ? 6 : 5" class="empty-row">No faculty members found.</td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td>{{ f.department_name }}</td>
+              <td><span class="program-badge-table">{{ f.position }}</span></td>
+              <td>
+                <div class="units-breakdown">
+                  <span class="total-units-badge">{{ f.load || 0 }} hrs</span>
+                  <div class="wl-bar-sm"><div class="wl-fill-sm" :style="{ width: Math.min((f.load || 0)/50*100, 100) + '%' }"></div></div>
+                </div>
+              </td>
+              <td><span class="status-badge" :class="f.status === 'active' ? 'st-active' : 'st-pending'">{{ f.status === 'active' ? 'Active' : 'Pending' }}</span></td>
+              <td v-if="isSecretary || authStore.isDean || authStore.isChair" @click.stop>
+                <div class="action-btns">
+                  <button class="action-btn resend" v-if="f.status === 'pending' && isSecretary" @click="resendSetup(f)" title="Resend setup email">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button class="action-btn delete" @click="confirmArchive(f)" title="Archive Account">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredFaculty.length === 0 && !loading">
+              <td :colspan="isSecretary || authStore.isDean || authStore.isChair ? 6 : 5" class="empty-row">No faculty members found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar" v-if="filteredFaculty.length > pageSize">
+        <div class="pagination-info">
+          Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> to <strong>{{ Math.min(currentPage * pageSize, filteredFaculty.length) }}</strong> of <strong>{{ filteredFaculty.length }}</strong> members
+        </div>
+        <div class="pagination-btns">
+          <button class="pag-btn" :disabled="currentPage === 1" @click="currentPage--">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="pag-pages">
+            <button 
+              v-for="p in totalPages" 
+              :key="p" 
+              class="pag-page-btn" 
+              :class="{ active: currentPage === p }"
+              @click="currentPage = p"
+            >
+              {{ p }}
+            </button>
+          </div>
+          <button class="pag-btn" :disabled="currentPage === totalPages" @click="currentPage++">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════
-         VIEW MODAL — read-only faculty details
-         Includes resend email with 3-attempt limit
-    ═══════════════════════════════════════════════════ -->
+    <!-- VIEW MODAL (all roles — all fields are READ-ONLY) -->
     <div v-if="viewingFaculty" class="modal-overlay" @click.self="viewingFaculty = null">
       <div class="modal modal-lg">
         <div class="modal-header">
-          <div class="modal-faculty-meta">
+          <div class="modal-student-meta">
             <div class="s-avatar lg" :style="{ background: viewingFaculty.color }">
               {{ viewingFaculty.first_name.charAt(0) }}
             </div>
             <div>
               <h3>{{ viewingFaculty.first_name }} {{ viewingFaculty.last_name }}</h3>
-              <p class="modal-sub">{{ viewingFaculty.employee_id || 'N/A' }} · {{ viewingFaculty.department_name }} · {{ viewingFaculty.position }}</p>
+              <p class="modal-sub">{{ viewingFaculty.position }} · {{ viewingFaculty.department_name }}</p>
             </div>
           </div>
           <button class="close-btn" @click="viewingFaculty = null">×</button>
@@ -150,64 +184,56 @@
               </div>
               <div class="detail-row">
                 <span class="detail-key">Email Address</span>
-                <span class="detail-val">{{ viewingFaculty.user?.email || '—' }}</span>
+                <span class="detail-val">{{ viewingFaculty.user?.email }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Position</span>
+                <span class="detail-val">
+                  <span class="code-badge">{{ viewingFaculty.position }}</span>
+                </span>
               </div>
             </div>
           </div>
 
           <div class="profile-section">
-            <h4 class="section-title">Professional Information</h4>
+            <h4 class="section-title">Employment Information</h4>
             <div class="detail-rows">
-              <div class="detail-row">
-                <span class="detail-key">Employee ID</span>
-                <span class="detail-val">
-                  <span class="code-badge">{{ viewingFaculty.employee_id || 'N/A' }}</span>
-                </span>
-              </div>
               <div class="detail-row">
                 <span class="detail-key">Department</span>
                 <span class="detail-val">{{ viewingFaculty.department_name }}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-key">Position</span>
-                <span class="detail-val">{{ viewingFaculty.position }}</span>
+                <span class="detail-key">Workload Status</span>
+                <span class="detail-val">
+                  <div class="units-breakdown" style="justify-content: flex-end;">
+                    <span class="total-units-badge">{{ viewingFaculty.load || 0 }} hrs</span>
+                    <div class="wl-bar-sm" style="width: 60px;"><div class="wl-fill-sm" :style="{ width: Math.min((viewingFaculty.load || 0)/50*100, 100) + '%' }"></div></div>
+                  </div>
+                </span>
               </div>
               <div class="detail-row">
-                <span class="detail-key">Account Status</span>
+                <span class="detail-key">Status</span>
                 <span class="detail-val">
                   <span class="status-badge" :class="viewingFaculty.status === 'active' ? 'st-active' : 'st-pending'">
-                    {{ viewingFaculty.status === 'active' ? 'Active' : 'Pending Setup' }}
+                    {{ viewingFaculty.status.toUpperCase() }}
                   </span>
                 </span>
               </div>
+              <div class="detail-row">
+                <span class="detail-key">Date Joined</span>
+                <span class="detail-val">{{ new Date(viewingFaculty.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }}</span>
+              </div>
             </div>
           </div>
 
-          <div class="profile-section">
-            <h4 class="section-title">Teaching Workload</h4>
-            <div class="workload-detail">
-              <div class="wl-header-main">
-                <span class="wl-val-lg">{{ viewingFaculty.load || 0 }} hrs</span>
-                <span class="wl-limit-lg">/ 50 hrs total capacity</span>
-              </div>
-              <div class="wl-bar-lg"><div class="wl-fill-lg" :style="{ width: Math.min((viewingFaculty.load || 0)/50*100, 100) + '%', background: (viewingFaculty.load || 0) >= 50 ? '#ef4444' : '#FF6B1A' }"></div></div>
-            </div>
-            <div v-if="viewingFaculty.subject_loads?.length" class="assigned-subjects">
-              <p class="pi-label" style="margin-bottom: 8px">Assigned Subjects</p>
-              <div class="subj-tags">
-                <span v-for="load in viewingFaculty.subject_loads" :key="load.id" class="subj-tag">
-                  {{ load.subject?.subject_code }} - {{ load.subject?.subject_name }}
-                </span>
-              </div>
-            </div>
-            <p v-else class="empty-small" style="font-size: 11px; color: #b89f90; font-style: italic; margin-top: 8px;">No subjects assigned yet.</p>
-          </div>
-
-          <!-- Resend email with max 3 limit -->
+          <!-- RESEND limit notice -->
           <div class="resend-row" v-if="viewingFaculty.status === 'pending' && isSecretary">
             <div class="resend-info">
               <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <span>Setup email <strong>resent {{ getResendCount(viewingFaculty.id) }}/3 times</strong></span>
+              <span>
+                Setup email
+                <strong>resent {{ getResendCount(viewingFaculty.id) }}/3 times</strong>
+              </span>
             </div>
             <button
               class="resend-btn"
@@ -225,11 +251,11 @@
           <button class="ghost-btn" @click="viewingFaculty = null">Close</button>
           <button v-if="isSecretary" class="ghost-btn" @click="openEditFromView">
             <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M11 2l3 3-9 9H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Edit
+            Edit Account
           </button>
-          <button v-if="isSecretary" class="danger-btn" @click="confirmArchive(viewingFaculty)">
+          <button v-if="isSecretary || authStore.isDean || authStore.isChair" class="danger-btn" @click="confirmArchive(viewingFaculty)">
             <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Delete Account
+            Archive Account
           </button>
         </div>
       </div>
@@ -278,8 +304,8 @@
       </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL (Secretary Only) -->
-    <div v-if="isSecretary && showArchiveModal" class="modal-overlay" @click.self="showArchiveModal = false">
+    <!-- ARCHIVE CONFIRM MODAL (Dean, Chair, Secretary) -->
+    <div v-if="(isSecretary || authStore.isDean || authStore.isChair) && showArchiveModal" class="modal-overlay" @click.self="showArchiveModal = false">
       <div class="modal modal-sm">
         <div class="modal-header">
           <h3>Archive Faculty Account</h3>
@@ -289,7 +315,7 @@
           <p class="delete-msg">
             Are you sure you want to archive the account of
             <strong>{{ archivingFaculty?.first_name }} {{ archivingFaculty?.last_name }}</strong>?
-            The account will be hidden but can be restored from the Archive menu.
+            The account will be moved to the archive and can be recovered by the Dean.
           </p>
         </div>
         <div class="modal-footer">
@@ -327,6 +353,9 @@ const loading = ref(false)
 const loadingImport = ref(false)
 const csvInput = ref(null)
 const resendCounts = ref({})
+
+const currentPage = ref(1)
+const pageSize = ref(50)
 
 const form = ref({
   first_name: '',
@@ -424,6 +453,13 @@ const filteredFaculty = computed(() => faculty.value.filter(f => {
   return matchSearch && matchDept && matchPosition && matchStatus
 }))
 
+const totalPages = computed(() => Math.ceil(filteredFaculty.value.length / pageSize.value))
+
+const paginatedFaculty = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredFaculty.value.slice(start, start + pageSize.value)
+})
+
 const viewDetails = (f) => {
   viewingFaculty.value = f
 }
@@ -498,10 +534,10 @@ const archiveFaculty = async () => {
     await axios.delete(`/secretary/faculty/${archivingFaculty.value.id}`)
     showArchiveModal.value = false
     viewingFaculty.value = null
-    alert('Faculty account deleted successfully.')
+    alert('Faculty account archived successfully.')
     fetchData()
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to delete faculty.')
+    alert(err.response?.data?.message || 'Failed to archive faculty.')
   }
 }
 
@@ -546,11 +582,11 @@ const handleCSV = async (e) => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
-.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; }
+.page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; min-height: 100%; flex: 1; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
-.header-actions { display: flex; gap: 10px; }
+.header-actions { display: flex; gap: 12px; }
 .primary-btn { display: flex; align-items: center; gap: 7px; background: #FF6B1A; color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
 .primary-btn:hover:not(:disabled) { background: #e85500; }
 .primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -575,91 +611,121 @@ const handleCSV = async (e) => {
 .drop-sub { font-size: 12px; color: #b89f90; }
 .import-template { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9a8070; background: #faf8f6; padding: 10px 14px; border-radius: 9px; }
 .import-template svg { width: 14px; height: 14px; color: #FF6B1A; flex-shrink: 0; }
+/* ── Mini Stats ── */
 .mini-stats { display: flex; gap: 14px; }
 .mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.mini-stat-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; }
 .mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
-.table-toolbar { display: flex; gap: 12px; align-items: center; }
-.search-wrap { display: flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid #f0e8e0; border-radius: 10px; padding: 9px 14px; flex: 1; transition: all 0.2s; }
+
+/* ── Toolbar ── */
+.table-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-wrap { display: flex; align-items: center; gap: 8px; background: #fff; border: 1.5px solid #f0e8e0; border-radius: 10px; padding: 9px 14px; flex: 1; min-width: 200px; transition: all 0.2s; }
 .search-wrap:focus-within { border-color: #FF6B1A; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
 .search-wrap svg { width: 15px; height: 15px; color: #c0b0a5; flex-shrink: 0; }
 .search-wrap input { border: none; outline: none; font-size: 13px; font-family: 'Outfit', sans-serif; color: #1a0a00; width: 100%; background: none; }
 .search-wrap input::placeholder { color: #c0b0a5; }
-.filter-group { display: flex; gap: 8px; }
-.filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; }
-.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; }
+.filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'Outfit', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; transition: border-color 0.2s; }
+.filter-group select:focus { border-color: #FF6B1A; }
+.table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; flex: 1; display: flex; flex-direction: column; min-height: 400px; }
+.table-container { flex: 1; overflow-y: auto; }
+.loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; gap: 10px; }
+
+/* ── Pagination ── */
+.pagination-bar { padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #fff; display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.pagination-info { font-size: 13px; color: #9a8070; }
+.pagination-btns { display: flex; align-items: center; gap: 12px; }
+.pag-pages { display: flex; gap: 6px; }
+.pag-btn, .pag-page-btn { background: #fff; border: 1.5px solid #f0e8e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; }
+.pag-btn { width: 32px; height: 32px; color: #1a0a00; }
+.pag-page-btn { min-width: 32px; height: 32px; padding: 0 8px; font-size: 13px; font-weight: 600; color: #9a8070; }
+.pag-btn:hover:not(:disabled), .pag-page-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fffaf8; }
+.pag-page-btn.active { background: #FF6B1A; border-color: #FF6B1A; color: #fff; box-shadow: 0 4px 10px rgba(255,107,26,0.2); }
+.pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th { padding: 13px 18px; background: #faf8f6; font-size: 10px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid #f0e8e0; text-align: left; white-space: nowrap; }
 .data-table td { padding: 13px 18px; font-size: 13px; color: #1a0a00; border-bottom: 1px solid #faf8f6; }
 .data-table tr:last-child td { border-bottom: none; }
 
-/* FIX: Clickable row styles */
+/* IMPROVEMENT FIX: Clickable row styling */
 .clickable-row { cursor: pointer; transition: background 0.15s; }
-.clickable-row:hover td { background: #fdf5ef; }
+.clickable-row:hover td { background: #fdf5ef !important; }
 .clickable-row:hover .s-name { color: #FF6B1A; }
 
 .student-cell { display: flex; align-items: center; gap: 10px; }
 .s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.s-avatar.lg { width: 48px; height: 48px; font-size: 20px; border-radius: 14px; flex-shrink: 0; }
+.s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; transition: color 0.15s; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-.email-cell { font-size: 12px; color: #6b7280; }
 .status-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
 .st-active { background: #f0fdf4; color: #16a34a; }
 .st-pending { background: #fffbeb; color: #d97706; }
-.action-btns { display: flex; gap: 6px; }
-.action-btn { width: 30px; height: 30px; border: 1.5px solid #f0e8e0; border-radius: 7px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; }
-.action-btn svg { width: 13px; height: 13px; }
-.action-btn.edit { color: #3b82f6; } .action-btn.edit:hover { background: #eff6ff; border-color: #3b82f6; }
-.action-btn.view { color: #FF6B1A; } .action-btn.view:hover { background: #fff5ef; border-color: #FF6B1A; }
+.action-btns { display: flex; gap: 8px; }
+.action-btn { background: #fff; border: 1px solid #f0e8e0; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.2s; }
+.action-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
+.action-btn.delete:hover { border-color: #ef4444; color: #ef4444; }
+.action-btn svg { width: 14px; height: 14px; }
 .empty-row { text-align: center; color: #b89f90; font-style: italic; padding: 40px; }
 
 /* ── Modal ── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-.modal-lg { max-width: 620px; }
+.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh; }
+.modal-lg { max-width: 600px; }
 .modal-sm { max-width: 420px; }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; }
-.modal-header h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; }
-.modal-student-info { display: flex; align-items: center; gap: 15px; }
-.modal-student-info h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #1a0a00; margin: 0; }
-.modal-student-info p { font-size: 13px; color: #b89f90; margin-top: 2px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; gap: 12px; }
+.modal-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: #1a0a00; margin: 0; }
+.modal-student-meta { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.modal-student-meta h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; color: #1a0a00; margin: 0; }
+.modal-sub { font-size: 12px; color: #b89f90; margin-top: 3px; }
 
 .modal-body { padding: 24px; overflow-y: auto; }
 .profile-body { display: flex; flex-direction: column; gap: 24px; }
 .profile-section { display: flex; flex-direction: column; gap: 12px; }
 .section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
-.profile-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.pi-row { display: flex; flex-direction: column; gap: 2px; }
-.pi-label { font-size: 11px; color: #9a8070; font-weight: 600; }
-.pi-value { font-size: 14px; color: #1a0a00; font-weight: 500; }
-
-.workload-detail { background: #fffaf8; border: 1px solid #f0e8e0; border-radius: 14px; padding: 18px; }
-.wl-header-main { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
-.wl-val-lg { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #1a0a00; }
-.wl-limit-lg { font-size: 13px; color: #9a8070; font-weight: 500; }
-.wl-bar-lg { height: 8px; background: #f0e8e0; border-radius: 4px; overflow: hidden; }
-.wl-fill-lg { height: 100%; border-radius: 4px; }
-.subj-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.subj-tag { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 5px 12px; border-radius: 20px; border: 1px solid #f0e8e0; }
 
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #faf8f6; }
+
+/* ── Create form ── */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 7px; }
 .form-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input, .form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; background: #faf8f6; color: #1a0a00; transition: all 0.2s; }
-.form-group input:focus, .form-group select:focus { border-color: #FF6B1A; background: #fff; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
+.form-group input,
+.form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; background: #faf8f6; color: #1a0a00; transition: all 0.2s; width: 100%; }
+.form-group input:focus,
+.form-group select:focus { border-color: #FF6B1A; background: #fff; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
 .modal-notice { display: flex; align-items: flex-start; gap: 8px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #c94000; margin-top: 16px; }
 .modal-notice svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
-.delete-msg { font-size: 14px; color: #4a3020; line-height: 1.6; }
 
-/* ── Spinners ── */
+/* ── View modal detail grid ── */
+.detail-rows { display: flex; flex-direction: column; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid #f0e8e0; gap: 12px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { font-size: 11px; color: #9a8070; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.detail-val { font-size: 13px; font-weight: 600; color: #1a0a00; text-align: right; }
+
+/* ── Workload Breakdown in Modal ── */
+.units-breakdown { display: flex; align-items: center; gap: 10px; }
+.total-units-badge { font-size: 12px; font-weight: 700; color: #1a0a00; }
+.wl-bar-sm { height: 6px; background: #f0e8e0; border-radius: 3px; overflow: hidden; flex: 1; }
+.wl-fill-sm { height: 100%; background: #FF6B1A; border-radius: 3px; }
+
+/* ── Resend row ── */
+.resend-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; }
+.resend-info { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #92400e; }
+.resend-btn { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid #fde68a; color: #92400e; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.resend-btn:hover:not(:disabled) { background: #fef3c7; border-color: #f59e0b; }
+.resend-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #f5f1ed; border-color: #e5e0da; color: #a89080; }
+
+/* ── Misc ── */
+.delete-msg { font-size: 14px; color: #4a3020; line-height: 1.6; }
 .spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-.spinner-lg { width: 40px; height: 40px; border: 3px solid #f0e8e0; border-top-color: #FF6B1A; border-radius: 50%; animation: spin 1s linear infinite; }
-.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #b89f90; }
-.drop-zone.disabled { opacity: 0.6; cursor: not-allowed; }
+.spinner-lg { width: 32px; height: 32px; border: 3px solid rgba(255,107,26,0.1); border-top-color: #FF6B1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Program/Position Badges ── */
+.program-badge-table { font-size: 11px; font-weight: 700; color: #8b5cf6; background: #f5f3ff; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -671,7 +737,6 @@ const handleCSV = async (e) => {
   .table-toolbar { flex-direction: column; align-items: stretch; }
   .filter-group { width: 100%; }
   .filter-group select { flex: 1; min-width: 0; }
-  .detail-grid { grid-template-columns: 1fr; }
   .modal-footer { flex-direction: column-reverse; }
   .modal-footer button { width: 100%; justify-content: center; }
 }

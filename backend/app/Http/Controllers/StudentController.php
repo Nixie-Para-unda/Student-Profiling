@@ -190,6 +190,11 @@ class StudentController extends Controller
             'course' => 'required|string',
             'year_level' => 'required|integer|min:1|max:4',
             'section_id' => 'required|exists:sections,id',
+            // Guardian fields
+            'guardian_first_name' => 'nullable|string',
+            'guardian_last_name' => 'nullable|string',
+            'guardian_contact_number' => 'nullable|string',
+            'guardian_relationship' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -225,11 +230,22 @@ class StudentController extends Controller
                 'middle_name' => $request->middle_name,
             ]);
 
+            // Create guardian record if provided
+            if ($request->guardian_first_name && $request->guardian_last_name) {
+                Guardian::create([
+                    'student_id' => $student->id,
+                    'first_name' => $request->guardian_first_name,
+                    'last_name' => $request->guardian_last_name,
+                    'contact_number' => $request->guardian_contact_number,
+                    'relationship' => $request->guardian_relationship,
+                ]);
+            }
+
             $user->notify(new SetupPasswordNotification($setupToken, $request->email));
 
             return response()->json([
                 'message' => 'Student account created successfully.',
-                'student' => $student->load('user', 'section', 'program')
+                'student' => $student->load('user', 'section', 'program', 'guardian')
             ], 201);
         });
     }
@@ -253,6 +269,11 @@ class StudentController extends Controller
             'course' => 'required|string',
             'year_level' => 'required|integer|min:1|max:4',
             'section_id' => 'required|exists:sections,id',
+            // Guardian fields
+            'guardian_first_name' => 'nullable|string',
+            'guardian_last_name' => 'nullable|string',
+            'guardian_contact_number' => 'nullable|string',
+            'guardian_relationship' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request, $student, $user) {
@@ -281,19 +302,32 @@ class StudentController extends Controller
                 'middle_name' => $request->middle_name ?? $student->middle_name,
             ]);
 
+            // Update or create guardian record
+            if ($request->guardian_first_name && $request->guardian_last_name) {
+                Guardian::updateOrCreate(
+                    ['student_id' => $student->id],
+                    [
+                        'first_name' => $request->guardian_first_name,
+                        'last_name' => $request->guardian_last_name,
+                        'contact_number' => $request->guardian_contact_number,
+                        'relationship' => $request->guardian_relationship,
+                    ]
+                );
+            }
+
             return response()->json([
                 'message' => 'Student account updated successfully.',
-                'student' => $student->load('user', 'section', 'program')
+                'student' => $student->load('user', 'section', 'program', 'guardian')
             ]);
         });
     }
 
     /**
-     * Delete a student account (for Secretary).
+     * Delete a student account (Soft Delete/Archive).
      */
     public function destroy(Request $request, $id)
     {
-        if (!$request->user()->isSecretary()) {
+        if (!$request->user()->isDean() && !$request->user()->isDepartmentChair() && !$request->user()->isSecretary()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -301,15 +335,16 @@ class StudentController extends Controller
         $user = $student->user;
 
         return DB::transaction(function () use ($student, $user) {
-            // Delete student record
+            // Soft delete student record
             $student->delete();
             
-            // Delete associated user account
+            // Soft delete associated user account and revoke tokens
             if ($user) {
+                $user->tokens()->delete(); // Revoke all active sessions
                 $user->delete();
             }
 
-            return response()->json(['message' => 'Student account deleted successfully.']);
+            return response()->json(['message' => 'Student account archived successfully.']);
         });
     }
 
@@ -322,6 +357,6 @@ class StudentController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return Student::with(['user', 'section', 'program'])->get();
+        return Student::with(['user', 'section', 'program', 'guardian'])->get();
     }
 }

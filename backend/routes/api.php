@@ -20,6 +20,7 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\CurriculumController;
 
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ArchiveController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/setup-password', [AuthController::class, 'setupPassword']);
@@ -64,7 +65,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dean Specific
     Route::middleware('role:dean')->group(function () {
-        // Any other dean-only routes can go here
+        Route::get('/archive', [ArchiveController::class, 'index']);
+        Route::post('/archive/{id}/restore', [ArchiveController::class, 'restore']);
     });
 
     // Secretary Specific
