@@ -146,67 +146,20 @@
             </td>
           </tr>
           <tr v-if="filteredStudents.length === 0 && !loading">
-            <td :colspan="isSecretary ? 7 : 6" class="empty-row">No students found.</td>
+            <td :colspan="isSecretary ? 8 : 7" class="empty-row">No students found.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- STUDENT DETAILS MODAL -->
-    <div v-if="viewingStudent" class="modal-overlay" @click.self="viewingStudent = null">
-      <div class="modal modal-lg">
-        <div class="modal-header">
-          <div class="modal-student-info">
-            <div class="s-avatar lg" :style="{ background: viewingStudent.color }">{{ viewingStudent.first_name.charAt(0) }}</div>
-            <div>
-              <h3>{{ viewingStudent.first_name }} {{ viewingStudent.last_name }}</h3>
-              <p>{{ viewingStudent.student_number }} · {{ viewingStudent.course }} · {{ viewingStudent.section_name || 'No Section' }}</p>
-            </div>
-          </div>
-          <button class="close-btn" @click="viewingStudent = null">×</button>
-        </div>
-        <div class="modal-body profile-body">
-          <div class="profile-section">
-            <h4 class="section-title">Academic Information</h4>
-            <div class="profile-info-grid">
-              <div class="pi-row"><span class="pi-label">Course</span><span class="pi-value">{{ viewingStudent.course }}</span></div>
-              <div class="pi-row"><span class="pi-label">Year Level</span><span class="pi-value">{{ viewingStudent.year_level }}{{ getYearSuffix(viewingStudent.year_level) }} Year</span></div>
-              <div class="pi-row"><span class="pi-label">Section</span><span class="pi-value">{{ viewingStudent.section_name || 'N/A' }}</span></div>
-              <div class="pi-row"><span class="pi-label">Status</span><span class="pi-value">{{ viewingStudent.status.toUpperCase() }}</span></div>
-            </div>
-          </div>
-          
-          <div class="profile-section">
-            <h4 class="section-title">Contact Information</h4>
-            <div class="profile-info-grid">
-              <div class="pi-row"><span class="pi-label">Email</span><span class="pi-value">{{ viewingStudent.email }}</span></div>
-              <div class="pi-row"><span class="pi-label">Contact No.</span><span class="pi-value">{{ viewingStudent.contact_number || 'N/A' }}</span></div>
-              <div class="pi-row"><span class="pi-label">Address</span><span class="pi-value">{{ viewingStudent.address || 'N/A' }}</span></div>
-            </div>
-          </div>
-
-          <div class="profile-section">
-            <h4 class="section-title">Personal Details</h4>
-            <div class="profile-info-grid">
-              <div class="pi-row"><span class="pi-label">Gender</span><span class="pi-value">{{ viewingStudent.gender || 'N/A' }}</span></div>
-              <div class="pi-row"><span class="pi-label">Birthdate</span><span class="pi-value">{{ viewingStudent.birthdate || 'N/A' }}</span></div>
-              <div class="pi-row"><span class="pi-label">Civil Status</span><span class="pi-value">{{ viewingStudent.civil_status || 'N/A' }}</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="primary-btn" @click="viewingStudent = null">Close</button>
-        </div>
-      </div>
-    </div>
-
     <!-- ═══════════════════════════════════════════════════
          CREATE MODAL (secretary only — fields are editable)
-    ═══════════════════════════════════════════════════ (Secretary Only) -->
+    ═══════════════════════════════════════════════════ -->
     <div v-if="isSecretary && showCreateModal" class="modal-overlay" @click.self="!saving && (showCreateModal = false)">
       <div class="modal">
         <div class="modal-header">
-          <h3>Create Student Account</h3>
+          <h3>{{ editingStudent ? 'Edit Student Account' : 'Create Student Account' }}</h3>
           <button class="close-btn" @click="showCreateModal = false" :disabled="saving">×</button>
         </div>
         <div class="modal-body">
@@ -225,7 +178,7 @@
             </div>
             <div class="form-group">
               <label>Email Address <span class="req">*</span></label>
-              <input v-model="form.email" type="email" placeholder="student@school.edu.ph" :disabled="saving" />
+              <input v-model="form.email" type="email" placeholder="student@school.edu.ph" :disabled="saving || !!editingStudent" />
             </div>
             <div class="form-group">
               <label>Course <span class="req">*</span></label>
@@ -246,7 +199,6 @@
                 <option value="4">4th Year</option>
               </select>
             </div>
-            <!-- BUG A FIX: Section field added to create form -->
             <div class="form-group full-span">
               <label>Section <span class="req">*</span></label>
               <select v-model="form.section_id" :disabled="saving">
@@ -255,7 +207,7 @@
               </select>
             </div>
           </div>
-          <div class="modal-notice">
+          <div v-if="!editingStudent" class="modal-notice">
             <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v4M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             A password setup link will be sent to the student's email after account creation.
           </div>
@@ -264,7 +216,7 @@
           <button class="ghost-btn" @click="showCreateModal = false" :disabled="saving">Cancel</button>
           <button class="primary-btn" @click="saveStudent" :disabled="saving">
             <span v-if="saving" class="spinner-sm"></span>
-            {{ saving ? 'Saving...' : 'Create Account' }}
+            {{ saving ? 'Saving...' : (editingStudent ? 'Update Account' : 'Create Account') }}
           </button>
         </div>
       </div>
@@ -285,72 +237,65 @@
             </div>
             <div>
               <h3>{{ viewingStudent.first_name }} {{ viewingStudent.last_name }}</h3>
-              <p class="modal-sub">{{ viewingStudent.student_number }} · {{ viewingStudent.course }} · {{ viewingStudent.section || 'Unassigned' }}</p>
+              <p class="modal-sub">{{ viewingStudent.student_number }} · {{ viewingStudent.course }} · {{ viewingStudent.section || 'No Section' }}</p>
             </div>
           </div>
           <button class="close-btn" @click="viewingStudent = null">×</button>
         </div>
 
-        <div class="modal-body">
-          <!-- All fields are read-only display — no inputs -->
-          <div class="detail-grid">
-            <div class="detail-section">
-              <div class="detail-section-label">Personal Information</div>
-              <div class="detail-rows">
-                <div class="detail-row">
-                  <span class="detail-key">First Name</span>
-                  <span class="detail-val">{{ viewingStudent.first_name }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Last Name</span>
-                  <span class="detail-val">{{ viewingStudent.last_name }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Email Address</span>
-                  <span class="detail-val">{{ viewingStudent.email }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Student Number</span>
-                  <span class="detail-val">
-                    <span class="code-badge">{{ viewingStudent.student_number }}</span>
-                  </span>
-                </div>
+        <div class="modal-body profile-body">
+          <div class="profile-section">
+            <h4 class="section-title">Personal Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Full Name</span>
+                <span class="detail-val">{{ viewingStudent.first_name }} {{ viewingStudent.last_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Email Address</span>
+                <span class="detail-val">{{ viewingStudent.email }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Student Number</span>
+                <span class="detail-val">
+                  <span class="code-badge">{{ viewingStudent.student_number }}</span>
+                </span>
               </div>
             </div>
+          </div>
 
-            <div class="detail-section">
-              <div class="detail-section-label">Academic Information</div>
-              <div class="detail-rows">
-                <div class="detail-row">
-                  <span class="detail-key">Course</span>
-                  <span class="detail-val">{{ viewingStudent.course }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Year Level</span>
-                  <span class="detail-val">{{ viewingStudent.year_level }}{{ getYearSuffix(viewingStudent.year_level) }} Year</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Section</span>
-                  <span class="detail-val">{{ viewingStudent.section || '—' }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Account Status</span>
-                  <span class="detail-val">
-                    <span class="status-badge" :class="viewingStudent.status === 'active' ? 'st-active' : 'st-pending'">
-                      {{ viewingStudent.status === 'active' ? 'Active' : 'Pending Setup' }}
-                    </span>
+          <div class="profile-section">
+            <h4 class="section-title">Academic Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Course</span>
+                <span class="detail-val">{{ viewingStudent.course }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Year Level</span>
+                <span class="detail-val">{{ viewingStudent.year_level }}{{ getYearSuffix(viewingStudent.year_level) }} Year</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Section</span>
+                <span class="detail-val">{{ viewingStudent.section || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Status</span>
+                <span class="detail-val">
+                  <span class="status-badge" :class="viewingStudent.status === 'active' ? 'st-active' : 'st-pending'">
+                    {{ viewingStudent.status.toUpperCase() }}
                   </span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-key">Date Created</span>
-                  <span class="detail-val">{{ viewingStudent.created_at }}</span>
-                </div>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Date Created</span>
+                <span class="detail-val">{{ viewingStudent.created_at }}</span>
               </div>
             </div>
           </div>
 
           <!-- RESEND limit notice -->
-          <div class="resend-row" v-if="viewingStudent.status === 'pending'">
+          <div class="resend-row" v-if="viewingStudent.status === 'pending' && isSecretary">
             <div class="resend-info">
               <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
               <span>
@@ -418,20 +363,24 @@ import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
 const isSecretary = computed(() => authStore.user?.role === 'secretary')
+const userRole = computed(() => authStore.user?.role)
 
 const search = ref('')
 const filterCourse = ref('')
 const filterYear = ref('')
+const filterSection = ref('')
 const filterStatus = ref('')
 const showImport = ref(false)
-const showModal = ref(false)
+const showCreateModal = ref(false)
 const showDeleteModal = ref(false)
 const viewingStudent  = ref(null)   // Currently open in view modal
 const deletingStudent = ref(null)
-const viewingStudent = ref(null)
+const editingStudent = ref(null)
 const csvInput = ref(null)
 const loading = ref(false)
 const loadingImport = ref(false)
+const saving = ref(false)
+const resendCounts = ref({})
 
 const form = ref({
   first_name: '', last_name: '', student_number: '',
@@ -440,15 +389,12 @@ const form = ref({
 
 const colors  = ['#FF6B1A', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
 const students = ref([])
-const sections = ref([])  // BUG A FIX: sections list for create form
+const sections = ref([])
 
 // ─── Fetch ───────────────────────────────────────────────────────────────────
 const fetchStudents = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/students')
-    students.value = response.data.map((s, idx) => ({
-      ...s,
     const [studentsRes, sectionsRes] = await Promise.all([
       axios.get('/students'),
       axios.get('/sections')
@@ -462,11 +408,11 @@ const fetchStudents = async () => {
       email:          s.user?.email || 'N/A',
       course:         s.program?.program_code || 'N/A',
       year_level:     s.year_level || s.section?.year_level || 1,
-      section_name:        s.section?.section_name || null,
+      section:        s.section?.section_name || null,
       status:         s.user?.status || 'pending',
-      gwa: s.gwa || (Math.random() * (2.5 - 1.25) + 1.25).toFixed(2), // Mock if missing
+      gwa: s.gwa || (Math.random() * (2.5 - 1.25) + 1.25).toFixed(2),
       violations_count: s.violations_count || 0,
-      created_at_fmt:     new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      created_at:     new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       color:          colors[idx % colors.length]
     }))
 
@@ -475,6 +421,47 @@ const fetchStudents = async () => {
     console.error('Failed to fetch students:', err)
   } finally {
     loading.value = false
+  }
+}
+
+const getYearSuffix = (y) => {
+  const last = y % 10
+  if (last === 1 && y !== 11) return 'st'
+  if (last === 2 && y !== 12) return 'nd'
+  if (last === 3 && y !== 13) return 'rd'
+  return 'th'
+}
+
+const getResendCount = (studentId) => resendCounts.value[studentId] || 0
+
+const resendSetup = async (student) => {
+  const count = getResendCount(student.id)
+  if (count >= 3) return
+  
+  try {
+    await axios.post(`/secretary/students/${student.id}/resend-setup`)
+    resendCounts.value[student.id] = count + 1
+    alert(`Setup email resent to ${student.email}. (${resendCounts.value[student.id]}/3 resends used)`)
+  } catch (err) {
+    alert('Failed to resend setup email.')
+  }
+}
+
+const confirmDelete = (student) => {
+  deletingStudent.value = student
+  showDeleteModal.value = true
+}
+
+const deleteStudent = async () => {
+  if (!deletingStudent.value) return
+  try {
+    await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
+    showDeleteModal.value = false
+    viewingStudent.value = null
+    alert('Student account deleted successfully.')
+    fetchStudents()
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to delete student.')
   }
 }
 
@@ -505,36 +492,14 @@ const filteredStudents = computed(() => {
       s.email.toLowerCase().includes(search.value.toLowerCase()) ||
       s.student_number.toLowerCase().includes(search.value.toLowerCase())
     const matchCourse  = !filterCourse.value  || s.course === filterCourse.value
-    const matchYear = !filterYear.value || s.year_level == filterYear.value
-    const matchYear    = !filterYear.value    || s.year_level == filterYear.value    // FILTER FIX
-    const matchSection = !filterSection.value || s.section === filterSection.value  // FILTER FIX
+    const matchYear    = !filterYear.value    || s.year_level == filterYear.value
+    const matchSection = !filterSection.value || s.section === filterSection.value
     const matchStatus  = !filterStatus.value  || s.status === filterStatus.value
-    return matchSearch && matchCourse && matchYear && matchYear && matchSection && matchStatus
+    return matchSearch && matchCourse && matchYear && matchSection && matchStatus
   })
 })
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const getYearSuffix = (year) => {
-  if (year == 1) return 'st'
-  if (year == 2) return 'nd'
-  if (year == 3) return 'rd'
-  return 'th'
-}
-
-// IMPROVEMENT FIX: Resend count helpers
-const getResendCount = (studentId) => resendCounts.value[studentId] || 0
-
-const incrementResend = (studentId) => {
-  resendCounts.value[studentId] = (resendCounts.value[studentId] || 0) + 1
-}
-
 // ─── Actions ──────────────────────────────────────────────────────────────────
-
-// IMPROVEMENT FIX: Row click opens view modal
-const viewStudent = (student) => {
-  viewingStudent.value = student
-}
 
 const viewDetails = (student) => {
   viewingStudent.value = student
@@ -542,17 +507,18 @@ const viewDetails = (student) => {
 
 const openCreateModal = () => {
   editingStudent.value = null
-  form.value = { first_name: '', last_name: '', student_number: '', email: '', course: '', year_level: '' }
-  showModal.value = true
+  form.value = { first_name: '', last_name: '', student_number: '', email: '', course: '', year_level: '', section_id: '' }
+  showCreateModal.value = true
 }
 
 const openEditModal = (student) => {
   editingStudent.value = student
   form.value = { 
     ...student,
-    year_level: student.year_level.toString()
+    year_level: student.year_level.toString(),
+    section_id: sections.value.find(sec => sec.section_name === student.section)?.id || ''
   }
-  showModal.value = true
+  showCreateModal.value = true
 }
 
 const saveStudent = async () => {
@@ -569,56 +535,20 @@ const saveStudent = async () => {
         last_name: form.value.last_name,
         student_number: form.value.student_number,
         course: form.value.course,
-        year_level: form.value.year_level
+        year_level: form.value.year_level,
+        section_id: form.value.section_id
       })
       alert('Student account updated successfully.')
     } else {
-      await axios.post('/secretary/students', {
-        first_name: form.value.first_name,
-        last_name: form.value.last_name,
-        email: form.value.email,
-        student_number: form.value.student_number,
-        course: form.value.course,
-        year_level: form.value.year_level
-      })
+      await axios.post('/secretary/students', form.value)
       alert('Student account created successfully.')
     }
-    showModal.value = false
+    showCreateModal.value = false
     fetchStudents()
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to create student account.')
+    alert(err.response?.data?.message || 'Failed to save student account.')
   } finally {
     saving.value = false
-  }
-}
-
-const confirmDelete = (student) => {
-  deletingStudent.value = student
-  showDeleteModal.value = true
-}
-
-const deleteStudent = async () => {
-  try {
-    await axios.delete(`/secretary/students/${deletingStudent.value.id}`)
-    showDeleteModal.value = false
-    viewingStudent.value = null
-    alert('Student account deleted successfully.')
-    fetchStudents()
-  } catch (err) {
-    alert(err.response?.data?.message || 'Failed to delete student.')
-  }
-}
-
-// IMPROVEMENT FIX: Resend capped at 3 per student on the frontend
-const resendSetup = async (student) => {
-  if (getResendCount(student.id) >= 3) return
-
-  try {
-    // await axios.post(`/secretary/students/${student.id}/resend-setup`)
-    incrementResend(student.id)
-    alert(`Setup email resent to ${student.email}. (${getResendCount(student.id)}/3 resends used)`)
-  } catch (err) {
-    alert('Failed to resend setup email.')
   }
 }
 
@@ -634,12 +564,10 @@ const handleCSV = async (e) => {
     const response = await axios.post('/secretary/students/import', formData)
     alert(response.data.message || 'Students imported successfully!')
     fetchStudents()
-    fetchStudents()
   } catch (err) {
     alert(err.response?.data?.message || 'Failed to import students.')
   } finally {
     loadingImport.value = false
-    if (csvInput.value) csvInput.value.value = ''
     if (csvInput.value) csvInput.value.value = ''
   }
 }
@@ -709,15 +637,17 @@ const handleCSV = async (e) => {
 
 /* IMPROVEMENT FIX: Clickable row styling */
 .clickable-row { cursor: pointer; transition: background 0.15s; }
-.clickable-row:hover td { background: #fdf5ef; }
+.clickable-row:hover td { background: #fdf5ef !important; }
 .clickable-row:hover .s-name { color: #FF6B1A; }
 
-.clickable-row { cursor: pointer; transition: background 0.2s; }
-.clickable-row:hover td { background: #fff5ef !important; }
+.action-btns { display: flex; gap: 8px; }
+.action-btn { background: #fff; border: 1px solid #f0e8e0; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.2s; }
+.action-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
+.action-btn.delete:hover { border-color: #ef4444; color: #ef4444; }
+.action-btn svg { width: 14px; height: 14px; }
 
 .student-cell { display: flex; align-items: center; gap: 10px; }
 .s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.s-avatar.lg { width: 48px; height: 48px; font-size: 20px; border-radius: 14px; flex-shrink: 0; }
 .s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; transition: color 0.15s; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }

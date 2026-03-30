@@ -189,6 +189,7 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email',
             'course' => 'required|string',
             'year_level' => 'required|integer|min:1|max:4',
+            'section_id' => 'required|exists:sections,id',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -200,21 +201,6 @@ class StudentController extends Controller
                     ['program_code' => $request->course, 'department_id' => $department->id],
                     ['program_name' => $request->course === 'BSIT' ? 'Bachelor of Science in Information Technology' : 'Bachelor of Science in Computer Science']
                 );
-            }
-
-            // Find or create an appropriate section
-            $section = Section::where('program_id', $program->id)
-                ->where('year_level', $request->year_level)
-                ->first();
-
-            if (!$section) {
-                $section = Section::create([
-                    'section_name' => "{$request->course} {$request->year_level}-A",
-                    'program_id' => $program->id,
-                    'department_id' => $department->id,
-                    'year_level' => $request->year_level,
-                    'school_year' => '2026-2027'
-                ]);
             }
 
             $initialPassword = $request->last_name . substr(preg_replace('/[^0-9]/', '', $request->student_number), -3);
@@ -232,7 +218,7 @@ class StudentController extends Controller
             $student = Student::create([
                 'user_id' => $user->id,
                 'program_id' => $program->id,
-                'section_id' => $section->id,
+                'section_id' => $request->section_id,
                 'year_level' => $request->year_level,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -261,34 +247,37 @@ class StudentController extends Controller
         $user = $student->user;
 
         $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
             'student_number' => 'required|string|unique:users,student_number,' . ($user ? $user->id : 0),
             'course' => 'required|string',
             'year_level' => 'required|integer|min:1|max:4',
+            'section_id' => 'required|exists:sections,id',
         ]);
 
         return DB::transaction(function () use ($request, $student, $user) {
-            // Update student number in the users table
+            // Update student number and email (if allowed, though frontend prevents it) in the users table
             if ($user) {
-                $user->update(['student_number' => $request->student_number]);
+                $user->update([
+                    'student_number' => $request->student_number
+                ]);
             }
 
             // Find or create the program
             $program = Program::where('program_code', $request->course)->first();
             if (!$program) {
-                $program = Program::where('program_name', 'like', "%{$request->course}%")->first();
+                $program = Program::firstOrCreate(
+                    ['program_code' => $request->course],
+                    ['program_name' => $request->course, 'department_id' => $student->program->department_id]
+                );
             }
-
-            // Find an appropriate section
-            $section = Section::where('program_id', $program->id)
-                ->where('year_level', $request->year_level)
-                ->first();
 
             $student->update([
                 'program_id' => $program ? $program->id : $student->program_id,
-                'section_id' => $section ? $section->id : $student->section_id,
+                'section_id' => $request->section_id,
                 'year_level' => $request->year_level,
-                'first_name' => $request->first_name ?? $student->first_name,
-                'last_name' => $request->last_name ?? $student->last_name,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
                 'middle_name' => $request->middle_name ?? $student->middle_name,
             ]);
 
