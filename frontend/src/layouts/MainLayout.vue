@@ -5,14 +5,10 @@
       <!-- Brand -->
       <div class="sidebar-brand" @click="sidebarCollapsed = !sidebarCollapsed" :title="sidebarCollapsed ? 'Expand Sidebar' : ''">
         <div class="brand-icon">
-          <svg viewBox="0 0 40 40" fill="none">
-            <rect width="40" height="40" rx="10" fill="#FF6B1A"/>
-            <path d="M8 20C8 13.373 13.373 8 20 8s12 5.373 12 12-5.373 12-12 12S8 26.627 8 20z" fill="white" fill-opacity="0.2"/>
-            <path d="M14 20h12M20 14v12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
+          <img :src="ccsLogo" alt="CSS Logo" class="brand-logo-img" />
         </div>
         <div class="brand-text" v-show="!sidebarCollapsed">
-          <span class="brand-name">DIS Portal</span>
+          <span class="brand-name">CSS Portal</span>
           <span class="brand-sub">CCS · AY 2026–2027</span>
         </div>
         <button v-if="!sidebarCollapsed" class="collapse-btn" @click.stop="sidebarCollapsed = true">
@@ -282,6 +278,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../store/auth'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthRedirect } from '../composables/useAuthRedirect'
+import ccsLogo from '../assets/ccs-logo.jpg'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -338,6 +335,7 @@ const handleLogout = () => {
 .sidebar.collapsed .sidebar-brand { padding: 20px 0; justify-content: center; cursor: pointer; }
 .sidebar.collapsed .sidebar-brand:hover { background: rgba(255,255,255,0.04); }
 .brand-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
+.brand-logo-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
 .brand-text { flex: 1; min-width: 0; }
 .brand-name { display: block; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; }
 .brand-sub { display: block; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; white-space: nowrap; }
