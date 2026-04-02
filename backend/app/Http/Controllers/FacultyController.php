@@ -41,7 +41,7 @@ class FacultyController extends Controller
         })->values();
 
         $students = Student::whereIn('section_id', $sectionIds)
-            ->with(['user', 'section', 'program', 'guardian'])
+            ->with(['user', 'section', 'program', 'guardian', 'skills', 'organizations.organization'])
             ->get();
 
         return response()->json([

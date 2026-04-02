@@ -357,6 +357,6 @@ class StudentController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return Student::with(['user', 'section', 'program', 'guardian'])->get();
+        return Student::with(['user', 'section', 'program', 'guardian', 'skills', 'organizations.organization'])->get();
     }
 }

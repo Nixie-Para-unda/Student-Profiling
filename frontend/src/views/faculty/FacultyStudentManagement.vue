@@ -203,6 +203,52 @@
               </div>
             </div>
           </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Guardian Information</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No guardian information provided.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Affiliations -->
+          <div class="profile-section" v-if="viewingStudent.organizations && viewingStudent.organizations.length > 0">
+            <h4 class="section-title">Affiliations</h4>
+            <div class="detail-rows">
+              <div class="detail-row" v-for="org in viewingStudent.organizations" :key="org.name">
+                <span class="detail-key">{{ org.name }}</span>
+                <span class="detail-val">{{ org.role }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Affiliations</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No affiliations recorded.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="profile-section" v-if="viewingStudent.skills && viewingStudent.skills.length > 0">
+            <h4 class="section-title">Skills</h4>
+            <div class="skill-tags">
+              <span class="skill-tag" v-for="skill in viewingStudent.skills" :key="skill.name">
+                {{ skill.name }}
+                <span class="skill-cat">{{ skill.category }}</span>
+              </span>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Skills</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No skills recorded.</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -253,7 +299,14 @@ const fetchStudents = async () => {
       gwa: s.gwa || 'N/A',
       violations_count: s.violations_count || 0,
       color: colors[idx % colors.length],
-      guardian: s.guardian || null
+      guardian: s.guardian || null,
+      skills: (s.skills || []).map(sk => ({ name: sk.skillName, category: sk.skill_category })),
+      organizations: (s.organizations || []).map(org => ({
+        name: org.organization?.organization_name || 'Unknown',
+        role: org.role,
+        dateJoined: org.dateJoined,
+        dateLeft: org.dateLeft
+      }))
     }))
     
     handledSubjects.value = data.subjects
@@ -417,6 +470,9 @@ onMounted(fetchStudents)
 .detail-row:last-child { border-bottom: none; }
 .detail-key { font-size: 11px; color: #9a8070; font-weight: 500; }
 .detail-val { font-size: 13px; font-weight: 600; color: #1a0a00; text-align: right; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
+.skill-tag { display: inline-flex; align-items: center; gap: 6px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #1a0a00; }
+.skill-cat { font-size: 10px; font-weight: 700; color: #FF6B1A; background: #fff; padding: 1px 6px; border-radius: 4px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #faf8f6; }
 .ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
 

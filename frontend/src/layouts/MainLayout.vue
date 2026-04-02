@@ -61,7 +61,7 @@
           <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
           <router-link to="/students" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Students</span>
+            <span v-show="!sidebarCollapsed">Student Profiles</span>
           </router-link>
           <router-link to="/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>

@@ -364,6 +364,44 @@
             </div>
           </div>
 
+          <!-- Affiliations -->
+          <div class="profile-section" v-if="viewingStudent.organizations && viewingStudent.organizations.length > 0">
+            <h4 class="section-title">Affiliations</h4>
+            <div class="detail-rows">
+              <div class="detail-row" v-for="org in viewingStudent.organizations" :key="org.name">
+                <span class="detail-key">{{ org.name }}</span>
+                <span class="detail-val">{{ org.role }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Affiliations</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No affiliations recorded.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="profile-section" v-if="viewingStudent.skills && viewingStudent.skills.length > 0">
+            <h4 class="section-title">Skills</h4>
+            <div class="skill-tags">
+              <span class="skill-tag" v-for="skill in viewingStudent.skills" :key="skill.name">
+                {{ skill.name }}
+                <span class="skill-cat">{{ skill.category }}</span>
+              </span>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Skills</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No skills recorded.</span>
+              </div>
+            </div>
+          </div>
+
           <!-- RESEND limit notice -->
           <div class="resend-row" v-if="viewingStudent.status === 'pending' && isSecretary">
             <div class="resend-info">
@@ -489,7 +527,14 @@ const fetchStudents = async () => {
       violations_count: s.violations_count || 0,
       created_at:     new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       color:          colors[idx % colors.length],
-      guardian:       s.guardian || null
+      guardian:       s.guardian || null,
+      skills:         (s.skills || []).map(sk => ({ name: sk.skillName, category: sk.skill_category })),
+      organizations:  (s.organizations || []).map(org => ({
+        name: org.organization?.organization_name || 'Unknown',
+        role: org.role,
+        dateJoined: org.dateJoined,
+        dateLeft: org.dateLeft
+      }))
     }))
 
     sections.value = sectionsRes.data
@@ -818,6 +863,11 @@ const handleCSV = async (e) => {
 .detail-row:last-child { border-bottom: none; }
 .detail-key { font-size: 11px; color: #9a8070; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
 .detail-val { font-size: 13px; font-weight: 600; color: #1a0a00; text-align: right; }
+
+/* ── Skills tags ── */
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
+.skill-tag { display: inline-flex; align-items: center; gap: 6px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #1a0a00; }
+.skill-cat { font-size: 10px; font-weight: 700; color: #FF6B1A; background: #fff; padding: 1px 6px; border-radius: 4px; }
 
 /* ── Resend row ── */
 .resend-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; }
