@@ -226,6 +226,44 @@
             </div>
           </div>
 
+          <!-- Expertise -->
+          <div class="profile-section" v-if="viewingFaculty.expertise && viewingFaculty.expertise.length > 0">
+            <h4 class="section-title">Expertise</h4>
+            <div class="skill-tags">
+              <span class="skill-tag" v-for="exp in viewingFaculty.expertise" :key="exp.id">
+                {{ exp.skillName }}
+                <span class="skill-cat">{{ exp.skill_category }}</span>
+              </span>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Expertise</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No expertise recorded.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Courses Handled -->
+          <div class="profile-section" v-if="viewingFaculty.schedules && viewingFaculty.schedules.length > 0">
+            <h4 class="section-title">Courses Handled</h4>
+            <div class="detail-rows">
+              <div class="detail-row" v-for="sched in viewingFaculty.schedules" :key="sched.id">
+                <span class="detail-key">{{ sched.course?.course_code || 'N/A' }}</span>
+                <span class="detail-val">{{ sched.course?.course_name || 'N/A' }} · {{ sched.section?.section_name || '' }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-section" v-else>
+            <h4 class="section-title">Courses Handled</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No courses assigned.</span>
+              </div>
+            </div>
+          </div>
+
           <!-- RESEND limit notice -->
           <div class="resend-row" v-if="viewingFaculty.status === 'pending' && isSecretary">
             <div class="resend-info">
@@ -704,6 +742,11 @@ const handleCSV = async (e) => {
 .detail-row:last-child { border-bottom: none; }
 .detail-key { font-size: 11px; color: #9a8070; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
 .detail-val { font-size: 13px; font-weight: 600; color: #1a0a00; text-align: right; }
+
+/* ── Skills tags ── */
+.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; }
+.skill-tag { display: inline-flex; align-items: center; gap: 6px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #1a0a00; }
+.skill-cat { font-size: 10px; font-weight: 700; color: #FF6B1A; background: #fff; padding: 1px 6px; border-radius: 4px; }
 
 /* ── Workload Breakdown in Modal ── */
 .units-breakdown { display: flex; align-items: center; gap: 10px; }

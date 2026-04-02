@@ -65,7 +65,7 @@
           </router-link>
           <router-link to="/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty</span>
+            <span v-show="!sidebarCollapsed">Faculty Members</span>
           </router-link>
           <router-link to="/academic-performance" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
