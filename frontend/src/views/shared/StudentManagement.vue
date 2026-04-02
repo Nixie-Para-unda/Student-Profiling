@@ -1,10 +1,5 @@
 <template>
   <div class="page">
-    <div class="breadcrumb">
-      <span class="breadcrumb-category">Academic</span>
-      <span class="breadcrumb-sep">&gt;</span>
-      <span class="breadcrumb-current">Student Profiles</span>
-    </div>
     <div class="page-header">
       <div>
         <h2 class="page-title">Student Management</h2>
@@ -758,10 +753,6 @@ const handleCSV = async (e) => {
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
 .page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; min-height: 100%; flex: 1; }
-.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
-.breadcrumb-category { color: #9a8070; }
-.breadcrumb-sep { color: #c0b0a5; font-size: 12px; }
-.breadcrumb-current { color: #FF6B1A; font-weight: 600; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }

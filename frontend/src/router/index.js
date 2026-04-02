@@ -57,37 +57,37 @@ const routes = [
         path: 'student/dashboard',
         name: 'StudentDashboard',
         component: () => import('../views/student/StudentDashboard.vue'),
-        meta: { title: 'Dashboard' }
+        meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
       {
         path: 'student/profile',
         name: 'MyProfile',
         component: StudentProfile,
-        meta: { title: 'My Profile' }
+        meta: { title: 'My Profile', breadcrumb: 'Student Portal > My Profile' }
       },
       {
         path: 'student/curriculum',
         name: 'MyCurriculum',
         component: () => import('../views/student/StudentSchedule.vue'),
-        meta: { title: 'My Curriculum' }
+        meta: { title: 'My Curriculum', breadcrumb: 'Academic > My Curriculum' }
       },
       {
         path: 'student/schedule',
         name: 'MySchedule',
         component: () => import('../views/student/StudentSchedule.vue'),
-        meta: { title: 'My Schedule' }
+        meta: { title: 'My Schedule', breadcrumb: 'Academic > My Schedule' }
       },
       {
         path: 'student/achievements',
         name: 'MyAchievements',
         component: () => import('../views/student/StudentAwards.vue'),
-        meta: { title: 'My Achievements' }
+        meta: { title: 'My Achievements', breadcrumb: 'Student Portal > My Achievements' }
       },
       {
         path: 'student/violations',
         name: 'MyViolations',
         component: () => import('../views/student/StudentViolations.vue'),
-        meta: { title: 'My Violations' }
+        meta: { title: 'My Violations', breadcrumb: 'Student Portal > My Violations' }
       },
 
       // ── Dean routes ─────────────────────────────
@@ -95,55 +95,55 @@ const routes = [
         path: 'dean/dashboard',
         name: 'DeanDashboard',
         component: DeanDashboard,
-        meta: { title: 'Dashboard' }
+        meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
       {
         path: 'students',
         name: 'StudentManagement',
         component: StudentManagement,
-        meta: { title: 'Student Profiles' }
+        meta: { title: 'Student Profiles', breadcrumb: 'Academic > Student Profiles' }
       },
       {
         path: 'faculty',
         name: 'FacultyManagement',
         component: FacultyManagement,
-        meta: { title: 'Faculty Profiles' }
+        meta: { title: 'Faculty Profiles', breadcrumb: 'Academic > Faculty Profiles' }
       },
       {
         path: 'academic-performance',
         name: 'AcademicPerformance',
         component: PerformanceOverview,
-        meta: { title: 'Academic Performance' }
+        meta: { title: 'Academic Performance', breadcrumb: 'Academic > Academic Performance' }
       },
       {
         path: 'violations',
         name: 'Violations',
         component: ViolationsList,
-        meta: { title: 'Student Violations' }
+        meta: { title: 'Student Violations', breadcrumb: 'Academic > Student Violations' }
       },
       {
         path: 'profiling/report',
         name: 'ProfilingReport',
         component: ProfilingReport,
-        meta: { title: 'Profiling Report Engine' }
+        meta: { title: 'Profiling Report Engine', breadcrumb: 'Overview > Profiling Reports' }
       },
       {
         path: 'dean/curriculum',
         name: 'CurriculumManagement',
         component: CurriculumManagement,
-        meta: { title: 'Curriculum Management' }
+        meta: { title: 'Curriculum Management', breadcrumb: 'Overview > Curriculum' }
       },
       {
         path: 'dean/courses',
         name: 'CourseManagement',
         component: CourseManagement,
-        meta: { title: 'Course Management' }
+        meta: { title: 'Course Management', breadcrumb: 'Overview > Course Management' }
       },
       {
         path: 'dean/archive',
         name: 'ArchiveManagement',
         component: ArchiveManagement,
-        meta: { title: 'Archive Management', role: 'dean' }
+        meta: { title: 'Archive Management', role: 'dean', breadcrumb: 'Management > Archive' }
       },
 
       // ── Faculty routes ──────────────────────────
@@ -151,25 +151,25 @@ const routes = [
         path: 'faculty/dashboard',
         name: 'FacultyDashboard',
         component: () => import('../views/faculty/FacultyDashboard.vue'),
-        meta: { title: 'Dashboard' }
+        meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
       {
         path: 'faculty/students',
         name: 'FacultyStudents',
         component: () => import('../views/faculty/FacultyStudentManagement.vue'),
-        meta: { title: 'Student Profiles' }
+        meta: { title: 'Student Profiles', breadcrumb: 'Academic > Student Profiles' }
       },
       {
         path: 'faculty/violations',
         name: 'FacultyViolations',
         component: () => import('../views/faculty/FacultyViolationManagement.vue'),
-        meta: { title: 'Student Violations' }
+        meta: { title: 'Student Violations', breadcrumb: 'Academic > Student Violations' }
       },
       {
         path: 'faculty/schedule',
         name: 'FacultySchedule',
         component: () => import('../views/faculty/FacultySchedule.vue'),
-        meta: { title: 'My Schedule' }
+        meta: { title: 'My Schedule', breadcrumb: 'Academic > My Schedule' }
       },
 
       // ── Secretary routes ─────────────────────────
@@ -177,31 +177,31 @@ const routes = [
         path: 'secretary/dashboard',
         name: 'SecretaryDashboard',
         component: SecretaryDashboard,
-        meta: { title: 'Dashboard' }
+        meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
-      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload' } },
-      { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification' } },
-      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports' } },
+      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload', breadcrumb: 'Management > Faculty Workload' } },
+      { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification', breadcrumb: 'Management > Achievement Verification' } },
+      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports', breadcrumb: 'Reports > Generate Reports' } },
 
       // ── Chair routes ─────────────────────────────
       {
         path: 'chair/dashboard',
         name: 'ChairDashboard',
         component: ChairDashboard,
-        meta: { title: 'Dashboard' }
+        meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
-      { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations' } },
-      { path: 'chair/awards', name: 'DepartmentChairAwards', component: ChairAwards, meta: { title: 'Approve Awards' } },
-      { path: 'chair/performance', name: 'DepartmentChairPerformance', component: ChairPerformance, meta: { title: 'Academic Performance' } },
-      { path: 'chair/schedules', name: 'ChairSchedules', component: ChairSchedules, meta: { title: 'Schedule Management' } },
-      { path: 'chair/reports', name: 'DepartmentChairReports', component: ChairReports, meta: { title: 'Generate Reports' } },
+      { path: 'chair/violations', name: 'DepartmentChairViolations', component: ChairViolations, meta: { title: 'Student Violations', breadcrumb: 'Academic > Student Violations' } },
+      { path: 'chair/awards', name: 'DepartmentChairAwards', component: ChairAwards, meta: { title: 'Approve Awards', breadcrumb: 'Academic > Approve Awards' } },
+      { path: 'chair/performance', name: 'DepartmentChairPerformance', component: ChairPerformance, meta: { title: 'Academic Performance', breadcrumb: 'Academic > Academic Performance' } },
+      { path: 'chair/schedules', name: 'ChairSchedules', component: ChairSchedules, meta: { title: 'Schedule Management', breadcrumb: 'Academic > Schedule Management' } },
+      { path: 'chair/reports', name: 'DepartmentChairReports', component: ChairReports, meta: { title: 'Generate Reports', breadcrumb: 'Reports > Generate Reports' } },
 
       // Shared
       {
         path: 'settings',
         name: 'Settings',
         component: Settings,
-        meta: { title: 'Account Settings' }
+        meta: { title: 'Account Settings', breadcrumb: 'Settings > Account Settings' }
       }
     ]
   }
