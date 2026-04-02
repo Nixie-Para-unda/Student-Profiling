@@ -191,25 +191,33 @@
     </div>
 
     <!-- AUTO-GENERATE MODAL -->
-    <div v-if="showAutoModal" class="modal-overlay" @click.self="showAutoModal = false">
-      <div class="modal">
+    <div v-if="showAutoModal" class="modal-overlay" @click.self="!generating && (showAutoModal = false)">
+      <div class="modal modal-lg">
         <div class="modal-header">
-          <h3>Auto-Generate Schedules</h3>
-          <button class="close-btn" @click="showAutoModal = false">×</button>
+          <div>
+            <h3>Auto-Generate Schedules</h3>
+            <p class="modal-sub">Generate conflict-free schedules based on curriculum.</p>
+          </div>
+          <button class="close-btn" @click="showAutoModal = false" :disabled="generating">×</button>
         </div>
-        <div class="modal-body">
-          <p class="mb-4">This will generate a conflict-free schedule for all sections in the selected program, year, and semester based on the curriculum. <br><br><strong>Warning:</strong> This will clear existing schedules for those sections.</p>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Program</label>
-              <select v-model="autoForm.program_id">
-                <option value="">Select Program</option>
-                <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
-              </select>
-            </div>
-            <div class="form-row">
+        <div class="modal-body profile-body">
+          <div class="modal-notice">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M8 1v6M8 11v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>This will <strong>clear existing schedules</strong> for the selected sections and regenerate them from the curriculum.</span>
+          </div>
+
+          <div class="profile-section">
+            <h4 class="section-title">Generation Settings</h4>
+            <div class="form-grid">
               <div class="form-group">
-                <label>Year Level</label>
+                <label>Program <span class="req">*</span></label>
+                <select v-model="autoForm.program_id">
+                  <option value="">Select Program</option>
+                  <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.program_code }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Year Level <span class="req">*</span></label>
                 <select v-model="autoForm.year_level">
                   <option value="1">1st Year</option>
                   <option value="2">2nd Year</option>
@@ -218,7 +226,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Semester</label>
+                <label>Semester <span class="req">*</span></label>
                 <select v-model="autoForm.semester">
                   <option value="1st">1st Semester</option>
                   <option value="2nd">2nd Semester</option>
@@ -229,8 +237,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="ghost-btn" @click="showAutoModal = false">Cancel</button>
+          <button class="ghost-btn" @click="showAutoModal = false" :disabled="generating">Cancel</button>
           <button class="primary-btn" @click="handleAutoGenerate" :disabled="generating || !autoForm.program_id">
+            <span v-if="generating" class="spinner-sm"></span>
             {{ generating ? 'Generating...' : 'Start Generation' }}
           </button>
         </div>
@@ -238,33 +247,50 @@
     </div>
 
     <!-- ASSIGN FACULTY MODAL -->
-    <div v-if="showAssignModal" class="modal-overlay" @click.self="showAssignModal = false">
-      <div class="modal">
+    <div v-if="showAssignModal" class="modal-overlay" @click.self="!assigning && (showAssignModal = false)">
+      <div class="modal modal-lg">
         <div class="modal-header">
-          <h3>Assign Faculty</h3>
-          <button class="close-btn" @click="showAssignModal = false">×</button>
+          <div>
+            <h3>Assign Faculty</h3>
+            <p class="modal-sub">Assign a faculty member to this course section.</p>
+          </div>
+          <button class="close-btn" @click="showAssignModal = false" :disabled="assigning">×</button>
         </div>
-        <div class="modal-body">
-          <div v-if="selectedSchedule" class="selected-schedule-info pcard">
-            <p><strong>Course:</strong> {{ selectedSchedule.course.course_code }} - {{ selectedSchedule.course.course_name }}</p>
-            <p><strong>Section:</strong> {{ selectedSchedule.section.section_name }}</p>
-            <div class="bulk-alert">
-              <svg viewBox="0 0 20 20" fill="currentColor" class="info-icon"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-              <span>Assigning a faculty will apply to <strong>all sessions</strong> of this course for this section.</span>
+        <div class="modal-body profile-body">
+          <div class="profile-section" v-if="selectedSchedule">
+            <h4 class="section-title">Schedule Details</h4>
+            <div class="detail-rows">
+              <div class="detail-row">
+                <span class="detail-key">Course</span>
+                <span class="detail-val">{{ selectedSchedule.course.course_code }} — {{ selectedSchedule.course.course_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Section</span>
+                <span class="detail-val">{{ selectedSchedule.section.section_name }}</span>
+              </div>
             </div>
           </div>
-          
-          <div class="form-group mt-4">
-            <label>Select Faculty</label>
-            <select v-model="assignForm.faculty_id">
-              <option value="">Choose Faculty...</option>
-              <option v-for="f in facultyMembers" :key="f.id" :value="f.id">{{ f.first_name }} {{ f.last_name }} ({{ f.department?.dept_name }})</option>
-            </select>
+
+          <div class="modal-notice">
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M8 1v6M8 11v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Assigning a faculty will apply to <strong>all sessions</strong> of this course for this section.</span>
+          </div>
+
+          <div class="profile-section">
+            <h4 class="section-title">Faculty Assignment</h4>
+            <div class="form-group">
+              <label>Select Faculty <span class="req">*</span></label>
+              <select v-model="assignForm.faculty_id">
+                <option value="">Choose Faculty...</option>
+                <option v-for="f in facultyMembers" :key="f.id" :value="f.id">{{ f.first_name }} {{ f.last_name }} ({{ f.department?.dept_name }})</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="ghost-btn" @click="showAssignModal = false">Cancel</button>
+          <button class="ghost-btn" @click="showAssignModal = false" :disabled="assigning">Cancel</button>
           <button class="primary-btn" @click="saveAssignment" :disabled="assigning || !assignForm.faculty_id">
+            <span v-if="assigning" class="spinner-sm"></span>
             {{ assigning ? 'Assigning...' : 'Assign Faculty' }}
           </button>
         </div>
@@ -603,9 +629,6 @@ onMounted(() => {
 .time-text { font-size: 12px; color: #1a0a00; font-weight: 500; white-space: nowrap; }
 .proctor-name { font-weight: 600; color: #1a0a00; font-size: 13px; }
 
-.primary-btn { background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
-.primary-btn:hover { background: #e85500; }
-.primary-btn:disabled { background: #f0e8e0; cursor: not-allowed; }
 .outline-btn { background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .btn-icon { width: 16px; height: 16px; }
 
@@ -617,25 +640,50 @@ onMounted(() => {
 .delete-btn:hover { background: #fee2e2; }
 .delete-btn svg { width: 18px; height: 18px; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(26,10,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.modal { background: #fff; border-radius: 24px; width: 100%; max-width: 600px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
-.modal-header { padding: 20px 24px; border-bottom: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
-.modal-body { padding: 24px; }
-.modal-footer { padding: 16px 24px; background: #faf8f6; display: flex; justify-content: flex-end; gap: 12px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 90vh; }
+.modal-lg { max-width: 600px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #f0e8e0; gap: 12px; }
+.modal-header h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; color: #1a0a00; margin: 0; }
+.modal-sub { font-size: 12px; color: #b89f90; margin-top: 3px; }
+.close-btn { background: none; border: none; font-size: 22px; color: #b89f90; cursor: pointer; padding: 0; line-height: 1; }
+.modal-body { padding: 24px; overflow-y: auto; }
+.profile-body { display: flex; flex-direction: column; gap: 24px; }
+.profile-section { display: flex; flex-direction: column; gap: 12px; }
+.section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid #f0e8e0; background: #faf8f6; }
+.modal-notice { display: flex; align-items: flex-start; gap: 8px; background: #fff5ef; border: 1px solid #ffd5b0; border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #c94000; }
+.modal-notice svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+.ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; }
+.primary-btn { background: #FF6B1A; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-family: 'Outfit', sans-serif; }
+.primary-btn:hover { background: #e85500; }
+.primary-btn:disabled { background: #f0e8e0; color: #b89f90; cursor: not-allowed; }
+
+/* ── View modal detail rows ── */
+.detail-rows { display: flex; flex-direction: column; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid #f0e8e0; gap: 12px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { font-size: 11px; color: #9a8070; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.detail-val { font-size: 13px; font-weight: 600; color: #1a0a00; text-align: right; }
 
 .selected-schedule-info { padding: 16px; background: #fffaf8; border: 1px solid #f0e8e0; border-radius: 16px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
 .bulk-alert { display: flex; gap: 8px; align-items: center; background: #e0f2fe; color: #0369a1; padding: 8px 12px; border-radius: 10px; margin-top: 4px; font-size: 12px; }
 .info-icon { width: 16px; height: 16px; flex-shrink: 0; }
 .mt-4 { margin-top: 24px; }
 
-.form-grid { display: grid; gap: 16px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-group label { font-size: 12px; font-weight: 600; color: #1a0a00; }
-.form-group select, .form-group input { padding: 10px 14px; border: 1.5px solid #f0e8e0; border-radius: 12px; outline: none; background: #fff; }
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group label { font-size: 11px; font-weight: 700; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+.req { color: #ef4444; }
+.form-group input,
+.form-group select { padding: 11px 14px; border: 1.5px solid #f0e8e0; border-radius: 11px; font-size: 13px; outline: none; font-family: 'Outfit', sans-serif; background: #faf8f6; color: #1a0a00; transition: all 0.2s; width: 100%; }
+.form-group input:focus,
+.form-group select:focus { border-color: #FF6B1A; background: #fff; box-shadow: 0 0 0 3px rgba(255,107,26,0.07); }
 .form-hint { font-size: 11px; color: #ef4444; margin-top: 4px; }
 
 .loading-state { padding: 60px; text-align: center; color: #b89f90; }
 .spinner { width: 24px; height: 24px; border: 3px solid #f0e8e0; border-top-color: #ff6b1a; border-radius: 50%; animation: spin 0.8s linear infinite; display: block; margin: 0 auto 12px; }
+.spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
