@@ -248,10 +248,9 @@
       <!-- Topbar -->
       <header class="topbar">
         <div class="topbar-left">
-          <div class="page-title-block">
-            <div class="page-breadcrumb">College of Computing Studies</div>
-            <h1 class="page-title">{{ route.meta.title || 'Dashboard' }}</h1>
-          </div>
+            <div class="page-title-block">
+              <div class="page-breadcrumb">College of <span class="breadcrumb-orange">Computing Studies</span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{ portalLabel }}</div>
+            </div>
         </div>
         <div class="topbar-right">
           <button class="icon-btn">
@@ -303,6 +302,17 @@ const userRoleDisplay = computed(() => {
   if (role === 'secretary') return 'Department Secretary'
   if (role === 'department_chair') return 'Department Chair'
   return role.charAt(0).toUpperCase() + role.slice(1)
+})
+
+const portalLabel = computed(() => {
+  if (!authStore.user) return 'Portal'
+  const role = authStore.user.role
+  if (role === 'dean') return 'Dean Portal'
+  if (role === 'faculty') return 'Faculty Portal'
+  if (role === 'student') return 'Student Portal'
+  if (role === 'secretary') return 'Secretary Portal'
+  if (role === 'department_chair') return 'Chair Portal'
+  return 'Portal'
 })
 
 const handleLogout = () => {
@@ -378,7 +388,10 @@ const handleLogout = () => {
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 28px; height: 64px; background: #fff; border-bottom: 1px solid #f0e8e0; flex-shrink: 0; }
-.page-breadcrumb { font-size: 11px; color: #b89f90; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
+.page-breadcrumb { font-size: 15px; color: #1a0a00; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
+.breadcrumb-orange { color: #FF6B1A; }
+.page-breadcrumb::before { display: none; }
+.page-breadcrumb::after { display: none; }
 .page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; margin-top: 1px; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #faf8f6; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.15s; }

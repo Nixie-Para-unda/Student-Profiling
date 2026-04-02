@@ -1,5 +1,10 @@
 <template>
   <div class="page">
+    <div class="breadcrumb">
+      <span class="breadcrumb-category">Academic</span>
+      <span class="breadcrumb-sep">&gt;</span>
+      <span class="breadcrumb-current">Student Profiles</span>
+    </div>
     <div class="page-header">
       <div>
         <h2 class="page-title">Student Management</h2>
@@ -47,9 +52,50 @@
 
     <!-- Stats Row -->
     <div class="mini-stats">
-      <div class="mini-stat" v-for="s in miniStats" :key="s.label">
-        <span class="mini-stat-value" :style="{ color: s.color }">{{ s.value }}</span>
-        <span class="mini-stat-label">{{ s.label }}</span>
+      <div class="mini-stat stat-blue">
+        <div class="mini-stat-icon" style="background: #eff6ff; color: #3b82f6;">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 12a4 4 0 100-8 4 4 0 000 8zM3 18a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value" style="color: #3b82f6;">{{ miniStats[0].value }}</span>
+          <span class="mini-stat-label">Total Students</span>
+        </div>
+      </div>
+      <div class="mini-stat stat-green">
+        <div class="mini-stat-icon" style="background: #f0fdf4; color: #16a34a;">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M16 5L7.75 13.25 4 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value" style="color: #16a34a;">{{ miniStats[1].value }}</span>
+          <span class="mini-stat-label">Active</span>
+        </div>
+      </div>
+      <div class="mini-stat stat-purple">
+        <div class="mini-stat-icon" style="background: #f5f3ff; color: #8b5cf6;">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value" style="color: #8b5cf6;">{{ miniStats[2].value }}</span>
+          <span class="mini-stat-label">Pending Setup</span>
+        </div>
+      </div>
+      <div class="mini-stat stat-orange">
+        <div class="mini-stat-icon" style="background: #fff5ef; color: #FF6B1A;">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 12a4 4 0 100-8 4 4 0 000 8zM3 18a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value" style="color: #FF6B1A;">{{ miniStats[3].value }}</span>
+          <span class="mini-stat-label">BSCS</span>
+        </div>
+      </div>
+      <div class="mini-stat stat-green">
+        <div class="mini-stat-icon" style="background: #f0fdf4; color: #16a34a;">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 12a4 4 0 100-8 4 4 0 000 8zM3 18a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value" style="color: #16a34a;">{{ miniStats[4].value }}</span>
+          <span class="mini-stat-label">BSIT</span>
+        </div>
       </div>
     </div>
 
@@ -102,7 +148,7 @@
             <tr>
               <th>STUDENT</th>
               <th>STUDENT NO.</th>
-              <th>COURSE</th>
+              <th>PROGRAM</th>
               <th>YEAR</th>
               <th>GWA</th>
               <th>VIOLATIONS</th>
@@ -121,7 +167,7 @@
                   </div>
                 </div>
               </td>
-              <td><span class="code-badge">{{ student.student_number }}</span></td>
+              <td><span class="code-badge" :class="student.course === 'BSIT' ? 'badge-bsit' : 'badge-bscs'">{{ student.student_number }}</span></td>
               <td>{{ student.course }}</td>
               <td>{{ student.year_level }}{{ getYearSuffix(student.year_level) }} Year · {{ student.section || '—' }}</td>
               <td><span class="gwa-val" :class="student.gwa <= 1.75 ? 'gwa-good' : 'gwa-ok'">{{ student.gwa || 'N/A' }}</span></td>
@@ -712,6 +758,10 @@ const handleCSV = async (e) => {
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
 
 .page { display: flex; flex-direction: column; gap: 20px; font-family: 'Outfit', sans-serif; min-height: 100%; flex: 1; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+.breadcrumb-category { color: #9a8070; }
+.breadcrumb-sep { color: #c0b0a5; font-size: 12px; }
+.breadcrumb-current { color: #FF6B1A; font-weight: 600; }
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; }
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
@@ -747,9 +797,19 @@ const handleCSV = async (e) => {
 
 /* ── Mini Stats ── */
 .mini-stats { display: flex; gap: 14px; }
-.mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; }
-.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+.mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; flex: 1; transition: all 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+.mini-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+.mini-stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.25s; }
+.mini-stat:hover .mini-stat-icon { transform: scale(1.08); }
+.mini-stat-icon svg { width: 20px; height: 20px; }
+.mini-stat-info { display: flex; flex-direction: column; gap: 3px; }
+.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; line-height: 1; }
+.stat-blue::before { background: #3b82f6; }
+.stat-teal::before { background: #0891b2; }
+.stat-purple::before { background: #8b5cf6; }
+.stat-orange::before { background: #FF6B1A; }
+.stat-green::before { background: #16a34a; }
+.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 400; }
 
 /* ── Toolbar ── */
 .table-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -801,6 +861,7 @@ const handleCSV = async (e) => {
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; transition: color 0.15s; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.badge-bsit { color: #16a34a; background: #f0fdf4; }
 .gwa-val { font-weight: 700; font-size: 13px; }
 .gwa-good { color: #16a34a; }
 .gwa-ok { color: #f59e0b; }
