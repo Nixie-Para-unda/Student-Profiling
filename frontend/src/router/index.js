@@ -179,9 +179,11 @@ const routes = [
         component: SecretaryDashboard,
         meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
+      { path: 'secretary/students', name: 'SecretaryStudents', component: StudentManagement, meta: { title: 'Student Accounts', breadcrumb: 'Accounts > Student Accounts' } },
+      { path: 'secretary/faculty', name: 'SecretaryFaculty', component: FacultyManagement, meta: { title: 'Faculty Accounts', breadcrumb: 'Accounts > Faculty Accounts' } },
       { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload', breadcrumb: 'Monitoring > Faculty Workload' } },
       { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification', breadcrumb: 'Management > Achievement Verification' } },
-      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports', breadcrumb: 'Management > Generate Reports' } },
+      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports', breadcrumb: 'Reports > Generate Reports' } },
 
       // ── Chair routes ─────────────────────────────
       {

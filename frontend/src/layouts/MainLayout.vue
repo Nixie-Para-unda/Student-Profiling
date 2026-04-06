@@ -158,11 +158,11 @@
         <template v-if="authStore.isSecretary">
           <div class="nav-section-label" v-show="!sidebarCollapsed">Accounts</div>
           <!-- Secretary Links -->
-          <router-link to="/students" class="nav-item" active-class="active">
+          <router-link to="/secretary/students" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Student Accounts</span>
           </router-link>
-          <router-link to="/faculty" class="nav-item" active-class="active">
+          <router-link to="/secretary/faculty" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Accounts</span>
           </router-link>
@@ -177,6 +177,7 @@
             <span v-show="!sidebarCollapsed">Achievement Verification</span>
             <span class="nav-badge warning" v-show="!sidebarCollapsed">8</span>
           </router-link>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Reports</div>
           <router-link to="/secretary/reports" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Generate Reports</span>
@@ -237,12 +238,12 @@
         </div>
         <div class="topbar-right">
           <div class="date-chip">
-            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 7h12M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            March 10, 2026
+            <svg viewBox="0 0 18 18" fill="none"><rect x="2.5" y="3.5" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 8h13M6 2v4M12 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="date-text">{{ currentDate }}</span>
           </div>
           <div class="topbar-separator"></div>
-          <button class="icon-btn">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6v2.5l-1.5 2.5h15L16 10.5V8a6 6 0 00-6-6zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <button class="icon-btn notification-btn">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="notif-dot"></span>
           </button>
           <div class="topbar-separator"></div>
@@ -291,6 +292,11 @@ const { getDashboardRoute } = useAuthRedirect()
 const sidebarCollapsed = ref(false)
 const showUserMenu = ref(false)
 
+const currentDate = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+})
+
 onMounted(() => {
   if (authStore.isAuthenticated) {
     authStore.fetchUser()
@@ -305,7 +311,7 @@ const userRoleDisplay = computed(() => {
   if (role === 'dean') return 'Dean · Head of Dept'
   if (role === 'faculty') return 'Faculty Member'
   if (role === 'student') return 'Student'
-  if (role === 'secretary') return 'Department Secretary'
+  if (role === 'secretary') return 'Admin'
   if (role === 'department_chair') return 'Department Chair'
   return role.charAt(0).toUpperCase() + role.slice(1)
 })
@@ -316,7 +322,7 @@ const portalLabel = computed(() => {
   if (role === 'dean') return 'Dean Portal'
   if (role === 'faculty') return 'Faculty Portal'
   if (role === 'student') return 'Student Portal'
-  if (role === 'secretary') return 'Secretary Portal'
+  if (role === 'secretary') return 'Admin Portal'
   if (role === 'department_chair') return 'Chair Portal'
   return 'Portal'
 })
@@ -432,9 +438,11 @@ const goToSettings = () => {
 .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #faf8f6; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.15s; }
 .icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
 .icon-btn svg { width: 17px; height: 17px; }
+.notification-btn svg { width: 20px; height: 20px; }
 .notif-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; background: #FF6B1A; border-radius: 50%; border: 1.5px solid #fff; }
-.date-chip { display: flex; align-items: center; gap: 6px; background: #fff5ef; border: 1.5px solid #ffd5b0; color: #c94000; font-size: 12px; font-weight: 500; padding: 7px 12px; border-radius: 10px; }
-.date-chip svg { width: 14px; height: 14px; }
+.date-chip { display: flex; align-items: center; gap: 8px; background: #faf8f6; border: 1px solid #e8ddd6; color: #5c4a40; font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 8px; }
+.date-chip svg { width: 16px; height: 16px; color: #9a8070; }
+.date-text { font-family: 'DM Sans', sans-serif; }
 .topbar-user-avatar { width: 36px; height: 36px; background: #FF6B1A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
 .topbar-user-avatar:hover { transform: scale(1.05); box-shadow: 0 0 0 3px rgba(255,107,26,0.2); }
 .user-dropdown { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: #fff; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
