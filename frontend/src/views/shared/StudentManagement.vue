@@ -7,41 +7,17 @@
       </div>
 
       <!-- DESIGN FIX: Import & Create only visible to secretary role -->
-      <div class="header-actions" v-if="userRole === 'secretary'">
-        <button class="ghost-btn" @click="showImport = !showImport">
-          <svg viewBox="0 0 18 18" fill="none"><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1M9 2v9M6 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Import CSV
+      <div class="header-actions" v-if="isSecretary">
+        <button class="ghost-btn" @click="$refs.csvInput.click()" :disabled="loadingImport">
+          <svg v-if="loadingImport" class="spinner-sm" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle></svg>
+          <svg v-else viewBox="0 0 18 18" fill="none"><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1M9 2v9M6 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ loadingImport ? 'Importing...' : 'Import CSV' }}
         </button>
+        <input ref="csvInput" type="file" accept=".csv" style="display:none" @change="handleCSV" />
         <button class="primary-btn" @click="openCreateModal">
           <svg viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           Create Account
         </button>
-      </div>
-    </div>
-
-    <!-- Import CSV Panel (Secretary Only) -->
-    <div v-if="isSecretary && showImport" class="import-panel">
-      <div class="import-panel-header">
-        <div>
-          <h3>Import Students via CSV</h3>
-          <p>Upload a CSV file with student data to create multiple accounts at once.</p>
-        </div>
-        <button class="close-btn" @click="showImport = false">×</button>
-      </div>
-      <div class="import-body">
-        <div class="drop-zone" :class="{ disabled: loadingImport }" @click="!loadingImport && $refs.csvInput.click()">
-          <div v-if="loadingImport" class="spinner-lg"></div>
-          <template v-else>
-            <svg viewBox="0 0 48 48" fill="none"><path d="M24 8v24M14 18l10-10 10 10M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <p class="drop-title">Click to upload or drag and drop</p>
-            <p class="drop-sub">CSV files only · Max 5MB</p>
-          </template>
-          <input ref="csvInput" type="file" accept=".csv" style="display:none" @change="handleCSV" />
-        </div>
-        <div class="import-template">
-          <svg viewBox="0 0 18 18" fill="none"><path d="M4 2h7l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.4"/><path d="M11 2v4h4" stroke="currentColor" stroke-width="1.4"/></svg>
-          <span>Required columns: <strong>first_name, last_name, email, student_number, course, year_level, section</strong></span>
-        </div>
       </div>
     </div>
 
