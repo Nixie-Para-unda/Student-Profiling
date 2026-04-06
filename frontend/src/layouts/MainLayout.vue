@@ -18,17 +18,8 @@
         </button>
       </div>
 
-      <!-- User -->
-      <div class="sidebar-user" v-show="!sidebarCollapsed">
-        <div class="user-avatar">{{ authStore.user?.name?.charAt(0) ?? 'U' }}</div>
-        <div class="user-info">
-          <p class="user-name">{{ authStore.user?.name ?? 'User' }}</p>
-          <p class="user-role">{{ userRoleDisplay }}</p>
-        </div>
-      </div>
-      <div class="user-avatar-sm" v-show="sidebarCollapsed" @click="sidebarCollapsed = false" title="Expand Sidebar">
-        {{ authStore.user?.name?.charAt(0) ?? 'U' }}
-      </div>
+      <!-- Sidebar Separator -->
+      <div class="sidebar-brand-separator" v-show="!sidebarCollapsed"></div>
 
       <!-- Nav -->
       <nav class="sidebar-nav">
@@ -55,14 +46,6 @@
             <span v-show="!sidebarCollapsed">Courses</span>
           </router-link>
           <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
-          <router-link to="/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Profiles</span>
-          </router-link>
-          <router-link to="/faculty" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Members</span>
-          </router-link>
           <router-link to="/academic-performance" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span v-show="!sidebarCollapsed">Academic Performance</span>
@@ -72,19 +55,26 @@
             <span v-show="!sidebarCollapsed">Violations</span>
           </router-link>
 
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Accounts</div>
+          <router-link to="/students" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Student Accounts</span>
+          </router-link>
+          <router-link to="/faculty" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Faculty Accounts</span>
+          </router-link>
+
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Monitoring</div>
+          <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
+            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span v-show="!sidebarCollapsed">Faculty Workload</span>
+          </router-link>
+
           <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
           <router-link to="/dean/archive" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h12M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Archive Management</span>
-          </router-link>
-          <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Schedule</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
-          <router-link to="/settings" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed"> Settings</span>
           </router-link>
         </template>
 
@@ -234,14 +224,6 @@
         </template>
 
       </nav>
-
-      <!-- Logout -->
-      <div class="sidebar-footer">
-        <button class="logout-btn" @click="handleLogout">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M13 10H3m0 0l3-3m-3 3l3 3M8 5V4a2 2 0 012-2h5a2 2 0 012 2v12a2 2 0 01-2 2h-5a2 2 0 01-2-2v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span v-show="!sidebarCollapsed">Sign Out</span>
-        </button>
-      </div>
     </aside>
 
     <!-- Main area -->
@@ -250,17 +232,34 @@
       <header class="topbar">
         <div class="topbar-left">
             <div class="page-title-block">
-              <div class="page-breadcrumb">College of <span class="breadcrumb-orange">Computing Studies</span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{ portalLabel }}</div>
+              <div class="page-breadcrumb">College of <span class="breadcrumb-orange">Computing Studies</span><span class="breadcrumb-sep">|</span>{{ portalLabel }}</div>
             </div>
         </div>
         <div class="topbar-right">
+          <div class="date-chip">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 7h12M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            March 10, 2026
+          </div>
+          <div class="topbar-separator"></div>
           <button class="icon-btn">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6v2.5l-1.5 2.5h15L16 10.5V8a6 6 0 00-6-6zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span class="notif-dot"></span>
           </button>
-          <div class="date-chip">
-            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 7h12M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            March 10, 2026
+          <div class="topbar-separator"></div>
+          <div class="user-dropdown" @click="showUserMenu = !showUserMenu">
+            <div class="topbar-user-avatar">{{ userInitials }}</div>
+            <span class="user-full-name">{{ authStore.user?.name ?? 'User' }}</span>
+            <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div v-if="showUserMenu" class="user-menu">
+            <button class="user-menu-item" @click="goToSettings">
+              <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Account Settings</span>
+            </button>
+            <button class="user-menu-item" @click="handleLogout">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M13 10H3m0 0l3-3m-3 3l3 3M8 5V4a2 2 0 012-2h5a2 2 0 012 2v12a2 2 0 01-2 2h-5a2 2 0 01-2-2v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </header>
@@ -290,6 +289,7 @@ const router = useRouter()
 const route = useRoute()
 const { getDashboardRoute } = useAuthRedirect()
 const sidebarCollapsed = ref(false)
+const showUserMenu = ref(false)
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
@@ -321,6 +321,15 @@ const portalLabel = computed(() => {
   return 'Portal'
 })
 
+const userInitials = computed(() => {
+  if (!authStore.user?.name) return 'U'
+  const names = authStore.user.name.trim().split(' ')
+  if (names.length >= 2) {
+    return names[0].charAt(0) + names[names.length - 1].charAt(0)
+  }
+  return names[0].charAt(0)
+})
+
 const handleLogout = () => {
   const isStudent = authStore.isStudent
   authStore.logout()
@@ -329,6 +338,11 @@ const handleLogout = () => {
   } else {
     router.push('/login')
   }
+}
+
+const goToSettings = () => {
+  router.push('/settings')
+  showUserMenu.value = false
 }
 </script>
 
@@ -347,7 +361,7 @@ const handleLogout = () => {
 .collapse-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
 .collapse-btn svg { width: 16px; height: 16px; display: block; }
 
-.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; overflow: hidden; transition: all 0.2s; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 20px 16px 18px; flex-shrink: 0; overflow: hidden; transition: all 0.2s; }
 .sidebar.collapsed .sidebar-brand { padding: 20px 0; justify-content: center; cursor: pointer; }
 .sidebar.collapsed .sidebar-brand:hover { background: rgba(255,255,255,0.04); }
 .brand-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
@@ -355,6 +369,8 @@ const handleLogout = () => {
 .brand-text { flex: 1; min-width: 0; }
 .brand-name { display: block; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; }
 .brand-sub { display: block; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; white-space: nowrap; }
+
+.sidebar-brand-separator { height: 1px; background: rgba(255,255,255,0.08); margin: 0 16px; }
 
 .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 14px 16px; margin: 12px 12px 0; background: rgba(255,107,26,0.1); border-radius: 12px; border: 1px solid rgba(255,107,26,0.15); overflow: hidden; }
 .user-avatar { width: 36px; height: 36px; background: #FF6B1A; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff; flex-shrink: 0; }
@@ -366,7 +382,15 @@ const handleLogout = () => {
 
 .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
 .sidebar-nav::-webkit-scrollbar { width: 0; }
-.nav-section-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 1.2px; padding: 10px 8px 4px; white-space: nowrap; }
+.nav-section-label { 
+  font-size: 9px; 
+  font-weight: 700; 
+  color: rgba(255,255,255,0.25); 
+  text-transform: uppercase; 
+  letter-spacing: 1.5px; 
+  padding: 14px 8px 8px; 
+  white-space: nowrap; 
+}
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: all 0.15s; cursor: pointer; white-space: nowrap; position: relative; }
 .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
 .nav-item.active { background: rgba(255,107,26,0.12); color: #FF6B1A; font-weight: 500; }
@@ -385,7 +409,7 @@ const handleLogout = () => {
 .nav-badge.danger { background: rgba(239,68,68,0.15); color: #f87171; }
 .nav-badge.warning { background: rgba(255,107,26,0.15); color: #FF6B1A; }
 
-.sidebar-footer { padding: 14px 12px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; overflow: hidden; }
+.sidebar-footer { padding: 14px 12px; flex-shrink: 0; overflow: hidden; }
 .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 10px; border: none; background: none; color: rgba(255,255,255,0.35); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
 .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
 .logout-btn svg { width: 17px; height: 17px; flex-shrink: 0; }
@@ -393,9 +417,10 @@ const handleLogout = () => {
 /* ── MAIN ── */
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 28px; height: 64px; background: #fff; border-bottom: 1px solid #f0e8e0; flex-shrink: 0; }
-.page-breadcrumb { font-size: 15px; color: #1a0a00; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 28px; height: 64px; background: #fff; flex-shrink: 0; }
+.page-breadcrumb { font-size: 15px; color: #1a0a00; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; gap: 8px; }
 .breadcrumb-orange { color: #FF6B1A; }
+.breadcrumb-sep { color: #e8ddd6; font-weight: 400; }
 .page-breadcrumb::before { display: none; }
 .page-breadcrumb::after { display: none; }
 .page-breadcrumb-trail { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
@@ -403,13 +428,26 @@ const handleLogout = () => {
 .breadcrumb-sep { color: #c0b0a5; font-size: 12px; }
 .breadcrumb-current { color: #FF6B1A; font-weight: 600; }
 .page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; margin-top: 1px; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; position: relative; }
 .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #faf8f6; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.15s; }
 .icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
 .icon-btn svg { width: 17px; height: 17px; }
 .notif-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; background: #FF6B1A; border-radius: 50%; border: 1.5px solid #fff; }
 .date-chip { display: flex; align-items: center; gap: 6px; background: #fff5ef; border: 1.5px solid #ffd5b0; color: #c94000; font-size: 12px; font-weight: 500; padding: 7px 12px; border-radius: 10px; }
 .date-chip svg { width: 14px; height: 14px; }
+.topbar-user-avatar { width: 36px; height: 36px; background: #FF6B1A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+.topbar-user-avatar:hover { transform: scale(1.05); box-shadow: 0 0 0 3px rgba(255,107,26,0.2); }
+.user-dropdown { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: #fff; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
+.user-dropdown:hover { background: #faf8f6; }
+.user-full-name { font-size: 13px; font-weight: 600; color: #1a0a00; white-space: nowrap; }
+.dropdown-arrow { width: 16px; height: 16px; color: #9a8070; }
+.topbar-separator { width: 1px; height: 24px; background: #e8ddd6; margin: 0 4px; }
+.user-menu { position: absolute; top: 56px; right: 28px; background: #fff; border: 1px solid #f0e8e0; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); padding: 8px; z-index: 100; min-width: 200px; }
+.user-menu-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border: none; background: none; border-radius: 12px; font-size: 14px; font-weight: 500; color: #1a0a00; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.user-menu-item:hover { background: #faf8f6; }
+.user-menu-item:last-child { color: #dc2626; }
+.user-menu-item:last-child:hover { background: #fff1f2; }
+.user-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; stroke-width: 1.5; }
 
 .content { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
 .content::-webkit-scrollbar { width: 5px; }

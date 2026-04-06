@@ -101,13 +101,13 @@ const routes = [
         path: 'students',
         name: 'StudentManagement',
         component: StudentManagement,
-        meta: { title: 'Student Accounts', breadcrumb: 'Accounts > Student Accounts' }
+        meta: { title: 'Student Accounts', breadcrumb: 'Academic > Student Accounts' }
       },
       {
         path: 'faculty',
         name: 'FacultyManagement',
         component: FacultyManagement,
-        meta: { title: 'Faculty Accounts', breadcrumb: 'Accounts > Faculty Accounts' }
+        meta: { title: 'Faculty Accounts', breadcrumb: 'Academic > Faculty Accounts' }
       },
       {
         path: 'academic-performance',
