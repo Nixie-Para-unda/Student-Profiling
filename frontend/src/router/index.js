@@ -101,13 +101,13 @@ const routes = [
         path: 'students',
         name: 'StudentManagement',
         component: StudentManagement,
-        meta: { title: 'Student Profiles', breadcrumb: 'Academic > Student Profiles' }
+        meta: { title: 'Student Accounts', breadcrumb: 'Accounts > Student Accounts' }
       },
       {
         path: 'faculty',
         name: 'FacultyManagement',
         component: FacultyManagement,
-        meta: { title: 'Faculty Profiles', breadcrumb: 'Academic > Faculty Profiles' }
+        meta: { title: 'Faculty Accounts', breadcrumb: 'Accounts > Faculty Accounts' }
       },
       {
         path: 'academic-performance',
@@ -179,9 +179,9 @@ const routes = [
         component: SecretaryDashboard,
         meta: { title: 'Dashboard', breadcrumb: 'Overview > Dashboard' }
       },
-      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload', breadcrumb: 'Management > Faculty Workload' } },
+      { path: 'secretary/faculty-schedule', name: 'SecretaryFacultySchedule', component: SecretaryFacultyWorkload, meta: { title: 'Faculty Workload', breadcrumb: 'Monitoring > Faculty Workload' } },
       { path: 'secretary/achievements', name: 'SecretaryAchievements', component: SecretaryAchievements, meta: { title: 'Achievement Verification', breadcrumb: 'Management > Achievement Verification' } },
-      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports', breadcrumb: 'Reports > Generate Reports' } },
+      { path: 'secretary/reports', name: 'SecretaryReports', component: SecretaryReports, meta: { title: 'Generate Reports', breadcrumb: 'Management > Generate Reports' } },
 
       // ── Chair routes ─────────────────────────────
       {

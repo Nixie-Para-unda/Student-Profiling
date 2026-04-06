@@ -81,9 +81,10 @@
             <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Faculty Schedule</span>
           </router-link>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Settings</span>
+            <span v-show="!sidebarCollapsed"> Settings</span>
           </router-link>
         </template>
 
@@ -111,14 +112,14 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span v-show="!sidebarCollapsed">Recommend Awards</span>
           </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account</div>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
           <router-link to="/faculty/profile" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">My Profile</span>
           </router-link>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Settings</span>
+            <span v-show="!sidebarCollapsed">Account Settings</span>
           </router-link>
         </template>
 
@@ -156,10 +157,10 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Generate Reports</span>
           </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account</div>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Settings</span>
+            <span v-show="!sidebarCollapsed">Account Settings</span>
           </router-link>
         </template>
 
@@ -190,10 +191,10 @@
             <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span v-show="!sidebarCollapsed">Generate Reports</span>
           </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account</div>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Settings</div>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Settings</span>
+            <span v-show="!sidebarCollapsed">Account Settings</span>
           </router-link>
         </template>
 
@@ -225,10 +226,10 @@
             <span v-show="!sidebarCollapsed">My Schedule</span>
           </router-link>
 
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account</div>
+          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
           <router-link to="/settings" class="nav-item" active-class="active">
             <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Settings</span>
+            <span v-show="!sidebarCollapsed">Account Settings</span>
           </router-link>
         </template>
 
