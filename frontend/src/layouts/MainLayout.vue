@@ -238,13 +238,12 @@
         </div>
         <div class="topbar-right">
           <div class="date-chip">
-            <svg viewBox="0 0 18 18" fill="none"><rect x="2.5" y="3.5" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 8h13M6 2v4M12 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 20 20" fill="none"><path d="M17.5 3.5h-2V2M6.5 3.5h-2V2M3.75 8.5h12.5M3.5 4.5h13c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2h-13c-1.1 0-2-.9-2-2v-11c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="date-text">{{ currentDate }}</span>
           </div>
           <div class="topbar-separator"></div>
-          <button class="icon-btn notification-btn">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 106 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="notif-dot"></span>
+          <button class="icon-btn notification-btn" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.46 5.36 5.82 7.93 5.82 11v5l-2 2v1h16.36v-1l-2-2z" fill="currentColor"/><circle cx="19" cy="17" r="2.5" fill="#FF6B1A"/></svg>
           </button>
           <div class="topbar-separator"></div>
           <div class="user-dropdown" @click="showUserMenu = !showUserMenu">
@@ -435,14 +434,15 @@ const goToSettings = () => {
 .breadcrumb-current { color: #FF6B1A; font-weight: 600; }
 .page-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #1a0a00; margin-top: 1px; }
 .topbar-right { display: flex; align-items: center; gap: 12px; position: relative; }
-.icon-btn { position: relative; width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #faf8f6; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.15s; }
-.icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fff5ef; }
-.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn { position: relative; width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e8ddd6; background: #fff; display: flex; align-items: center; justify-content: center; color: #6b5b52; cursor: pointer; transition: all 0.2s ease; }
+.icon-btn:hover { border-color: #FF6B1A; color: #FF6B1A; background: #fffaf7; box-shadow: 0 2px 8px rgba(255, 107, 26, 0.1); }
+.icon-btn svg { width: 18px; height: 18px; }
 .notification-btn svg { width: 20px; height: 20px; }
-.notif-dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; background: #FF6B1A; border-radius: 50%; border: 1.5px solid #fff; }
-.date-chip { display: flex; align-items: center; gap: 8px; background: #faf8f6; border: 1px solid #e8ddd6; color: #5c4a40; font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 8px; }
-.date-chip svg { width: 16px; height: 16px; color: #9a8070; }
-.date-text { font-family: 'DM Sans', sans-serif; }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #FF6B1A; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(255, 107, 26, 0.3); }
+.date-chip { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #fffaf7 0%, #faf8f6 100%); border: 1px solid #e8ddd6; color: #5c4a40; font-size: 13px; font-weight: 500; padding: 9px 16px; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(26, 10, 0, 0.05); }
+.date-chip:hover { border-color: #d5c8be; background: linear-gradient(135deg, #fff5ef 0%, #faf8f6 100%); }
+.date-chip svg { width: 17px; height: 17px; color: #9a8070; }
+.date-text { font-family: 'DM Sans', sans-serif; letter-spacing: 0.3px; }
 .topbar-user-avatar { width: 36px; height: 36px; background: #FF6B1A; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #fff; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
 .topbar-user-avatar:hover { transform: scale(1.05); box-shadow: 0 0 0 3px rgba(255,107,26,0.2); }
 .user-dropdown { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; background: #fff; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
