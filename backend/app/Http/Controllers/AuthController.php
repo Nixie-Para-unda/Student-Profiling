@@ -19,9 +19,18 @@ class AuthController extends Controller
             'role' => 'nullable|string|in:student,faculty,dean,department_chair,secretary,faculty_portal',
         ]);
 
-        $user = User::where('email', $request->email)
-            ->orWhere('student_number', $request->email)
-            ->first();
+        $query = User::query();
+
+        if ($request->role === 'student') {
+            $query->where('student_number', $request->email);
+        } else {
+            $query->where(function($q) use ($request) {
+                $q->where('email', $request->email)
+                  ->orWhere('student_number', $request->email);
+            });
+        }
+
+        $user = $query->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);

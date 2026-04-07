@@ -165,6 +165,11 @@ const idFocused = ref(false)
 const passwordFocused = ref(false)
 
 const handleLogin = async () => {
+  if (studentId.value.includes('@')) {
+    error.value = 'Invalid credentials'
+    return
+  }
+
   loading.value = true
   error.value = ''
 
@@ -172,7 +177,7 @@ const handleLogin = async () => {
     await authStore.login(studentId.value, password.value, 'student')
     redirect();
   } catch (err) {
-    error.value = err.response?.data?.message || 'Invalid student number or password'
+    error.value = err.response?.data?.message || 'Invalid credentials'
   } finally {
     loading.value = false
   }
