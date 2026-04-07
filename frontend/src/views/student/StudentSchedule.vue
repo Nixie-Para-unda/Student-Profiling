@@ -1,356 +1,419 @@
 <template>
-  <div class="schedule-container">
-    <aside class="sidebar"></aside>
-
-    <main class="main-content">
-      <header class="header"></header>
-
-      <div class="content-area">
-        <div class="calendar-section">
-          <div class="calendar-header">
-            <div class="calendar-header-left">
-              <h2>Schedule</h2>
-              <div class="date-nav">
-                <button class="nav-arrow" @click="prevWeek">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                </button>
-                <span class="current-date">{{ formattedDateRange }}</span>
-                <button class="nav-arrow" @click="nextWeek">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </button>
-              </div>
+  <div class="wrap">
+    <!-- Main Calendar -->
+    <div class="main">
+      <!-- Calendar Grid -->
+      <div class="cal-area">
+        <div class="cal-inner">
+          <!-- Day Headers -->
+          <div class="day-headers">
+            <div class="time-spacer"></div>
+            <div
+              v-for="(day, i) in DAYS"
+              :key="day"
+              class="dh"
+              :class="{ today: isToday(i) }"
+            >
+              <span class="dh-name">{{ day.slice(0, 3) }}</span>
+              <span class="dh-num">{{ weekDates[i] }}</span>
             </div>
           </div>
 
-          <div class="calendar-grid-wrapper">
-            <div class="calendar-grid">
-              <div class="day-headers">
-                <div class="time-col-header"></div>
-                <div 
-                  v-for="(day, idx) in days" 
-                  :key="day" 
-                  class="day-header"
-                  :class="{ 'is-today': isToday(idx) }"
-                >
-                  <span class="day-name">{{ day.substring(0, 3) }}</span>
-                  <span class="day-date">{{ dayDates[idx] }}</span>
-                </div>
+          <!-- Time Grid -->
+          <div class="time-grid">
+            <div class="time-col">
+              <div v-for="t in TIMES" :key="t" class="t-label">{{ t }}</div>
+            </div>
+            <div class="grid-cols" ref="gridRef">
+              <!-- Background cells -->
+              <div v-for="(day, di) in DAYS" :key="'col-' + di" class="g-col">
+                <div v-for="t in TIMES" :key="t" class="g-cell"></div>
               </div>
 
-              <div class="time-grid">
-                <div class="time-labels">
-                  <div v-for="time in timeSlots" :key="time" class="time-label">
-                    {{ time }}
-                  </div>
-                </div>
-
-                <div class="grid-columns">
-                  <div v-for="time in timeSlots" :key="'line-'+time" class="grid-line" :style="{ top: getLineTop(time) }"></div>
-                  
-                  <div v-for="(day, dayIdx) in days" :key="day" class="grid-column">
-                    <div v-for="(time, timeIdx) in timeSlots" :key="timeIdx" class="grid-cell"></div>
-                  </div>
-
-                  <div 
-                    v-for="item in schedule" 
-                    :key="item.id" 
-                    class="schedule-item"
-                    :class="{ 'item-active': selectedId === item.id }"
-                    :style="getItemStyle(item)"
-                    @click="handleSelect(item.id)"
-                  >
-                    <div class="item-accent" :style="{ backgroundColor: getDarkerColor(item.color) }"></div>
-                    <div class="item-content">
-                      <span class="item-name">{{ item.name }}</span>
-                      <span class="item-info">{{ item.code }} • {{ item.room }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="right-panel">
-          <div class="mini-calendar">
-            <div class="mini-calendar-header">
-              <h3>August 2020</h3>
-              <div class="mini-nav">
-                <button class="mini-nav-btn" @click="miniNavClick"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-                <button class="mini-nav-btn" @click="miniNavClick"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
-              </div>
-            </div>
-            <div class="mini-calendar-days">
-              <span v-for="day in miniDays" :key="day">{{ day[0] }}</span>
-            </div>
-            <div class="mini-calendar-grid">
-              <span 
-                v-for="(date, idx) in monthDates" 
-                :key="idx" 
-                :class="{ 
-                  'empty': date === null, 
-                  'current': date === miniSelectedDate,
-                  'has-event': date && [12, 13, 14, 15, 16, 17, 18].includes(date)
-                }"
-                @click="date && (miniSelectedDate = date)"
+              <!-- Event blocks -->
+              <div
+                v-for="ev in events"
+                :key="ev.id"
+                class="evt"
+                :style="getEventStyle(ev)"
+                @click="selectedId = selectedId === ev.id ? null : ev.id"
               >
-                {{ date }}
-              </span>
-            </div>
-          </div>
-
-          <div class="class-list">
-            <div class="class-list-header">
-              <h3>Today's Classes</h3>
-              <a href="#" class="view-all" @click.prevent="alertAction('View All Classes')">View all</a>
-            </div>
-            <div class="class-cards">
-              <div 
-                v-for="item in todayClasses" 
-                :key="item.id" 
-                class="class-card clickable-card"
-                :class="{ 'card-active': selectedId === item.id }"
-                @click="handleSelect(item.id)"
-              >
-                <div class="card-indicator" :style="{ backgroundColor: item.color }"></div>
-                <div class="class-card-details">
-                  <h4>{{ item.name }}</h4>
-                  <p>{{ item.startTime }} - {{ item.endTime }}</p>
-                </div>
-                <div class="card-action">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </div>
+                <div class="evt-name">{{ ev.name }}</div>
+                <div class="evt-time">{{ ev.start }} - {{ ev.end }}</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right">
+      <!-- Mini Calendar -->
+      <div class="mini-cal">
+        <div class="mini-hdr">
+          <h3>August 2020</h3>
+          <div class="mini-nav">
+            <button>&#8249;</button>
+            <button>&#8250;</button>
+          </div>
+        </div>
+        <div class="mini-days">
+          <span v-for="d in ['M','T','W','T','F','S','S']" :key="d + Math.random()">{{ d }}</span>
+        </div>
+        <div class="mini-grid">
+          <span
+            v-for="(d, i) in MONTH_DATES"
+            :key="i"
+            :class="{
+              empty: d === null,
+              cur: d === currentHighlight,
+              hi: d !== null && weekDates.includes(d) && d !== currentHighlight
+            }"
+            @click="d && (miniSelected = d)"
+          >{{ d }}</span>
+        </div>
+      </div>
+
+      <!-- Class List -->
+      <div class="class-list">
+        <div class="cl-hdr">
+          <h3>Class list</h3>
+          <a href="#" @click.prevent>View all</a>
+        </div>
+        <div class="cl-sub">Today, Aug 14</div>
+        <div
+          v-for="ev in todayEvents"
+          :key="'card-' + ev.id"
+          class="cl-card"
+          :style="{ background: ev.bg }"
+          :class="{ 'card-active': selectedId === ev.id }"
+          @click="selectedId = selectedId === ev.id ? null : ev.id"
+        >
+          <div class="cl-card-inner">
+            <div class="cl-dot" :style="{ background: ev.fg, opacity: 0.6 }"></div>
+            <div class="cl-info">
+              <h4 :style="{ color: ev.fg }">{{ ev.name }}</h4>
+              <p :style="{ color: ev.fg }">{{ ev.start }} - {{ ev.end }}</p>
+            </div>
+          </div>
+          <div class="cl-arr" :style="{ color: ev.fg, opacity: 0.5 }">&#8250;</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 
-// Interactive State
-const selectedId = ref(null)
-const miniSelectedDate = ref(14)
-const dayDates = ref([12, 13, 14, 15, 16, 17, 18])
+// ─── Constants ────────────────────────────────────────────────────────────────
+const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+const TIMES = ['7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM']
+const CELL_H   = 72   // px per hour
+const START_HR  = 7   // grid starts at 7 AM
+const TODAY_COL = 2   // Wednesday = index 2
 
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const timeSlots = ['7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM']
-const miniDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-const monthDates = [
+const MONTH_DATES = [
   null, null, null, null, null, 1, 2,
   3, 4, 5, 6, 7, 8, 9,
   10, 11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23,
   24, 25, 26, 27, 28, 29, 30,
-  31, null, null, null, null, null, null
+  31, null, null, null, null, null, null,
 ]
 
-const schedule = ref([
-  { id: '1', name: 'IT Elective', code: 'IT 401', room: 'Room 301', day: 'Monday', startTime: '7:30 AM', endTime: '9:00 AM', color: '#FFF3E0' },
-  { id: '2', name: 'IT Elective', code: 'IT 402', room: 'Room 302', day: 'Tuesday', startTime: '8:30 AM', endTime: '10:00 AM', color: '#E8F5E9' },
-  { id: '3', name: 'IT Elective', code: 'IT 403', room: 'Room 303', day: 'Wednesday', startTime: '7:00 AM', endTime: '10:00 AM', color: '#E1F5FE' },
-  { id: '4', name: 'Graphic Design', code: 'GD 201', room: 'Lab 2', day: 'Wednesday', startTime: '10:30 AM', endTime: '12:00 PM', color: '#F1F8E9' },
-  { id: '5', name: 'Event Faculty', code: 'EF 101', room: 'Room 105', day: 'Thursday', startTime: '10:30 AM', endTime: '12:00 PM', color: '#FFF8E1' },
-  { id: '6', name: 'Class Exhibition', code: 'CE 301', room: 'Hall A', day: 'Monday', startTime: '1:00 PM', endTime: '2:30 PM', color: '#FFEBEE' },
-  { id: '7', name: 'Design Review', code: 'DR 201', room: 'Studio 1', day: 'Tuesday', startTime: '1:30 PM', endTime: '3:00 PM', color: '#FBE9E7' },
-  { id: '8', name: 'English Exam', code: 'EN 102', room: 'Room 201', day: 'Friday', startTime: '1:00 PM', endTime: '2:30 PM', color: '#FFFDE7' },
-  { id: '9', name: 'Workshop', code: 'WS 101', room: 'Lab 3', day: 'Saturday', startTime: '10:00 AM', endTime: '12:00 PM', color: '#F3E5F5' }
+// ─── Event Data ───────────────────────────────────────────────────────────────
+const events = ref([
+  { id: 1, name: 'IT Elective',      code: 'IT 401', room: 'Room 301', day: 0, start: '7:30 AM',  end: '9:00 AM',  bg: '#FF9800', fg: '#fff'    },
+  { id: 2, name: 'IT Elective',      code: 'IT 402', room: 'Room 302', day: 1, start: '8:30 AM',  end: '10:00 AM', bg: '#B2DFDB', fg: '#004D40' },
+  { id: 3, name: 'IT Elective',      code: 'IT 403', room: 'Room 303', day: 2, start: '7:00 AM',  end: '10:00 AM', bg: '#29B6F6', fg: '#fff'    },
+  { id: 4, name: 'Graphic Design',   code: 'GD 201', room: 'Lab 2',    day: 2, start: '10:30 AM', end: '12:00 PM', bg: '#66BB6A', fg: '#fff'    },
+  { id: 5, name: 'Event Faculty',    code: 'EF 101', room: 'Room 105', day: 3, start: '10:30 AM', end: '12:00 PM', bg: '#FFA726', fg: '#fff'    },
+  { id: 6, name: 'Class Exhibition', code: 'CE 301', room: 'Hall A',   day: 0, start: '1:00 PM',  end: '2:30 PM',  bg: '#EF9A9A', fg: '#7f0000' },
+  { id: 7, name: 'Design Review',    code: 'DR 201', room: 'Studio 1', day: 1, start: '1:30 PM',  end: '3:00 PM',  bg: '#FF8A65', fg: '#fff'    },
+  { id: 8, name: 'English Exam',     code: 'EN 102', room: 'Room 201', day: 4, start: '1:00 PM',  end: '2:30 PM',  bg: '#FFF176', fg: '#5d4037' },
+  { id: 9, name: 'Workshop',         code: 'WS 101', room: 'Lab 3',    day: 5, start: '10:00 AM', end: '12:00 PM', bg: '#CE93D8', fg: '#4a148c' },
 ])
 
-// Computed for header text
-const formattedDateRange = computed(() => {
-  return `August ${dayDates.value[0]} - ${dayDates.value[6]}, 2020`
-})
+// ─── State ────────────────────────────────────────────────────────────────────
+const weekOffset  = ref(0)
+const selectedId  = ref(null)
+const miniSelected = ref(14)
 
-const todayClasses = computed(() => {
-  return schedule.value.filter(item => item.day === 'Wednesday')
-})
 
-// Interaction Handlers
-const handleSelect = (id) => {
-  selectedId.value = selectedId.value === id ? null : id
+// ─── Computed ─────────────────────────────────────────────────────────────────
+const weekDates = computed(() =>
+  DAYS.map((_, i) => 12 + weekOffset.value * 7 + i)
+)
+
+const dateRangeLabel = computed(() =>
+  `${weekDates.value[0]}-${weekDates.value[6]} Aug 2020`
+)
+
+const currentHighlight = computed(() =>
+  weekDates.value[TODAY_COL]
+)
+
+const todayEvents = computed(() =>
+  events.value.filter(e => e.day === TODAY_COL)
+)
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function toMins(timeStr) {
+  const [time, mod] = timeStr.split(' ')
+  let [h, m] = time.split(':').map(Number)
+  if (!m) m = 0
+  if (mod === 'PM' && h !== 12) h += 12
+  if (mod === 'AM' && h === 12) h = 0
+  return h * 60 + m
 }
 
-const prevWeek = () => {
-  dayDates.value = dayDates.value.map(d => d - 7)
-}
+function getEventStyle(ev) {
+  const startMins = toMins(ev.start)
+  const endMins   = toMins(ev.end)
+  const top       = ((startMins - START_HR * 60) / 60) * CELL_H
+  const height    = ((endMins - startMins) / 60) * CELL_H - 4
+  const isActive  = selectedId.value === ev.id
 
-const nextWeek = () => {
-  dayDates.value = dayDates.value.map(d => d + 7)
-}
-
-const miniNavClick = () => alert('Navigating mini calendar month...')
-const alertAction = (msg) => alert(msg)
-
-const isToday = (idx) => {
-  // Logic to highlight Wednesday 14th based on your static design
-  return dayDates.value[idx] === 14;
-}
-
-const timeToRow = (timeStr) => {
-  const [time, modifier] = timeStr.split(' ')
-  let [hours, minutes] = time.split(':').map(Number)
-  if (!minutes) minutes = 0
-  if (hours === 12) hours = 0
-  if (modifier === 'PM') hours += 12
-  return (hours - 7) * 4 + Math.floor(minutes / 15)
-}
-
-const getLineTop = (time) => {
-    const idx = timeSlots.indexOf(time);
-    return `${idx * 80}px`;
-}
-
-const getDarkerColor = (color) => {
-    const map = { '#FFF3E0': '#FFB74D', '#E8F5E9': '#81C784', '#E1F5FE': '#4FC3F7', '#F1F8E9': '#AED581', '#FFF8E1': '#FFD54F', '#FFEBEE': '#E57373', '#FBE9E7': '#FF8A65', '#FFFDE7': '#FFF176', '#F3E5F5': '#BA68C8' };
-    return map[color] || color;
-}
-
-const getItemStyle = (item) => {
-  const totalRows = timeToRow(item.startTime);
-  const span = timeToRow(item.endTime) - totalRows;
-  const colIdx = days.indexOf(item.day);
-  
   return {
-    backgroundColor: item.color,
-    top: `${totalRows * 20}px`,
-    height: `${span * 20 - 6}px`,
-    left: `calc(${colIdx} * (100% / 7) + 6px)`,
-    width: `calc(100% / 7 - 12px)`,
-    position: 'absolute',
-    border: selectedId.value === item.id ? '2px solid #6366f1' : 'none',
-    zIndex: selectedId.value === item.id ? 50 : 1
+    position:   'absolute',
+    top:        `${top}px`,
+    height:     `${height}px`,
+    left:       `calc(${ev.day} * (100% / 7) + 5px)`,
+    width:      `calc(100% / 7 - 10px)`,
+    background: ev.bg,
+    color:      ev.fg,
+    zIndex:     isActive ? 50 : 1,
+    outline:    isActive ? '2px solid #1976D2' : 'none',
+    outlineOffset: '1px',
   }
+}
+
+function isToday(colIdx) {
+  return colIdx === TODAY_COL && weekOffset.value === 0
+}
+
+function shiftWeek(dir) {
+  weekOffset.value += dir
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
 
-.schedule-container {
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.wrap {
   display: flex;
   height: 100vh;
+  min-height: 680px;
   background: #F8F9FB;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
   color: #1A1C1E;
+  overflow: hidden;
 }
 
-.sidebar { width: 72px; background: #FFF; border-right: 1px solid #E9EDF5; }
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.header { height: 60px; background: #FFF; border-bottom: 1px solid #E9EDF5; }
-.content-area { padding: 24px; gap: 24px; overflow: hidden; display: flex; flex: 1; }
-
-.calendar-section {
+/* ── Main ── */
+.main {
   flex: 1;
-  background: #FFF;
-  border-radius: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  border: 1px solid #E9EDF5;
+  overflow: hidden;
 }
 
-.calendar-header { padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; }
-.calendar-header h2 { font-size: 20px; font-weight: 700; }
-.date-nav { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
-.current-date { font-weight: 600; color: #475569; font-size: 14px; }
-.nav-arrow { background: none; border: 1px solid #E2E8F0; border-radius: 8px; padding: 4px; cursor: pointer; color: #64748B; transition: background 0.2s; }
-.nav-arrow:hover { background: #f8fafc; }
+/* ── Calendar area ── */
+.cal-area {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cal-inner { flex: 1; overflow-y: auto; }
 
-.calendar-grid-wrapper { flex: 1; overflow-y: auto; padding: 0 16px 16px 16px; }
-
+/* Day headers */
 .day-headers {
   display: grid;
-  grid-template-columns: 80px repeat(7, 1fr);
+  grid-template-columns: 64px repeat(7, 1fr);
+  background: #fff;
   position: sticky;
   top: 0;
-  background: #FFF;
   z-index: 20;
-  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
 }
+.time-spacer { width: 64px; }
 
-.day-header { display: flex; flex-direction: column; align-items: center; padding: 12px 0; }
-.day-name { font-size: 12px; font-weight: 600; color: #94A3B8; text-transform: uppercase; }
-.day-date { 
-    font-size: 18px; 
-    font-weight: 700; 
-    margin-top: 4px; 
-    width: 36px; height: 36px; 
-    display: flex; align-items: center; justify-content: center;
-}
-
-.is-today .day-date { background: #6366f1; color: #FFF; border-radius: 50%; }
-
-.time-grid { position: relative; display: flex; }
-.time-labels { width: 80px; }
-.time-label { height: 80px; font-size: 12px; color: #94A3B8; font-weight: 600; display: flex; justify-content: center; }
-
-.grid-columns { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); position: relative; }
-.grid-cell { height: 80px; border-right: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9; }
-.grid-line { position: absolute; left: 0; right: 0; border-top: 1px solid #F1F5F9; pointer-events: none; }
-
-.schedule-item {
-  border-radius: 12px;
+.dh {
   display: flex;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  transition: all 0.2s ease;
-  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 8px;
 }
-.schedule-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-.item-active { transform: scale(1.02); }
-
-.item-accent { width: 4px; }
-.item-content { padding: 10px; display: flex; flex-direction: column; gap: 2px; }
-.item-name { font-weight: 700; font-size: 13px; color: #1E293B; }
-.item-info { font-size: 11px; color: #64748B; font-weight: 500; }
-
-.right-panel { width: 320px; display: flex; flex-direction: column; gap: 24px; }
-
-.mini-calendar { background: #FFF; border-radius: 24px; padding: 24px; border: 1px solid #E9EDF5; }
-.mini-calendar-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.mini-calendar-header h3 { font-size: 15px; font-weight: 700; }
-.mini-nav-btn { background: none; border: none; cursor: pointer; color: #94A3B8; }
-
-.mini-calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 12px; }
-.mini-calendar-days span { text-align: center; font-size: 11px; font-weight: 700; color: #CBD5E1; }
-
-.mini-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.mini-calendar-grid span { 
-    height: 32px; display: flex; align-items: center; justify-content: center; 
-    font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 8px;
-    transition: all 0.2s;
+.dh-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-.mini-calendar-grid span:not(.empty):hover { background: #f1f5f9; }
-.mini-calendar-grid .current { background: #6366f1 !important; color: #FFF; }
-.mini-calendar-grid .has-event { color: #6366f1; position: relative; }
-
-.class-list { flex: 1; background: #FFF; border-radius: 24px; padding: 24px; border: 1px solid #E9EDF5; }
-.class-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.class-list-header h3 { font-size: 15px; font-weight: 700; }
-.view-all { font-size: 12px; color: #6366f1; font-weight: 600; text-decoration: none; }
-
-.class-card {
+.dh-num {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 4px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px;
-  background: #F8FAFC;
-  border-radius: 16px;
-  margin-bottom: 12px;
-  transition: all 0.2s;
-  cursor: pointer;
-  border: 1px solid transparent;
+  justify-content: center;
+  border-radius: 50%;
 }
-.class-card:hover { background: #f1f5f9; }
-.card-active { border-color: #6366f1; background: #EEF2FF; }
+.dh.today .dh-num { background: #F97316; color: #fff; }
 
-.card-indicator { width: 10px; height: 10px; border-radius: 50%; }
-.class-card-details h4 { font-size: 13px; font-weight: 700; margin: 0; }
-.class-card-details p { font-size: 11px; color: #64748B; margin: 2px 0 0 0; }
-</style>```
+/* Time grid */
+.time-grid { display: flex; }
+.time-col { width: 64px; flex-shrink: 0; }
+.t-label {
+  height: 72px;
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.grid-cols {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  position: relative;
+}
+.g-col { }
+.g-cell {
+  height: 72px;
+  border-right: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+/* Event blocks */
+.evt {
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.15s, outline 0.15s;
+}
+.evt:hover { opacity: 0.85; }
+.evt-name { font-size: 12px; font-weight: 700; }
+.evt-time { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+
+/* ── Right panel ── */
+.right {
+  width: 280px;
+  flex-shrink: 0;
+  background: #fff;
+  border-left: 1px solid #E9EDF5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Mini calendar */
+.mini-cal {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid #F1F5F9;
+  flex-shrink: 0;
+}
+.mini-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.mini-hdr h3 { font-size: 14px; font-weight: 700; }
+.mini-nav { display: flex; gap: 4px; }
+.mini-nav button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94A3B8;
+  font-size: 16px;
+  padding: 0 4px;
+}
+
+.mini-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+.mini-days span {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #CBD5E1;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.mini-grid span {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #475569;
+  transition: background 0.15s;
+}
+.mini-grid span:not(.empty):hover { background: #f1f5f9; }
+.mini-grid span.cur  { background: #F97316 !important; color: #fff !important; }
+.mini-grid span.hi   { color: #F97316; }
+.mini-grid span.empty { cursor: default; color: transparent; }
+
+/* Class list */
+.class-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+}
+.cl-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.cl-hdr h3 { font-size: 14px; font-weight: 700; }
+.cl-hdr a  { font-size: 11px; color: #F97316; font-weight: 600; text-decoration: none; }
+.cl-sub    { font-size: 11px; color: #94A3B8; margin-bottom: 14px; }
+
+.cl-card {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s, outline 0.15s;
+}
+.cl-card:hover { opacity: 0.85; }
+.cl-card.card-active { outline: 2px solid #1976D2; }
+
+.cl-card-inner {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 12px 14px;
+  gap: 10px;
+}
+.cl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cl-info h4 { font-size: 13px; font-weight: 700; margin: 0; }
+.cl-info p  { font-size: 11px; margin: 2px 0 0; opacity: 0.8; }
+.cl-arr     { padding: 12px 10px 12px 0; font-size: 16px; }
+</style>
