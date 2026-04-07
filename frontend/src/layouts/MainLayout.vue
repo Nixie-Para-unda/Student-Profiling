@@ -339,7 +339,7 @@ const handleLogout = () => {
   const isStudent = authStore.isStudent
   authStore.logout()
   if (isStudent) {
-    router.push('/student/login')
+    router.push('/students/login')
   } else {
     router.push('/login')
   }
