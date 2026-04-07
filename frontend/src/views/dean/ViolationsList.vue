@@ -227,9 +227,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
+import { useRouter, useRoute } from 'vue-router'
 
+const router = useRouter()
+const route = useRoute()
 const cases = ref([])
 const loading = ref(true)
 const saving = ref(false)
@@ -277,11 +280,7 @@ const miniStats = computed(() => [
 ])
 
 const viewViolation = (v) => {
-  viewingViolation.value = v
-  editForm.value = {
-    status: v.status || 'Pending',
-    action_taken: v.action_taken || ''
-  }
+  router.push({ name: 'ViolationDetail', params: { id: v.id } })
 }
 
 const updateViolation = async () => {
@@ -312,6 +311,42 @@ const formatTime = (time) => {
 }
 
 onMounted(fetchViolations)
+
+// ─── Route Modal Handling ───────────────────────────────────────────────────
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    const v = cases.value.find(c => c.id == newId)
+    if (v) {
+      viewingViolation.value = v
+      editForm.value = {
+        status: v.status || 'Pending',
+        action_taken: v.action_taken || ''
+      }
+    }
+  } else {
+    viewingViolation.value = null
+  }
+}, { immediate: true })
+
+watch(cases, (newCases) => {
+  if (route.params.id && !viewingViolation.value) {
+    const v = newCases.find(c => c.id == route.params.id)
+    if (v) {
+      viewingViolation.value = v
+      editForm.value = {
+        status: v.status || 'Pending',
+        action_taken: v.action_taken || ''
+      }
+    }
+  }
+})
+
+watch(viewingViolation, (newVal) => {
+  if (!newVal && route.params.id) {
+    router.push({ name: 'Violations' })
+  }
+})
 </script>
 
 <style scoped>

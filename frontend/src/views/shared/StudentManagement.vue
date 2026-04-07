@@ -489,11 +489,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import axios from 'axios'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
+const route = useRoute()
 const isSecretary = computed(() => authStore.user?.role === 'secretary')
 const userRole = computed(() => authStore.user?.role)
 
@@ -654,6 +657,34 @@ const deleteStudent = async () => {
 
 onMounted(fetchStudents)
 
+// ─── Route Modal Handling ───────────────────────────────────────────────────
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    const student = students.value.find(s => s.id == newId)
+    if (student) {
+      viewingStudent.value = student
+    }
+  } else {
+    viewingStudent.value = null
+  }
+}, { immediate: true })
+
+// Also watch students list in case it's not loaded yet when URL has an ID
+watch(students, (newStudents) => {
+  if (route.params.id && !viewingStudent.value) {
+    const student = newStudents.find(s => s.id == route.params.id)
+    if (student) viewingStudent.value = student
+  }
+})
+
+// Sync back to route when modal closes
+watch(viewingStudent, (newVal) => {
+  if (!newVal && route.params.id) {
+    router.push({ name: 'StudentManagement' })
+  }
+})
+
 // ─── Computed ─────────────────────────────────────────────────────────────────
 
 const miniStats = computed(() => [
@@ -728,7 +759,7 @@ const paginatedStudents = computed(() => {
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 const viewDetails = (student) => {
-  viewingStudent.value = student
+  router.push({ name: 'StudentDetail', params: { id: student.id } })
 }
 
 const openCreateModal = () => {

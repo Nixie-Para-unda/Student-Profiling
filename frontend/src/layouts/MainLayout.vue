@@ -23,208 +23,29 @@
 
       <!-- Nav -->
       <nav class="sidebar-nav">
-
-        <!-- ── OVERVIEW (all roles) ── -->
-        <div class="nav-section-label" v-show="!sidebarCollapsed">Overview</div>
-        <router-link :to="dashboardRoute" class="nav-item" active-class="active">
-          <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
-          <span v-show="!sidebarCollapsed">Dashboard</span>
-        </router-link>
-
-        <!-- ── DEAN NAV ── -->
-        <template v-if="authStore.isDean">
-          <router-link to="/profiling/report" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M12 15V9m-4 6V5m-4 10v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Profiling Reports</span>
+        <div v-for="section in menuSections" :key="section.name">
+          <div class="nav-section-label" v-show="!sidebarCollapsed">{{ section.name }}</div>
+          
+          <router-link 
+            v-for="item in section.items" 
+            :key="item.path"
+            :to="'/' + item.path" 
+            class="nav-item" 
+            active-class="active"
+          >
+            <svg viewBox="0 0 20 20" fill="none" v-html="icons[item.meta.icon] || icons.dashboard"></svg>
+            <span v-show="!sidebarCollapsed">{{ item.displayTitle || item.meta.title }}</span>
+            <span 
+              class="nav-badge" 
+              :class="item.meta.badgeClass || 'warning'" 
+              v-if="item.meta.badge && !sidebarCollapsed"
+            >
+              {{ item.meta.badge }}
+            </span>
           </router-link>
-          <router-link to="/dean/curriculum" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Curriculum</span>
-          </router-link>
-          <router-link to="/dean/courses" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 8h14M8 4v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Courses</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
-          <router-link to="/academic-performance" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Academic Performance</span>
-          </router-link>
-          <router-link to="/violations" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Violations</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Accounts</div>
-          <router-link to="/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Accounts</span>
-          </router-link>
-          <router-link to="/faculty" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Accounts</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Monitoring</div>
-          <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Workload</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
-          <router-link to="/dean/archive" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M4 10h12M4 14h12M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Archive Management</span>
-          </router-link>
-        </template>
-
-        <!-- ── FACULTY NAV ── -->
-        <template v-if="authStore.isFaculty">
-          <div class="nav-section-label" v-show="!sidebarCollapsed">My Classes</div>
-          <router-link to="/faculty/schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Schedule</span>
-          </router-link>
-          <router-link to="/faculty/subjects" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4zM8 4v12M4 10h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Subjects</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Monitoring</div>
-          <router-link to="/faculty/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Profiles</span>
-          </router-link>
-          <router-link to="/faculty/violations" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Record Violation</span>
-          </router-link>
-          <router-link to="/faculty/awards" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Recommend Awards</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
-          <router-link to="/faculty/profile" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Profile</span>
-          </router-link>
-          <router-link to="/settings" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Account Settings</span>
-          </router-link>
-        </template>
-
-        <!-- ── CHAIR NAV ── -->
-        <template v-if="authStore.isChair">
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Academic</div>
-          <router-link to="/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Profiles</span>
-          </router-link>
-          <router-link to="/faculty" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Members</span>
-          </router-link>
-          <router-link to="/chair/performance" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Academic Performance</span>
-          </router-link>
-          <router-link to="/chair/schedules" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Manage Schedules</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
-          <router-link to="/chair/violations" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Violations</span>
-            <span class="nav-badge danger" v-show="!sidebarCollapsed">12</span>
-          </router-link>
-          <router-link to="/chair/awards" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Approve Awards</span>
-            <span class="nav-badge warning" v-show="!sidebarCollapsed">5</span>
-          </router-link>
-          <router-link to="/chair/reports" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Generate Reports</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
-          <router-link to="/settings" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Account Settings</span>
-          </router-link>
-        </template>
-
-        <!-- ── SECRETARY NAV ── -->
-        <template v-if="authStore.isSecretary">
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Accounts</div>
-          <!-- Secretary Links -->
-          <router-link to="/secretary/students" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Student Accounts</span>
-          </router-link>
-          <router-link to="/secretary/faculty" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Accounts</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Monitoring</div>
-          <router-link to="/secretary/faculty-schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Faculty Workload</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Management</div>
-          <router-link to="/secretary/achievements" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">Achievement Verification</span>
-            <span class="nav-badge warning" v-show="!sidebarCollapsed">8</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Reports</div>
-          <router-link to="/secretary/reports" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M4 15V9m4 6V5m4 10v-4m4 4V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Generate Reports</span>
-          </router-link>
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Settings</div>
-          <router-link to="/settings" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Account Settings</span>
-          </router-link>
-        </template>
-
-        <!-- ── STUDENT NAV ── -->
-        <template v-if="authStore.isStudent">
-          <div class="nav-section-label" v-show="!sidebarCollapsed">My Academic</div>
-          <router-link to="/student/profile" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Profile</span>
-          </router-link>
-          <router-link to="/student/curriculum" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Curriculum</span>
-          </router-link>
-          <router-link to="/student/violations" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Violations</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">My Activities</div>
-          <router-link to="/student/achievements" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Achievements</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Academics</div>
-          <router-link to="/student/schedule" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">My Schedule</span>
-          </router-link>
-
-          <div class="nav-section-label" v-show="!sidebarCollapsed">Account Settings</div>
-          <router-link to="/settings" class="nav-item" active-class="active">
-            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span v-show="!sidebarCollapsed">Account Settings</span>
-          </router-link>
-        </template>
-
+        </div>
       </nav>
+
     </aside>
 
     <!-- Main area -->
@@ -349,6 +170,89 @@ const goToSettings = () => {
   router.push('/settings')
   showUserMenu.value = false
 }
+
+// ── Dynamic Navigation ──────────────────────────
+
+const icons = {
+  dashboard: '<rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>',
+  reports: '<path d="M12 15V9m-4 6V5m-4 10v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  curriculum: '<path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 3v14M14 3v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  courses: '<path d="M3 4h14a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 8h14M8 4v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  performance: '<path d="M2 14l4-8 4 5 3-3 5 6H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  violations: '<path d="M10 7v3m0 3.5v.5M3.5 16h13a1 1 0 00.87-1.5l-6.5-11a1 1 0 00-1.74 0l-6.5 11A1 1 0 003.5 16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  profile: '<path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  faculty: '<path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  schedule: '<rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  archive: '<path d="M4 6h12M4 10h12M4 14h12M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  subjects: '<path d="M4 4h12v12H4zM8 4v12M4 10h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  awards: '<path d="M10 2l1.8 5.4H18l-4.9 3.6 1.9 5.7L10 13.4l-5 3.3 1.9-5.7L2 7.4h6.2L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  settings: '<circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+}
+
+const menuSections = computed(() => {
+  const userRole = authStore.user?.role
+  if (!userRole) return []
+
+  // Get all routes under the main layout
+  const mainRoute = router.options.routes.find(r => r.name === 'MainLayout')
+  if (!mainRoute || !mainRoute.children) return []
+
+  const sidebarRoutes = mainRoute.children.filter(r => {
+    if (!r.meta?.sidebar) return false
+    
+    // Role check
+    if (r.meta.role) {
+      if (Array.isArray(r.meta.role)) {
+        return r.meta.role.includes(userRole)
+      }
+      return r.meta.role === userRole
+    }
+    
+    return true // Public sidebar items (like Settings)
+  })
+
+  // Group by section
+  const sections = {}
+  sidebarRoutes.forEach(route => {
+    let sectionName = route.meta.section || 'Other'
+    let title = route.meta.title
+
+    // Role-based Overrides (Chair-specific)
+    if (userRole === 'department_chair') {
+      if (route.path === 'students') {
+        sectionName = 'Academic'
+        title = 'Student Profiles'
+      } else if (route.path === 'faculty') {
+        sectionName = 'Academic'
+        title = 'Faculty Members'
+      }
+    }
+
+    if (!sections[sectionName]) {
+      sections[sectionName] = []
+    }
+    sections[sectionName].push({ ...route, displayTitle: title })
+  })
+
+  // Define section order to ensure Dashboard (Overview) is at the top
+  const sectionOrder = ['Overview', 'My Academic', 'Academics', 'Academic', 'My Classes', 'Accounts', 'Monitoring', 'Management', 'Reports', 'My Activities', 'Account Settings', 'Settings']
+
+  // Return as an array of objects, sorted by sectionOrder
+  return Object.keys(sections)
+    .sort((a, b) => {
+      const indexA = sectionOrder.indexOf(a)
+      const indexB = sectionOrder.indexOf(b)
+      if (indexA === -1 && indexB === -1) return a.localeCompare(b)
+      if (indexA === -1) return 1
+      if (indexB === -1) return -1
+      return indexA - indexB
+    })
+    .map(name => ({
+      name,
+      items: sections[name]
+    }))
+})
+
 </script>
 
 <style>

@@ -90,6 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:dean,department_chair,secretary')->group(function () {
         Route::get('/programs', [ProfilingController::class, 'getPrograms']);
         Route::get('/students', [StudentController::class, 'index']);
+        Route::get('/students/{id}', [StudentProfileController::class, 'getById']);
         Route::get('/faculty', [FacultyController::class, 'index']);
         
         // Courses

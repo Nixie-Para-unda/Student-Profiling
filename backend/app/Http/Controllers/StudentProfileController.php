@@ -48,6 +48,37 @@ class StudentProfileController extends Controller
     }
 
     /**
+     * Get a specific student's profile (for Dean/Chair/Faculty).
+     */
+    public function getById(Request $request, $id)
+    {
+        $user = $request->user();
+        
+        // Ensure the user is not a student (unless they are viewing their own, but that's handled by show())
+        if ($user->role === 'student' && $user->student->id != $id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = Student::with([
+            'user', 
+            'guardian', 
+            'skills', 
+            'organizations.organization', 
+            'academicActivities', 
+            'nonAcademicActivities', 
+            'section', 
+            'program'
+        ])
+        ->find($id);
+
+        if (!$student) {
+            return response()->json(['message' => 'Student profile not found'], 404);
+        }
+
+        return response()->json($student);
+    }
+
+    /**
      * Update or create guardian information.
      */
     public function updateGuardian(Request $request)

@@ -380,12 +380,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import axios from 'axios'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
+const route = useRoute()
 const isSecretary = computed(() => authStore.user?.role === 'secretary')
+const userRole = computed(() => authStore.user?.role)
 
 const search = ref('')
 const filterDept = ref('')
@@ -522,6 +526,32 @@ const calculateLoad = (f) => {
 
 onMounted(fetchData)
 
+// ─── Route Modal Handling ───────────────────────────────────────────────────
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    const f = faculty.value.find(fac => fac.id == newId)
+    if (f) {
+      viewingFaculty.value = f
+    }
+  } else {
+    viewingFaculty.value = null
+  }
+}, { immediate: true })
+
+watch(faculty, (newFaculty) => {
+  if (route.params.id && !viewingFaculty.value) {
+    const f = newFaculty.find(fac => fac.id == route.params.id)
+    if (f) viewingFaculty.value = f
+  }
+})
+
+watch(viewingFaculty, (newVal) => {
+  if (!newVal && route.params.id) {
+    router.push({ name: 'FacultyManagement' })
+  }
+})
+
 const miniStats = computed(() => [
   { label: 'TOTAL STUDENTS', value: faculty.value.length, color: '#3b82f6', icon: 'users', iconBg: '#eff6ff', iconColor: '#3b82f6' },
   { label: 'ACTIVE', value: faculty.value.filter(f => f.status === 'active').length, color: '#16a34a', icon: 'check', iconBg: '#f0fdf4', iconColor: '#16a34a' },
@@ -561,7 +591,7 @@ const paginatedFaculty = computed(() => {
 })
 
 const viewDetails = (f) => {
-  viewingFaculty.value = f
+  router.push({ name: 'FacultyDetail', params: { id: f.id } })
 }
 
 const openCreateModal = () => { 
