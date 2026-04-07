@@ -100,7 +100,7 @@
                 <div class="student-cell">
                   <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
                   <div>
-                    <p class="s-name">{{ f.first_name }} {{ f.last_name }}</p>
+                    <p class="s-name">{{ f.last_name }}, {{ f.first_name }} {{ f.middle_name || '' }}</p>
                     <p class="s-sub">{{ f.user?.email }}</p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@
               {{ viewingFaculty.first_name.charAt(0) }}
             </div>
             <div>
-              <h3>{{ viewingFaculty.first_name }} {{ viewingFaculty.last_name }}</h3>
+              <h3>{{ viewingFaculty.last_name }}, {{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name || '' }}</h3>
               <p class="modal-sub">{{ viewingFaculty.position }} · {{ viewingFaculty.department_name }}</p>
             </div>
           </div>
@@ -181,7 +181,7 @@
             <div class="detail-rows">
               <div class="detail-row">
                 <span class="detail-key">Full Name</span>
-                <span class="detail-val">{{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name ? viewingFaculty.middle_name + ' ' : '' }}{{ viewingFaculty.last_name }}</span>
+                <span class="detail-val">{{ viewingFaculty.last_name }}, {{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name || '' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-key">Email Address</span>
@@ -309,18 +309,30 @@
         </div>
         <div class="modal-body">
           <div class="form-grid">
-            <div class="form-group"><label>First Name</label><input v-model="form.first_name" type="text" placeholder="First name" :disabled="!!editingFaculty || saving" /></div>
-            <div class="form-group"><label>Last Name</label><input v-model="form.last_name" type="text" placeholder="Last name" :disabled="!!editingFaculty || saving" /></div>
+            <div class="form-group">
+              <label>First Name</label>
+              <input v-model="form.first_name" type="text" placeholder="First name" :disabled="!!editingFaculty || saving" :class="{ 'error-input': formErrors.first_name }" @input="validateField('first_name')" />
+              <span v-if="formErrors.first_name" class="field-error">{{ formErrors.first_name }}</span>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input v-model="form.last_name" type="text" placeholder="Last name" :disabled="!!editingFaculty || saving" :class="{ 'error-input': formErrors.last_name }" @input="validateField('last_name')" />
+              <span v-if="formErrors.last_name" class="field-error">{{ formErrors.last_name }}</span>
+            </div>
             <div class="form-group"><label>Middle Name (Optional)</label><input v-model="form.middle_name" type="text" placeholder="Middle name" :disabled="!!editingFaculty || saving" /></div>
-            <div class="form-group"><label>Email Address</label><input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" :disabled="!!editingFaculty || saving" /></div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input v-model="form.email" type="email" placeholder="faculty@school.edu.ph" :disabled="!!editingFaculty || saving" :class="{ 'error-input': formErrors.email }" @input="validateField('email')" />
+              <span v-if="formErrors.email" class="field-error">{{ formErrors.email }}</span>
+            </div>
             <div class="form-group"><label>Department</label>
-              <select v-model="form.department_id" :disabled="saving">
+              <select v-model="form.department_id" :disabled="saving" @change="validateField('department_id')">
                 <option value="">Select Department</option>
                 <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.department_name }}</option>
               </select>
             </div>
             <div class="form-group"><label>Position</label>
-              <select v-model="form.position" :disabled="saving">
+              <select v-model="form.position" :disabled="saving" @change="validateField('position')">
                 <option value="Professor">Professor</option>
                 <option value="Associate Professor">Associate Professor</option>
                 <option value="Assistant Professor">Assistant Professor</option>
@@ -353,7 +365,7 @@
         <div class="modal-body">
           <p class="delete-msg">
             Are you sure you want to archive the account of
-            <strong>{{ archivingFaculty?.first_name }} {{ archivingFaculty?.last_name }}</strong>?
+            <strong>{{ archivingFaculty?.last_name }}, {{ archivingFaculty?.first_name }} {{ archivingFaculty?.middle_name || '' }}</strong>?
             The account will be moved to the archive and can be recovered by the Dean.
           </p>
         </div>
@@ -392,6 +404,41 @@ const loading = ref(false)
 const loadingImport = ref(false)
 const csvInput = ref(null)
 const resendCounts = ref({})
+const formErrors = ref({})
+
+// ─── Validation ─────────────────────────────────────────────────────────────
+const validateField = (field) => {
+  const val = form.value[field]
+  if (!val || (typeof val === 'string' && !val.trim())) {
+    formErrors.value[field] = 'Required'
+  } else {
+    // 1. Format Checks
+    if (field === 'email') {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!re.test(val)) {
+        formErrors.value[field] = 'Invalid email format'
+        return
+      }
+    }
+
+    // 2. Uniqueness Checks (Local)
+    if (field === 'email') {
+      const isDuplicate = faculty.value.some(f => {
+        // Skip self if editing
+        if (editingFaculty.value && f.id === editingFaculty.value.id) return false
+        return f.user?.email?.toLowerCase() === val.toLowerCase()
+      })
+
+      if (isDuplicate) {
+        formErrors.value[field] = 'Email already taken'
+        return
+      }
+    }
+
+    // If valid, clear the error
+    delete formErrors.value[field]
+  }
+}
 
 const currentPage = ref(1)
 const pageSize = ref(50)
@@ -485,12 +532,25 @@ const miniStats = computed(() => [
 
 // FIX: filteredFaculty now includes position filter
 const filteredFaculty = computed(() => faculty.value.filter(f => {
-  const fullName = `${f.first_name} ${f.last_name}`.toLowerCase()
+  const fullName = `${f.last_name}, ${f.first_name} ${f.middle_name || ''}`.toLowerCase()
   const matchSearch   = !search.value        || fullName.includes(search.value.toLowerCase()) || f.user?.email?.toLowerCase().includes(search.value.toLowerCase())
   const matchDept     = !filterDept.value    || f.department_id == filterDept.value
   const matchPosition = !filterPosition.value || f.position === filterPosition.value  // FIX
   const matchStatus   = !filterStatus.value  || f.status === filterStatus.value
   return matchSearch && matchDept && matchPosition && matchStatus
+}).sort((a, b) => {
+  // 1. Status: pending first
+  if (a.status === 'pending' && b.status !== 'pending') return -1;
+  if (a.status !== 'pending' && b.status === 'pending') return 1;
+  
+  // 2. Alphabetical: Last Name, First Name, Middle Name
+  const lastCompare = a.last_name.localeCompare(b.last_name);
+  if (lastCompare !== 0) return lastCompare;
+  
+  const firstCompare = a.first_name.localeCompare(b.first_name);
+  if (firstCompare !== 0) return firstCompare;
+  
+  return (a.middle_name || '').localeCompare(b.middle_name || '');
 }))
 
 const totalPages = computed(() => Math.ceil(filteredFaculty.value.length / pageSize.value))
@@ -506,6 +566,7 @@ const viewDetails = (f) => {
 
 const openCreateModal = () => { 
   editingFaculty.value = null; 
+  formErrors.value = {};
   form.value = { 
     first_name: '', 
     last_name: '', 
@@ -519,6 +580,7 @@ const openCreateModal = () => {
 
 const openEditModal = (f) => { 
   editingFaculty.value = f; 
+  formErrors.value = {};
   form.value = { 
     first_name: f.first_name, 
     last_name: f.last_name, 
@@ -531,8 +593,11 @@ const openEditModal = (f) => {
 }
 
 const saveFaculty = async () => {
+  formErrors.value = {};
   if (!form.value.first_name || !form.value.last_name || !form.value.email) {
-    alert('Please fill in all required fields.')
+    if (!form.value.first_name) formErrors.value.first_name = 'Required';
+    if (!form.value.last_name) formErrors.value.last_name = 'Required';
+    if (!form.value.email) formErrors.value.email = 'Required';
     return
   }
   saving.value = true
@@ -555,7 +620,18 @@ const saveFaculty = async () => {
       fetchData()
     }
   } catch (err) {
-    alert(err.response?.data?.message || 'Failed to save faculty.')
+    if (err.response?.status === 422) {
+      const errors = err.response.data.errors
+      if (errors) {
+        Object.keys(errors).forEach(key => {
+          formErrors.value[key] = Array.isArray(errors[key]) ? errors[key][0] : errors[key]
+        })
+      }
+      const msg = err.response.data.message?.toLowerCase() || ''
+      if (msg.includes('email') && !formErrors.value.email) formErrors.value.email = 'Email already taken'
+    } else {
+      alert(err.response?.data?.message || 'Failed to save faculty.')
+    }
   } finally {
     saving.value = false
   }
@@ -672,6 +748,12 @@ const handleCSV = async (e) => {
 .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
 .filter-group select { padding: 9px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-size: 13px; font-family: 'Outfit', sans-serif; color: #1a0a00; background: #fff; outline: none; cursor: pointer; transition: border-color 0.2s; }
 .filter-group select:focus { border-color: #FF6B1A; }
+
+.error-input { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+.error-input:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important; }
+.field-error { color: #ef4444; font-size: 11px; margin-top: 4px; display: block; font-weight: 500; }
+
+/* ── Table ── */
 .table-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 18px; overflow: hidden; position: relative; flex: 1; display: flex; flex-direction: column; min-height: 400px; }
 .table-container { flex: 1; overflow-y: auto; }
 .loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; gap: 10px; }
