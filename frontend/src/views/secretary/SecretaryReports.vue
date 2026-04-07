@@ -48,9 +48,9 @@
             </select>
           </div>
           <div class="form-group" v-if="selectedReport.id === 'students' || selectedReport.id === 'performance'">
-            <label>Course</label>
+            <label>Program</label>
             <select v-model="reportConfig.course">
-              <option value="all">All Courses</option>
+              <option value="all">All Programs</option>
               <option value="BSCS">BSCS</option>
               <option value="BSIT">BSIT</option>
               <option value="BSIS">BSIS</option>

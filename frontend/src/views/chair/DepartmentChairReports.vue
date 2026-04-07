@@ -17,7 +17,7 @@
         <div class="form-grid">
           <div class="form-group"><label>Academic Year</label><select v-model="cfg.ay"><option>2026-2027</option><option>2025-2026</option><option>2024-2025</option></select></div>
           <div class="form-group"><label>Semester</label><select v-model="cfg.sem"><option value="1st">1st Semester</option><option value="2nd">2nd Semester</option><option value="both">Both</option></select></div>
-          <div class="form-group"><label>Course</label><select v-model="cfg.course"><option value="all">All Courses</option><option>BSCS</option><option>BSIT</option><option>BSIS</option></select></div>
+          <div class="form-group"><label>Program</label><select v-model="cfg.course"><option value="all">All Programs</option><option>BSCS</option><option>BSIT</option><option>BSIS</option></select></div>
           <div class="form-group"><label>Export Format</label><select v-model="cfg.format"><option value="pdf">PDF</option><option value="excel">Excel (.xlsx)</option><option value="csv">CSV</option></select></div>
         </div>
         <div class="options-actions">

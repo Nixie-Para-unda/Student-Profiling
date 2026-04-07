@@ -34,7 +34,34 @@ class DatabaseSeeder extends Seeder
             'program_name' => 'Bachelor of Science in Computer Science'
         ]);
 
-        // 3. Create Essential Administrative Accounts (So you can still log in)
+        \App\Models\Program::firstOrCreate([
+            'program_code' => 'BSIS'
+        ], [
+            'department_id' => $dept->id,
+            'program_name' => 'Bachelor of Science in Information Systems'
+        ]);
+
+        // 3. Create Essential Sections (A, B, C, D) for each program and year level
+        $programs = \App\Models\Program::all();
+        $yearLevels = ['1', '2', '3', '4'];
+        $sections = ['A', 'B', 'C', 'D'];
+
+        foreach ($programs as $program) {
+            foreach ($yearLevels as $year) {
+                foreach ($sections as $letter) {
+                    \App\Models\Section::firstOrCreate([
+                        'program_id' => $program->id,
+                        'year_level' => $year,
+                        'section_name' => "{$program->program_code} {$year}-{$letter}",
+                    ], [
+                        'department_id' => $dept->id,
+                        'school_year' => date('Y') . '-' . (date('Y') + 1),
+                    ]);
+                }
+            }
+        }
+
+        // 4. Create Essential Administrative Accounts (So you can still log in)
         
         // Dean
         $deanUser = User::firstOrCreate([

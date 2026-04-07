@@ -78,7 +78,7 @@
       </div>
       <div class="filter-group">
         <select v-model="filterCourse">
-          <option value="">All Courses</option>
+          <option value="">All Programs</option>
           <option value="BSCS">BSCS</option>
           <option value="BSIT">BSIT</option>
           <option value="BSIS">BSIS</option>
@@ -226,9 +226,9 @@
               <span v-if="formErrors.email" class="field-error">{{ formErrors.email }}</span>
             </div>
             <div class="form-group">
-              <label>Course <span class="req">*</span></label>
+              <label>Program <span class="req">*</span></label>
               <select v-model="form.course" :disabled="saving" :class="{ 'error-input': formErrors.course }" @change="validateField('course')">
-                <option value="">Select Course</option>
+                <option value="">Select Program</option>
                 <option value="BSCS">BSCS</option>
                 <option value="BSIT">BSIT</option>
                 <option value="BSIS">BSIS</option>
@@ -248,9 +248,9 @@
             </div>
             <div class="form-group full-span">
               <label>Section <span class="req">*</span></label>
-              <select v-model="form.section_id" :disabled="saving" :class="{ 'error-input': formErrors.section_id }" @change="validateField('section_id')">
-                <option value="">Select Section</option>
-                <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.section_name }}</option>
+              <select v-model="form.section_id" :disabled="saving || !form.course || !form.year_level" :class="{ 'error-input': formErrors.section_id }" @change="validateField('section_id')">
+                <option value="">{{ (form.course && form.year_level) ? 'Select Section' : 'Please select Program and Year Level first' }}</option>
+                <option v-for="sec in filteredFormSections" :key="sec.id" :value="sec.id">{{ formatSectionName(sec.section_name) }}</option>
               </select>
               <span v-if="formErrors.section_id" class="field-error">{{ formErrors.section_id }}</span>
             </div>
@@ -335,7 +335,7 @@
             <h4 class="section-title">Academic Information</h4>
             <div class="detail-rows">
               <div class="detail-row">
-                <span class="detail-key">Course</span>
+                <span class="detail-key">Program</span>
                 <span class="detail-val">{{ viewingStudent.course }}</span>
               </div>
               <div class="detail-row">
@@ -530,6 +530,12 @@ const validateField = (field) => {
       }
     }
 
+    // Special logic for program or year change
+    if (field === 'course' || field === 'year_level') {
+      form.value.section_id = '' // Clear section when program or year changes
+      delete formErrors.value.section_id
+    }
+
     // 2. Uniqueness Checks (Local)
     if (field === 'email' || field === 'student_number') {
       const isDuplicate = students.value.some(s => {
@@ -665,6 +671,24 @@ const availableSections = computed(() => {
     .filter(Boolean)
   return [...new Set(secs)].sort()
 })
+
+const filteredFormSections = computed(() => {
+  if (!form.value.course || !form.value.year_level) return []
+  return sections.value.filter(sec => {
+    return sec.program?.program_code === form.value.course && 
+           sec.year_level == form.value.year_level
+  })
+})
+
+const formatSectionName = (name) => {
+  if (!name) return ''
+  // If name is like "BSCS 1-A", and course is "BSCS", return "1-A"
+  const programPrefix = form.value.course + ' '
+  if (name.startsWith(programPrefix)) {
+    return name.replace(programPrefix, '')
+  }
+  return name
+}
 
 const filteredStudents = computed(() => {
   return students.value.filter(s => {

@@ -134,8 +134,9 @@ class AutoScheduleService
             }
         }
 
-        // Determine how many sections we need (at least 1, but up to D if count suggests it)
-        $neededCount = max(1, ceil($studentCount / $this->studentsPerSection));
+        // Determine how many sections we need (at least 4: A, B, C, D)
+        // Only if D exceeds capacity (200 students total) will it create E, F...
+        $neededCount = max(4, ceil($studentCount / $this->studentsPerSection));
         
         $existingSections = Section::where('program_id', $program->id)
             ->where('year_level', $yearLevel)
@@ -159,28 +160,6 @@ class AutoScheduleService
             ->where('year_level', $yearLevel)
             ->orderBy('section_name', 'asc')
             ->get();
-
-        // 3. Distribute ALL students (A-Z) into these sections
-        if ($studentCount > 0) {
-            $students = Student::where('program_id', $program->id)
-                ->where(function($q) use ($yearLevel) {
-                    $q->where('year_level', $yearLevel)
-                      ->orWhere('year_level', 'LIKE', $yearLevel . '%');
-                })
-                ->orderBy('last_name', 'asc')
-                ->orderBy('first_name', 'asc')
-                ->get();
-
-            foreach ($students as $index => $student) {
-                $sectionIndex = floor($index / $this->studentsPerSection);
-                if (isset($allSections[$sectionIndex])) {
-                    $student->update([
-                        'section_id' => $allSections[$sectionIndex]->id,
-                        'year_level' => $yearLevel // Ensure normalization
-                    ]);
-                }
-            }
-        }
 
         return [
             'student_count' => $studentCount,

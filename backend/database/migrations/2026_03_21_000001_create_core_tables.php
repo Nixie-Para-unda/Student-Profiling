@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -131,6 +132,47 @@ return new class extends Migration
             
             $table->index(['skill_category', 'student_id']);
         });
+
+        // ─── INITIAL DATA SEEDING (FOR DROPDOWNS) ───────────────────────────
+        
+        // 1. Create Default Department
+        $deptId = DB::table('departments')->insertGetId([
+            'department_name' => 'College of Computing Studies',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // 2. Create Default Programs
+        $programs = [
+            ['code' => 'BSIT', 'name' => 'Bachelor of Science in Information Technology'],
+            ['code' => 'BSCS', 'name' => 'Bachelor of Science in Computer Science'],
+            ['code' => 'BSIS', 'name' => 'Bachelor of Science in Information Systems'],
+        ];
+
+        foreach ($programs as $p) {
+            $progId = DB::table('programs')->insertGetId([
+                'department_id' => $deptId,
+                'program_code' => $p['code'],
+                'program_name' => $p['name'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // 3. Create Sections A, B, C, D for each Year Level (1-4)
+            for ($year = 1; $year <= 4; $year++) {
+                foreach (['A', 'B', 'C', 'D'] as $letter) {
+                    DB::table('sections')->insert([
+                        'department_id' => $deptId,
+                        'program_id' => $progId,
+                        'year_level' => (string)$year,
+                        'section_name' => "{$p['code']} {$year}-{$letter}",
+                        'school_year' => date('Y') . '-' . (date('Y') + 1),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
     }
 
     /**

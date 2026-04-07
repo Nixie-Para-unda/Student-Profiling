@@ -73,7 +73,7 @@
           </option>
         </select>
         <select v-model="filterCourse">
-          <option value="">All Courses</option>
+          <option value="">All Programs</option>
           <option value="BSCS">BSCS</option>
           <option value="BSIT">BSIT</option>
           <option value="BSIS">BSIS</option>
@@ -198,7 +198,7 @@
             <h4 class="section-title">Academic Information</h4>
             <div class="detail-rows">
               <div class="detail-row">
-                <span class="detail-key">Course</span>
+                <span class="detail-key">Program</span>
                 <span class="detail-val">{{ viewingStudent.course }}</span>
               </div>
               <div class="detail-row">
