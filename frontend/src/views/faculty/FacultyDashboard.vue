@@ -6,7 +6,7 @@
       <div class="hero-body">
         <div class="hero-left">
           <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Professor' }} 👋</h2>
+          <h2 class="hero-greeting">{{ greeting }} 👋</h2>
           <p class="hero-desc">You have <strong>{{ facultyStats.totalSubjects }} subjects</strong> this semester with <strong>{{ facultyStats.totalStudents }} enrolled students</strong> across all your classes.</p>
           <div class="hero-actions">
             <router-link to="/faculty/schedule" class="hero-btn-primary">
@@ -123,6 +123,23 @@ import { useAuthStore } from '../../store/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  let timeMsg = 'morning'
+  if (hour >= 12 && hour < 18) timeMsg = 'afternoon'
+  else if (hour >= 18 || hour < 5) timeMsg = 'evening'
+  
+  const faculty = authStore.user?.faculty
+  if (faculty) {
+    const title = faculty.title ? faculty.title + ' ' : ''
+    const lastName = faculty.last_name || ''
+    return `Good ${timeMsg}, ${title}${lastName}`
+  }
+  
+  return `Good ${timeMsg}, Professor`
+})
+
 const facultyStats = ref({ totalSubjects: 0, totalStudents: 0 })
 const facultyScheduleToday = ref([])
 const facultyTopStudents = ref([])

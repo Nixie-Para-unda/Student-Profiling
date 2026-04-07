@@ -6,7 +6,7 @@
       <div class="hero-body">
         <div class="hero-left">
           <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Dean' }} 👋</h2>
+          <h2 class="hero-greeting">{{ greeting }} 👋</h2>
           <p class="hero-desc">You have <strong>{{ pendingApprovalsCount }} pending approvals</strong> and <strong>{{ activeViolationsCount }} student violations</strong> requiring attention this week.</p>
           <div class="hero-actions">
             <button class="hero-btn-primary">Pending Approvals <span class="hero-btn-badge">{{ pendingApprovalsCount }}</span></button>
@@ -107,11 +107,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../store/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  let timeMsg = 'morning'
+  if (hour >= 12 && hour < 18) timeMsg = 'afternoon'
+  else if (hour >= 18 || hour < 5) timeMsg = 'evening'
+  
+  const faculty = authStore.user?.faculty
+  if (faculty) {
+    const title = faculty.title ? faculty.title + ' ' : ''
+    const lastName = faculty.last_name || ''
+    return `Good ${timeMsg}, ${title}${lastName}`
+  }
+  
+  return `Good ${timeMsg}, Dean`
+})
+
 const activeViolationsCount = ref(0)
 const pendingApprovalsCount = ref(0)
 const chartData = ref([

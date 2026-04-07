@@ -17,6 +17,7 @@ class Faculty extends Model
 
     protected $fillable = [
         'user_id',
+        'title',
         'department_id',
         'first_name',
         'last_name',

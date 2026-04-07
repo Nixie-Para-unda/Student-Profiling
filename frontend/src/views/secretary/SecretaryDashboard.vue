@@ -6,7 +6,7 @@
       <div class="hero-body">
         <div class="hero-left">
           <p class="hero-eyebrow"><span class="eyebrow-dot"></span>Academic Year 2026-2027 · 2nd Semester</p>
-          <h2 class="hero-greeting">Good morning, {{ authStore.user?.name?.split(' ')[0] ?? 'Secretary' }} 👋</h2>
+          <h2 class="hero-greeting">{{ greeting }} 👋</h2>
           <p class="hero-desc">There are <strong>{{ secStats.pendingAccounts }} pending account requests</strong> and <strong>{{ secStats.pendingVerifications }} achievements</strong> awaiting verification today.</p>
           <div class="hero-actions">
             <router-link to="/students" class="hero-btn-primary">
@@ -103,11 +103,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../store/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  let timeMsg = 'morning'
+  if (hour >= 12 && hour < 18) timeMsg = 'afternoon'
+  else if (hour >= 18 || hour < 5) timeMsg = 'evening'
+  
+  const faculty = authStore.user?.faculty
+  if (faculty) {
+    const title = faculty.title ? faculty.title + ' ' : ''
+    const lastName = faculty.last_name || ''
+    return `Good ${timeMsg}, ${title}${lastName}`
+  }
+  
+  return `Good ${timeMsg}, Secretary`
+})
+
 const secStats = ref({ totalStudents: 842, totalFaculty: 38, pendingAccounts: 5, pendingVerifications: 8 })
 const secAccountRequests = ref([
   { name: 'Juan dela Cruz', type: 'Student', course: 'BSCS', status: 'Pending', color: '#FF6B1A' },

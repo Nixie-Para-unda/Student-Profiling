@@ -76,8 +76,9 @@ class DatabaseSeeder extends Seeder
         \App\Models\Faculty::firstOrCreate([
             'user_id' => $deanUser->id
         ], [
+            'title' => 'Dr.',
             'department_id' => $dept->id,
-            'first_name' => 'Dr. Maria',
+            'first_name' => 'Maria',
             'last_name' => 'Santos',
             'position' => 'College Dean',
         ]);
@@ -95,8 +96,9 @@ class DatabaseSeeder extends Seeder
         \App\Models\Faculty::firstOrCreate([
             'user_id' => $chairUser->id
         ], [
+            'title' => 'Engr.',
             'department_id' => $dept->id,
-            'first_name' => 'Engr. Roberto',
+            'first_name' => 'Roberto',
             'last_name' => 'Dela Cruz',
             'position' => 'Department Chair',
         ]);
@@ -114,8 +116,9 @@ class DatabaseSeeder extends Seeder
         \App\Models\Faculty::firstOrCreate([
             'user_id' => $secUser->id
         ], [
+            'title' => 'Ms.',
             'department_id' => $dept->id,
-            'first_name' => 'Ms. Clarisse',
+            'first_name' => 'Clarisse',
             'last_name' => 'Villanueva',
             'position' => 'College Secretary',
         ]);

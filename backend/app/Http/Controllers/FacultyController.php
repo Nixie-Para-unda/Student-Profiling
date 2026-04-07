@@ -134,6 +134,7 @@ class FacultyController extends Controller
         }
 
         $request->validate([
+            'title' => 'nullable|string',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'middle_name' => 'nullable|string',
@@ -158,6 +159,7 @@ class FacultyController extends Controller
 
             $faculty = Faculty::create([
                 'user_id' => $user->id,
+                'title' => $request->title,
                 'department_id' => $request->department_id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -187,11 +189,13 @@ class FacultyController extends Controller
         $faculty = Faculty::findOrFail($id);
 
         $request->validate([
+            'title' => 'nullable|string',
             'department_id' => 'required|exists:departments,id',
             'position' => 'required|string',
         ]);
 
         $faculty->update([
+            'title' => $request->title,
             'department_id' => $request->department_id,
             'position' => $request->position,
         ]);

@@ -100,7 +100,10 @@
                 <div class="student-cell">
                   <div class="s-avatar" :style="{ background: f.color }">{{ f.first_name.charAt(0) }}</div>
                   <div>
-                    <p class="s-name">{{ f.last_name }}, {{ f.first_name }} {{ f.middle_name || '' }}</p>
+                    <p class="s-name">
+                      <span v-if="f.title" class="title-label">{{ f.title }}</span>
+                      {{ f.last_name }}, {{ f.first_name }} {{ f.middle_name || '' }}
+                    </p>
                     <p class="s-sub">{{ f.user?.email }}</p>
                   </div>
                 </div>
@@ -168,7 +171,10 @@
               {{ viewingFaculty.first_name.charAt(0) }}
             </div>
             <div>
-              <h3>{{ viewingFaculty.last_name }}, {{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name || '' }}</h3>
+              <h3>
+                <span v-if="viewingFaculty.title" class="title-label">{{ viewingFaculty.title }}</span>
+                {{ viewingFaculty.last_name }}, {{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name || '' }}
+              </h3>
               <p class="modal-sub">{{ viewingFaculty.position }} · {{ viewingFaculty.department_name }}</p>
             </div>
           </div>
@@ -179,6 +185,10 @@
           <div class="profile-section">
             <h4 class="section-title">Personal Information</h4>
             <div class="detail-rows">
+              <div class="detail-row" v-if="viewingFaculty.title">
+                <span class="detail-key">Title</span>
+                <span class="detail-val">{{ viewingFaculty.title }}</span>
+              </div>
               <div class="detail-row">
                 <span class="detail-key">Full Name</span>
                 <span class="detail-val">{{ viewingFaculty.last_name }}, {{ viewingFaculty.first_name }} {{ viewingFaculty.middle_name || '' }}</span>
@@ -309,6 +319,10 @@
         </div>
         <div class="modal-body">
           <div class="form-grid">
+            <div class="form-group">
+              <label>Title (Optional)</label>
+              <input v-model="form.title" type="text" placeholder="e.g. Dr., Engr., Ms." :disabled="saving" />
+            </div>
             <div class="form-group">
               <label>First Name</label>
               <input v-model="form.first_name" type="text" placeholder="First name" :disabled="!!editingFaculty || saving" :class="{ 'error-input': formErrors.first_name }" @input="validateField('first_name')" />
@@ -448,6 +462,7 @@ const currentPage = ref(1)
 const pageSize = ref(50)
 
 const form = ref({
+  title: '',
   first_name: '',
   last_name: '',
   middle_name: '',
@@ -598,6 +613,7 @@ const openCreateModal = () => {
   editingFaculty.value = null; 
   formErrors.value = {};
   form.value = { 
+    title: '',
     first_name: '', 
     last_name: '', 
     middle_name: '', 
@@ -612,6 +628,7 @@ const openEditModal = (f) => {
   editingFaculty.value = f; 
   formErrors.value = {};
   form.value = { 
+    title: f.title || '',
     first_name: f.first_name, 
     last_name: f.last_name, 
     middle_name: f.middle_name, 
@@ -634,6 +651,7 @@ const saveFaculty = async () => {
   try {
     if (editingFaculty.value) {
       await axios.put(`/secretary/faculty/${editingFaculty.value.id}`, {
+        title: form.value.title,
         department_id: form.value.department_id,
         position: form.value.position,
         first_name: form.value.first_name,
@@ -814,6 +832,7 @@ const handleCSV = async (e) => {
 .s-avatar { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
 .s-avatar.lg { width: 50px; height: 50px; border-radius: 14px; font-size: 20px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; transition: color 0.15s; }
+.title-label { color: #FF6B1A; font-weight: 700; margin-right: 4px; }
 .s-sub { font-size: 11px; color: #b89f90; margin-top: 1px; }
 .code-badge { font-size: 11px; font-weight: 700; color: #FF6B1A; background: #fff5ef; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
 .status-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
