@@ -7,6 +7,73 @@
       </div>
     </div>
 
+    <!-- Stats Cards Section -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card-blue">
+        <div class="stat-icon stat-icon-blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number stat-number-blue">{{ stats.totalStudents }}</span>
+          <span class="stat-label">TOTAL STUDENTS</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-green">
+        <div class="stat-icon stat-icon-green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number stat-number-green">{{ stats.activeStudents }}</span>
+          <span class="stat-label">ACTIVE</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-purple">
+        <div class="stat-icon stat-icon-purple">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number">{{ stats.pendingSetup }}</span>
+          <span class="stat-label">PENDING SETUP</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-orange">
+        <div class="stat-icon stat-icon-orange">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number stat-number-orange">{{ stats.bscsStudents }}</span>
+          <span class="stat-label">BSCS</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-card-red">
+        <div class="stat-icon stat-icon-red">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-number stat-number-red">{{ stats.bsitStudents }}</span>
+          <span class="stat-label">BSIT</span>
+        </div>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading-state">
       <span class="spinner"></span>
       Loading schedule...
@@ -101,6 +168,15 @@ const loadingStudents = ref(false)
 const schedule = ref([])
 const selectedSection = ref(null)
 const sectionStudents = ref([])
+
+// Stats data
+const stats = ref({
+  totalStudents: 40,
+  activeStudents: 40,
+  pendingSetup: 0,
+  bscsStudents: 20,
+  bsitStudents: 20
+})
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -204,6 +280,99 @@ onMounted(fetchSchedule)
 .page-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 0; }
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 12px; color: #b89f90; margin-top: 2px; }
+
+/* Stats Cards Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #f0e8e0;
+  border-top: 4px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card-blue { border-top-color: #3b82f6; }
+.stat-card-green { border-top-color: #22c55e; }
+.stat-card-purple { border-top-color: #a855f7; }
+.stat-card-orange { border-top-color: #f97316; }
+.stat-card-red { border-top-color: #ef4444; }
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-blue { background: #eff6ff; color: #3b82f6; }
+.stat-icon-green { background: #f0fdf4; color: #22c55e; }
+.stat-icon-purple { background: #faf5ff; color: #a855f7; }
+.stat-icon-orange { background: #fff7ed; color: #f97316; }
+.stat-icon-red { background: #fef2f2; color: #ef4444; }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-number {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a0a00;
+}
+
+.stat-number-blue { color: #3b82f6; }
+.stat-number-green { color: #22c55e; }
+.stat-number-orange { color: #f97316; }
+.stat-number-red { color: #ef4444; }
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 .calendar-card {
   background: #fff;

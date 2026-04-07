@@ -9,9 +9,53 @@
 
     <!-- Stats Row -->
     <div class="mini-stats">
-      <div class="mini-stat" v-for="s in miniStats" :key="s.label">
-        <span class="mini-stat-value" :style="{ color: s.color }">{{ s.value }}</span>
-        <span class="mini-stat-label">{{ s.label }}</span>
+      <div class="mini-stat stat-orange">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[0].value }}</span>
+          <span class="stat-label">{{ miniStats[0].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-purple">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[1].value }}</span>
+          <span class="stat-label">{{ miniStats[1].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-blue">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[2].value }}</span>
+          <span class="stat-label">{{ miniStats[2].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-green">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[3].value }}</span>
+          <span class="stat-label">{{ miniStats[3].label }}</span>
+        </div>
       </div>
     </div>
 
@@ -28,14 +72,12 @@
             {{ subj.name }} ({{ subj.code }})
           </option>
         </select>
-
         <select v-model="filterCourse">
           <option value="">All Courses</option>
           <option value="BSCS">BSCS</option>
           <option value="BSIT">BSIT</option>
           <option value="BSIS">BSIS</option>
         </select>
-
         <select v-model="filterYear">
           <option value="">All Years</option>
           <option value="1">1st Year</option>
@@ -43,7 +85,6 @@
           <option value="3">3rd Year</option>
           <option value="4">4th Year</option>
         </select>
-
         <select v-model="filterSection">
           <option value="">All Sections</option>
           <option v-for="sec in availableSections" :key="sec" :value="sec">{{ sec }}</option>
@@ -109,15 +150,7 @@
             <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="pag-pages">
-            <button 
-              v-for="p in totalPages" 
-              :key="p" 
-              class="pag-page-btn" 
-              :class="{ active: currentPage === p }"
-              @click="currentPage = p"
-            >
-              {{ p }}
-            </button>
+            <button v-for="p in totalPages" :key="p" class="pag-page-btn" :class="{ active: currentPage === p }" @click="currentPage = p">{{ p }}</button>
           </div>
           <button class="pag-btn" :disabled="currentPage === totalPages" @click="currentPage++">
             <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -126,7 +159,7 @@
       </div>
     </div>
 
-    <!-- VIEW MODAL (Read-only for Faculty) -->
+    <!-- VIEW MODAL -->
     <div v-if="viewingStudent" class="modal-overlay" @click.self="viewingStudent = null">
       <div class="modal modal-lg">
         <div class="modal-header">
@@ -156,9 +189,7 @@
               </div>
               <div class="detail-row">
                 <span class="detail-key">Student Number</span>
-                <span class="detail-val">
-                  <span class="code-badge">{{ viewingStudent.student_number }}</span>
-                </span>
+                <span class="detail-val"><span class="code-badge">{{ viewingStudent.student_number }}</span></span>
               </div>
             </div>
           </div>
@@ -185,7 +216,6 @@
             </div>
           </div>
 
-          <!-- Guardian Information -->
           <div class="profile-section" v-if="viewingStudent.guardian">
             <h4 class="section-title">Guardian Information</h4>
             <div class="detail-rows">
@@ -207,12 +237,11 @@
             <h4 class="section-title">Guardian Information</h4>
             <div class="detail-rows">
               <div class="detail-row">
-                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No guardian information provided.</span>
+                <span class="detail-val" style="text-align:left;color:#b89f90;font-style:italic;">No guardian information provided.</span>
               </div>
             </div>
           </div>
 
-          <!-- Affiliations -->
           <div class="profile-section" v-if="viewingStudent.organizations && viewingStudent.organizations.length > 0">
             <h4 class="section-title">Affiliations</h4>
             <div class="detail-rows">
@@ -226,12 +255,11 @@
             <h4 class="section-title">Affiliations</h4>
             <div class="detail-rows">
               <div class="detail-row">
-                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No affiliations recorded.</span>
+                <span class="detail-val" style="text-align:left;color:#b89f90;font-style:italic;">No affiliations recorded.</span>
               </div>
             </div>
           </div>
 
-          <!-- Skills -->
           <div class="profile-section" v-if="viewingStudent.skills && viewingStudent.skills.length > 0">
             <h4 class="section-title">Skills</h4>
             <div class="skill-tags">
@@ -245,7 +273,7 @@
             <h4 class="section-title">Skills</h4>
             <div class="detail-rows">
               <div class="detail-row">
-                <span class="detail-val" style="text-align: left; color: #b89f90; font-style: italic;">No skills recorded.</span>
+                <span class="detail-val" style="text-align:left;color:#b89f90;font-style:italic;">No skills recorded.</span>
               </div>
             </div>
           </div>
@@ -284,7 +312,6 @@ const fetchStudents = async () => {
   try {
     const response = await axios.get('/faculty/students')
     const data = response.data
-    
     students.value = data.students.map((s, idx) => ({
       id: s.id,
       first_name: s.first_name,
@@ -308,7 +335,6 @@ const fetchStudents = async () => {
         dateLeft: org.dateLeft
       }))
     }))
-    
     handledSubjects.value = data.subjects
   } catch (err) {
     console.error('Failed to fetch students:', err)
@@ -326,10 +352,10 @@ const getYearSuffix = (y) => {
 }
 
 const miniStats = computed(() => [
-  { label: 'My Students', value: students.value.length, color: '#FF6B1A' },
-  { label: 'BSCS', value: students.value.filter(s => s.course === 'BSCS').length, color: '#8b5cf6' },
-  { label: 'BSIT', value: students.value.filter(s => s.course === 'BSIT').length, color: '#3b82f6' },
-  { label: 'Active', value: students.value.filter(s => s.status === 'active').length, color: '#16a34a' }
+  { label: 'My Students', value: students.value.length },
+  { label: 'BSCS', value: students.value.filter(s => s.course === 'BSCS').length },
+  { label: 'BSIT', value: students.value.filter(s => s.course === 'BSIT').length },
+  { label: 'Active', value: students.value.filter(s => s.status === 'active').length }
 ])
 
 const availableSections = computed(() => {
@@ -337,7 +363,6 @@ const availableSections = computed(() => {
   return [...new Set(secs)].sort()
 })
 
-// Unique subjects handled by faculty
 const availableSubjects = computed(() => {
   const unique = []
   const ids = new Set()
@@ -351,14 +376,12 @@ const availableSubjects = computed(() => {
 })
 
 const filteredStudents = computed(() => {
-  // Get sections associated with selected subject if any
   let subjectSectionIds = []
   if (filterSubject.value) {
     subjectSectionIds = handledSubjects.value
       .filter(s => s.id == filterSubject.value)
       .map(s => s.section_id)
   }
-
   return students.value.filter(s => {
     const matchSearch = !search.value ||
       `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.value.toLowerCase()) ||
@@ -367,10 +390,7 @@ const filteredStudents = computed(() => {
     const matchCourse = !filterCourse.value || s.course === filterCourse.value
     const matchYear = !filterYear.value || s.year_level == filterYear.value
     const matchSection = !filterSection.value || s.section === filterSection.value
-    
-    // Filter by subject: student's section must be one of the sections the faculty teaches this subject to
     const matchSubject = !filterSubject.value || subjectSectionIds.includes(s.section_id)
-    
     return matchSearch && matchCourse && matchYear && matchSection && matchSubject
   })
 })
@@ -396,11 +416,69 @@ onMounted(fetchStudents)
 .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 700; color: #1a0a00; }
 .page-sub { font-size: 13px; color: #b89f90; margin-top: 4px; }
 
-/* ── Mini Stats ── */
+/* ── Stats ── */
 .mini-stats { display: flex; gap: 14px; }
-.mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; }
-.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.mini-stat {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-top: 3px solid;
+  border-radius: 14px;
+  padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg { width: 18px; height: 18px; }
+
+.stat-text { display: flex; flex-direction: column; gap: 3px; }
+
+.stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9a8070;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.stat-orange { border-top-color: #FF6B1A; }
+.stat-orange .stat-icon { background: #fff5ef; }
+.stat-orange .stat-icon svg { color: #FF6B1A; }
+.stat-orange .stat-value { color: #FF6B1A; }
+
+.stat-purple { border-top-color: #8b5cf6; }
+.stat-purple .stat-icon { background: #f5f3ff; }
+.stat-purple .stat-icon svg { color: #8b5cf6; }
+.stat-purple .stat-value { color: #8b5cf6; }
+
+.stat-blue { border-top-color: #3b82f6; }
+.stat-blue .stat-icon { background: #eff6ff; }
+.stat-blue .stat-icon svg { color: #3b82f6; }
+.stat-blue .stat-value { color: #3b82f6; }
+
+.stat-green { border-top-color: #10b981; }
+.stat-green .stat-icon { background: #f0fdf4; }
+.stat-green .stat-icon svg { color: #10b981; }
+.stat-green .stat-value { color: #10b981; }
 
 /* ── Toolbar ── */
 .table-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -465,7 +543,7 @@ onMounted(fetchStudents)
 .profile-body { display: flex; flex-direction: column; gap: 24px; }
 .profile-section { display: flex; flex-direction: column; gap: 12px; }
 .section-title { font-size: 11px; font-weight: 800; color: #FF6B1A; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1.5px solid #fff5ef; padding-bottom: 6px; }
-.detail-rows { display: flex; flex-direction: column; }
+.detail-rows { display: flex; flex-direction: column; border: 1px solid #f0e8e0; border-radius: 12px; overflow: hidden; }
 .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid #f0e8e0; gap: 12px; }
 .detail-row:last-child { border-bottom: none; }
 .detail-key { font-size: 11px; color: #9a8070; font-weight: 500; }

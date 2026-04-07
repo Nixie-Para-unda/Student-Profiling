@@ -9,9 +9,54 @@
 
     <!-- Stats Row -->
     <div class="mini-stats">
-      <div class="mini-stat" v-for="s in miniStats" :key="s.label">
-        <span class="mini-stat-value" :style="{ color: s.color }">{{ s.value }}</span>
-        <span class="mini-stat-label">{{ s.label }}</span>
+      <div class="mini-stat stat-orange">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[0].value }}</span>
+          <span class="stat-label">{{ miniStats[0].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-red">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[1].value }}</span>
+          <span class="stat-label">{{ miniStats[1].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-amber">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[2].value }}</span>
+          <span class="stat-label">{{ miniStats[2].label }}</span>
+        </div>
+      </div>
+
+      <div class="mini-stat stat-green">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="stat-text">
+          <span class="stat-value">{{ miniStats[3].value }}</span>
+          <span class="stat-label">{{ miniStats[3].label }}</span>
+        </div>
       </div>
     </div>
 
@@ -60,7 +105,7 @@
             <tr v-for="v in filteredCases" :key="v.id" @click="viewViolation(v)" class="clickable-row">
               <td>
                 <div class="student-cell">
-                  <div class="s-avatar" :style="{ background: '#FF6B1A' }">
+                  <div class="s-avatar">
                     {{ v.student?.first_name?.charAt(0) }}
                   </div>
                   <div>
@@ -101,7 +146,6 @@
         </div>
         <div class="modal-body profile-body">
           <div class="detail-grid">
-            <!-- Student Info -->
             <div class="profile-section">
               <h4 class="section-title">Reported Student</h4>
               <div class="info-card">
@@ -110,8 +154,6 @@
                 <p class="info-sub">{{ viewingViolation.student?.section?.section_name }} | {{ viewingViolation.student?.program?.program_code }}</p>
               </div>
             </div>
-
-            <!-- Reporter Info -->
             <div class="profile-section">
               <h4 class="section-title">Reporting Faculty</h4>
               <div class="info-card">
@@ -122,14 +164,13 @@
             </div>
           </div>
 
-          <!-- Incident Details -->
           <div class="profile-section">
             <h4 class="section-title">Incident Information</h4>
             <div class="detail-rows">
               <div class="detail-row">
                 <span class="detail-key">Type & Severity</span>
                 <span class="detail-val">
-                  {{ viewingViolation.violationType }} 
+                  {{ viewingViolation.violationType }}
                   <span class="sev-badge" :class="'sev-' + viewingViolation.severity.toLowerCase()">{{ viewingViolation.severity }}</span>
                 </span>
               </div>
@@ -148,7 +189,6 @@
             </div>
           </div>
 
-          <!-- Administrative Action -->
           <div class="profile-section">
             <h4 class="section-title">Administrative Action</h4>
             <div class="action-form">
@@ -164,9 +204,9 @@
               </div>
               <div class="form-group full-span">
                 <label>Action Taken / Remarks</label>
-                <textarea 
-                  v-model="editForm.action_taken" 
-                  rows="3" 
+                <textarea
+                  v-model="editForm.action_taken"
+                  rows="3"
                   placeholder="Input the actions taken or final decision for this case..."
                   :disabled="saving"
                 ></textarea>
@@ -195,7 +235,6 @@ const loading = ref(true)
 const saving = ref(false)
 const viewingViolation = ref(null)
 
-// Filtering state
 const searchQuery = ref('')
 const severityFilter = ref('')
 const statusFilter = ref('')
@@ -220,23 +259,21 @@ const fetchViolations = async () => {
 const filteredCases = computed(() => {
   return cases.value.filter(v => {
     const name = `${v.student?.first_name} ${v.student?.last_name}`.toLowerCase()
-    const matchSearch = !searchQuery.value || 
-      name.includes(searchQuery.value.toLowerCase()) || 
+    const matchSearch = !searchQuery.value ||
+      name.includes(searchQuery.value.toLowerCase()) ||
       v.violationType.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       `${v.faculty?.first_name} ${v.faculty?.last_name}`.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
     const matchSeverity = severityFilter.value ? v.severity === severityFilter.value : true
     const matchStatus = statusFilter.value ? v.status === statusFilter.value : true
-    
     return matchSearch && matchSeverity && matchStatus
   })
 })
 
 const miniStats = computed(() => [
-  { label: 'Total Reports', value: cases.value.length, color: '#FF6B1A' },
-  { label: 'Major', value: cases.value.filter(v => v.severity === 'Major').length, color: '#ef4444' },
-  { label: 'Pending Review', value: cases.value.filter(v => v.status === 'Pending').length, color: '#f59e0b' },
-  { label: 'Resolved', value: cases.value.filter(v => v.status === 'Resolved').length, color: '#10b981' }
+  { label: 'Total Reports', value: cases.value.length },
+  { label: 'Major', value: cases.value.filter(v => v.severity === 'Major').length },
+  { label: 'Pending Review', value: cases.value.filter(v => v.status === 'Pending').length },
+  { label: 'Resolved', value: cases.value.filter(v => v.status === 'Resolved').length }
 ])
 
 const viewViolation = (v) => {
@@ -250,7 +287,7 @@ const viewViolation = (v) => {
 const updateViolation = async () => {
   saving.value = true
   try {
-    const res = await axios.put(`/violations/${viewingViolation.value.id}`, editForm.value)
+    await axios.put(`/violations/${viewingViolation.value.id}`, editForm.value)
     alert('Violation updated successfully!')
     viewingViolation.value = null
     fetchViolations()
@@ -287,9 +324,68 @@ onMounted(fetchViolations)
 
 /* ── Stats ── */
 .mini-stats { display: flex; gap: 14px; }
-.mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; }
-.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.mini-stat {
+  background: #fff;
+  border: 1px solid #f0e8e0;
+  border-top: 3px solid;
+  border-radius: 14px;
+  padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg { width: 18px; height: 18px; }
+
+.stat-text { display: flex; flex-direction: column; gap: 3px; }
+
+.stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9a8070;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* Color variants */
+.stat-orange { border-top-color: #FF6B1A; }
+.stat-orange .stat-icon { background: #fff5ef; }
+.stat-orange .stat-icon svg { color: #FF6B1A; }
+.stat-orange .stat-value { color: #FF6B1A; }
+
+.stat-red { border-top-color: #ef4444; }
+.stat-red .stat-icon { background: #fef2f2; }
+.stat-red .stat-icon svg { color: #ef4444; }
+.stat-red .stat-value { color: #ef4444; }
+
+.stat-amber { border-top-color: #f59e0b; }
+.stat-amber .stat-icon { background: #fffbeb; }
+.stat-amber .stat-icon svg { color: #f59e0b; }
+.stat-amber .stat-value { color: #f59e0b; }
+
+.stat-green { border-top-color: #10b981; }
+.stat-green .stat-icon { background: #f0fdf4; }
+.stat-green .stat-icon svg { color: #10b981; }
+.stat-green .stat-value { color: #10b981; }
 
 /* ── Actions ── */
 .table-actions { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
@@ -307,7 +403,7 @@ onMounted(fetchViolations)
 .data-table td { padding: 14px 20px; border-bottom: 1px solid #faf8f6; vertical-align: middle; }
 
 .student-cell { display: flex; align-items: center; gap: 12px; }
-.s-avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+.s-avatar { width: 36px; height: 36px; border-radius: 10px; background: #FF6B1A; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
 .s-name { font-size: 13px; font-weight: 600; color: #1a0a00; }
 .s-sub { font-size: 11px; color: #b89f90; }
 

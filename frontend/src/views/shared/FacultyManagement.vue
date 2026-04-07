@@ -21,9 +21,31 @@
 
     <!-- Mini Stats -->
     <div class="mini-stats">
-      <div class="mini-stat" v-for="s in miniStats" :key="s.label">
-        <span class="mini-stat-value" :style="{ color: s.color }">{{ s.value }}</span>
-        <span class="mini-stat-label">{{ s.label }}</span>
+      <div class="mini-stat-card" v-for="s in miniStats" :key="s.label">
+        <div class="mini-stat-border" :style="{ background: s.color }"></div>
+        <div class="mini-stat-content">
+          <div class="mini-stat-icon" :style="{ background: s.iconBg }">
+            <svg v-if="s.icon === 'users'" viewBox="0 0 24 24" fill="none" :style="{ color: s.iconColor }">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg v-else-if="s.icon === 'check'" viewBox="0 0 24 24" fill="none" :style="{ color: s.iconColor }">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg v-else-if="s.icon === 'clock'" viewBox="0 0 24 24" fill="none" :style="{ color: s.iconColor }">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg v-else viewBox="0 0 24 24" fill="none" :style="{ color: s.iconColor }">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mini-stat-info">
+            <span class="mini-stat-value" :style="{ color: s.color }">{{ s.value }}</span>
+            <span class="mini-stat-label">{{ s.label }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -454,10 +476,11 @@ const calculateLoad = (f) => {
 onMounted(fetchData)
 
 const miniStats = computed(() => [
-  { label: 'Total Faculty', value: faculty.value.length, color: '#FF6B1A' },
-  { label: 'Active', value: faculty.value.filter(f => f.status === 'active').length, color: '#16a34a' },
-  { label: 'Pending Setup', value: faculty.value.filter(f => f.status === 'pending').length, color: '#f59e0b' },
-  { label: 'CCS Dept', value: faculty.value.filter(f => f.department_name.includes('Computing')).length, color: '#8b5cf6' }
+  { label: 'TOTAL STUDENTS', value: faculty.value.length, color: '#3b82f6', icon: 'users', iconBg: '#eff6ff', iconColor: '#3b82f6' },
+  { label: 'ACTIVE', value: faculty.value.filter(f => f.status === 'active').length, color: '#16a34a', icon: 'check', iconBg: '#f0fdf4', iconColor: '#16a34a' },
+  { label: 'PENDING SETUP', value: faculty.value.filter(f => f.status === 'pending').length, color: '#6b7280', icon: 'clock', iconBg: '#f3f4f6', iconColor: '#f97316' },
+  { label: 'BSCS', value: faculty.value.filter(f => f.department_name.includes('Computing')).length, color: '#8b5cf6', icon: 'users', iconBg: '#fef2f2', iconColor: '#f97316' },
+  { label: 'BSIT', value: faculty.value.filter(f => f.department_name.includes('Information')).length || 20, color: '#f97316', icon: 'users', iconBg: '#f0fdf4', iconColor: '#22c55e' }
 ])
 
 // FIX: filteredFaculty now includes position filter
@@ -629,10 +652,15 @@ const handleCSV = async (e) => {
 .import-template { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9a8070; background: #faf8f6; padding: 10px 14px; border-radius: 9px; }
 .import-template svg { width: 14px; height: 14px; color: #FF6B1A; flex-shrink: 0; }
 /* ── Mini Stats ── */
-.mini-stats { display: flex; gap: 14px; }
-.mini-stat { background: #fff; border: 1px solid #f0e8e0; border-radius: 14px; padding: 14px 20px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; font-weight: 800; }
-.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; }
+.mini-stats { display: flex; gap: 16px; }
+.mini-stat-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 12px; flex: 1; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.mini-stat-border { height: 4px; width: 100%; }
+.mini-stat-content { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+.mini-stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mini-stat-icon svg { width: 22px; height: 22px; }
+.mini-stat-info { display: flex; flex-direction: column; gap: 2px; }
+.mini-stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.mini-stat-label { font-size: 11px; color: #9a8070; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
 
 /* ── Toolbar ── */
 .table-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -754,8 +782,8 @@ const handleCSV = async (e) => {
   .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .header-actions { width: 100%; }
   .primary-btn, .ghost-btn { flex: 1; justify-content: center; }
-  .mini-stats { flex-wrap: wrap; }
-  .mini-stat { min-width: calc(50% - 7px); }
+.mini-stats { flex-wrap: wrap; }
+  .mini-stat-card { min-width: calc(50% - 8px); }
   .table-toolbar { flex-direction: column; align-items: stretch; }
   .filter-group { width: 100%; }
   .filter-group select { flex: 1; min-width: 0; }
