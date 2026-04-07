@@ -47,6 +47,7 @@
               <th>NAME</th>
               <th>{{ activeTab === 'students' ? 'STUDENT NO.' : 'DEPARTMENT' }}</th>
               <th>{{ activeTab === 'students' ? 'PROGRAM' : 'POSITION' }}</th>
+              <th>ARCHIVED BY</th>
               <th>ARCHIVED AT</th>
               <th class="text-right">ACTIONS</th>
             </tr>
@@ -67,6 +68,13 @@
                 <span class="type-badge">
                   {{ activeTab === 'students' ? (item.program?.program_code || 'N/A') : (item.position || 'N/A') }}
                 </span>
+              </td>
+              <td>
+                <div v-if="item.archiver" class="archiver-info">
+                  <span class="archiver-name">{{ item.archiver.role === 'secretary' ? 'Secretary' : (item.archiver.role === 'dean' ? 'Dean' : 'Chair') }}</span>
+                  <span class="archiver-email">{{ item.archiver.email }}</span>
+                </div>
+                <span v-else class="na-text">System</span>
               </td>
               <td>{{ formatDate(item.deleted_at) }}</td>
               <td class="actions-cell">
@@ -190,6 +198,11 @@ onMounted(fetchArchived)
 .u-avatar { width: 36px; height: 36px; background: #f0e8e0; color: #9a8070; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }
 .u-name { font-weight: 700; font-size: 14px; }
 .u-sub { font-size: 12px; color: #9a8070; }
+
+.archiver-info { display: flex; flex-direction: column; gap: 2px; }
+.archiver-name { font-weight: 700; font-size: 12px; color: #1a0a00; }
+.archiver-email { font-size: 11px; color: #9a8070; }
+.na-text { color: #b89f90; font-style: italic; font-size: 12px; }
 
 .type-badge { background: #f0e8e0; color: #1a0a00; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; }
 .text-right { text-align: right; }

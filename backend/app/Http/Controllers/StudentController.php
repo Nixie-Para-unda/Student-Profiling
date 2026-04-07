@@ -334,7 +334,10 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
         $user = $student->user;
 
-        return DB::transaction(function () use ($student, $user) {
+        return DB::transaction(function () use ($student, $user, $request) {
+            // Set who archived this student
+            $student->update(['archived_by' => $request->user()->id]);
+            
             // Soft delete student record
             $student->delete();
             

@@ -214,7 +214,10 @@ class FacultyController extends Controller
         $faculty = Faculty::findOrFail($id);
         $user = $faculty->user;
 
-        return DB::transaction(function () use ($faculty, $user) {
+        return DB::transaction(function () use ($faculty, $user, $request) {
+            // Set who archived this faculty
+            $faculty->update(['archived_by' => $request->user()->id]);
+
             // Soft delete faculty record
             $faculty->delete();
             

@@ -79,10 +79,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/secretary/students', [StudentController::class, 'store']);
         Route::post('/secretary/students/import', [StudentController::class, 'import']);
         Route::put('/secretary/students/{id}', [StudentController::class, 'update']);
-        Route::delete('/secretary/students/{id}', [StudentController::class, 'destroy']);
         Route::post('/secretary/faculty', [FacultyController::class, 'store']);
         Route::put('/secretary/faculty/{id}', [FacultyController::class, 'update']);
-        Route::delete('/secretary/faculty/{id}', [FacultyController::class, 'destroy']);
         Route::post('/secretary/faculty/import', [FacultyController::class, 'import']);
     });
 
@@ -92,6 +90,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/students', [StudentController::class, 'index']);
         Route::get('/students/{id}', [StudentProfileController::class, 'getById']);
         Route::get('/faculty', [FacultyController::class, 'index']);
+        
+        // Archiving (Shared)
+        Route::delete('/secretary/students/{id}', [StudentController::class, 'destroy']);
+        Route::delete('/secretary/faculty/{id}', [FacultyController::class, 'destroy']);
         
         // Courses
         Route::get('/courses', [CourseController::class, 'index']);

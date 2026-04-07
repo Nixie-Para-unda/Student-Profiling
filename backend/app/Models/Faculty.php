@@ -27,7 +27,13 @@ class Faculty extends Model
         'civil_status',
         'gender',
         'address',
+        'archived_by',
     ];
+
+    public function archiver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
 
     public function user(): BelongsTo
     {

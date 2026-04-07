@@ -21,14 +21,14 @@ class ArchiveController extends Controller
 
         $archivedStudents = Student::onlyTrashed()->with(['user' => function($query) {
             $query->withTrashed();
-        }, 'program'])->get()->map(function($s) {
+        }, 'program', 'archiver'])->get()->map(function($s) {
             $s->type = 'student';
             return $s;
         });
 
         $archivedFaculty = Faculty::onlyTrashed()->with(['user' => function($query) {
             $query->withTrashed();
-        }, 'department'])->get()->map(function($f) {
+        }, 'department', 'archiver'])->get()->map(function($f) {
             $f->type = 'faculty';
             return $f;
         });

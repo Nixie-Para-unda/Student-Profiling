@@ -28,7 +28,13 @@ class Student extends Model
         'contact_number',
         'address',
         'gwa',
+        'archived_by',
     ];
+
+    public function archiver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
 
     public function user(): BelongsTo
     {
