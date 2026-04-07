@@ -55,7 +55,7 @@ class ProfilingController extends Controller
         if ($request->filled('skill_name') || $request->filled('skill_category')) {
             $query->whereHas('skills', function ($q) use ($request) {
                 if ($request->filled('skill_name')) {
-                    $q->where('skillName', 'like', '%' . $request->skill_name . '%');
+                    $q->where('skillName', $request->skill_name);
                 }
                 if ($request->filled('skill_category')) {
                     $q->where('skill_category', $request->skill_category);
@@ -67,7 +67,7 @@ class ProfilingController extends Controller
         if ($request->filled('academic_activity')) {
             $query->whereHas('academicActivities', function($q) use ($request) {
                 $q->where('status', 'verified')
-                  ->where('activity_name', 'like', '%' . $request->academic_activity . '%');
+                  ->where('activity_name', $request->academic_activity);
             });
         }
 
@@ -79,7 +79,7 @@ class ProfilingController extends Controller
         }
         if ($request->filled('organization')) {
             $query->whereHas('organizations.organization', function($q) use ($request) {
-                $q->where('organization_name', 'like', '%' . $request->organization . '%');
+                $q->where('organization_name', $request->organization);
             });
         }
 
@@ -87,7 +87,7 @@ class ProfilingController extends Controller
         if ($request->filled('award_name')) {
             $query->whereHas('awards', function($q) use ($request) {
                 $q->where('status', 'approved')
-                  ->where('awardName', 'like', '%' . $request->award_name . '%');
+                  ->where('awardName', $request->award_name);
             });
         }
 
