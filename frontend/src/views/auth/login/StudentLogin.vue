@@ -30,20 +30,19 @@
             </div>
           </div>
           <div>
-            <div class="brand-name">CCS Student Portal</div>
+            <div class="brand-name">CCS Faculty Portal</div>
             <div class="brand-sub">University of Cabuyao</div>
           </div>
         </div>
 
         <div class="hero">
           <h1 class="hero-title">
-            <span>Student</span>
-            <span class="accent">Self-Service</span>
-            <span>Portal</span>
+            <span>College of</span>
+            <span class="accent">Computing Studies</span>
+            <span>Student Portal</span>
           </h1>
           <p class="hero-desc">
-            Access your academic records, schedules,
-            and departmental updates.
+            Access your academic records, schedules, and departmental updates.
           </p>
         </div>
 
@@ -230,11 +229,11 @@ const handleLogin = async () => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start; /* Ensure all children start from the left padding line */
-  padding: 40px 48px 40px 60px; /* Reduced left padding to 60px */
+  align-items: flex-start;
+  padding: 40px 48px 40px 60px;
   overflow: hidden;
   perspective: 900px;
-  text-align: left; /* Explicitly left align all text */
+  text-align: left;
 }
 
 .hero-bg {
