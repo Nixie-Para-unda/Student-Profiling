@@ -1,0 +1,12 @@
+{
+  "name": "student-profiling",
+  "version": "1.0.0",
+  "build": {
+    "builder": "php",
+    "buildCommand": "cd backend && composer install --no-dev && php artisan migrate --force && npm install && npm run build",
+    "output": "backend/public"
+  },
+  "run": {
+    "web": "cd backend && php artisan serve --host=0.0.0.0 --port=$PORT"
+  }
+}
