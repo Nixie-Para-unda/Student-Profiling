@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/student/affiliations/{id}', [StudentProfileController::class, 'removeAffiliation']);
         Route::post('/student/activities', [StudentProfileController::class, 'addActivity']);
         Route::get('/student/violations', [StudentProfileController::class, 'getViolations']);
+        Route::get('/student/curriculum', [CurriculumController::class, 'studentCurriculum']);
     });
 
     // Curriculum Shared Routes (Dean and Secretary)

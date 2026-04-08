@@ -252,4 +252,41 @@ class CurriculumController extends Controller
 
         return response()->json(['message' => 'Curriculum entry removed.']);
     }
+
+    /**
+     * Get curriculum for the authenticated student based on their program.
+     */
+    public function studentCurriculum(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user->isStudent()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $student = $user->student()->with('section.program')->first();
+        
+        $programId = null;
+        if ($student->section && $student->section->program) {
+            $programId = $student->section->program->id;
+        } elseif ($student->program_id) {
+            $programId = $student->program_id;
+        }
+
+        if (!$programId) {
+            return response()->json(['message' => 'No program assigned'], 404);
+        }
+
+        $curriculum = Curriculum::with('course')
+            ->where('program_id', $programId)
+            ->orderBy('year_level')
+            ->orderByRaw("CASE semester 
+                WHEN '1st Semester' THEN 1 
+                WHEN '2nd Semester' THEN 2 
+                WHEN 'Summer' THEN 3 
+                ELSE 4 END")
+            ->get();
+
+        return response()->json($curriculum);
+    }
 }

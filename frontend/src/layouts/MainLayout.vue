@@ -73,6 +73,10 @@
             <svg class="dropdown-arrow" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div v-if="showUserMenu" class="user-menu">
+            <button class="user-menu-item" @click="goToProfile">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zM2 17a8 8 0 0116 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>My Profile</span>
+            </button>
             <button class="user-menu-item" @click="goToSettings">
               <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               <span>Account Settings</span>
@@ -168,6 +172,16 @@ const handleLogout = () => {
 
 const goToSettings = () => {
   router.push('/settings')
+  showUserMenu.value = false
+}
+
+const goToProfile = () => {
+  const role = authStore.user?.role
+  if (role === 'student') {
+    router.push('/student/profile')
+  } else if (role === 'faculty') {
+    router.push('/faculty/profile')
+  }
   showUserMenu.value = false
 }
 

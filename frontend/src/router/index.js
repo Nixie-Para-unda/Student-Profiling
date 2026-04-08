@@ -64,12 +64,12 @@ const routes = [
         path: 'student/profile',
         name: 'MyProfile',
         component: StudentProfile,
-        meta: { title: 'My Profile', breadcrumb: 'Student Portal > My Profile', role: 'student', sidebar: true, icon: 'profile', section: 'My Academic' }
+        meta: { title: 'My Profile', breadcrumb: 'Student Portal > My Profile', role: 'student', sidebar: false, icon: 'profile', section: 'My Academic' }
       },
       {
         path: 'student/curriculum',
         name: 'MyCurriculum',
-        component: () => import('../views/student/StudentSchedule.vue'),
+        component: () => import('../views/student/StudentCurriculum.vue'),
         meta: { title: 'My Curriculum', breadcrumb: 'Academic > My Curriculum', role: 'student', sidebar: true, icon: 'curriculum', section: 'My Academic' }
       },
       {
@@ -88,7 +88,7 @@ const routes = [
         path: 'student/violations',
         name: 'MyViolations',
         component: () => import('../views/student/StudentViolations.vue'),
-        meta: { title: 'My Violations', breadcrumb: 'Student Portal > My Violations', role: 'student', sidebar: true, icon: 'violations', section: 'My Academic' }
+        meta: { title: 'My Violations', breadcrumb: 'Student Portal > My Violations', role: 'student', sidebar: true, icon: 'violations', section: 'My Activities' }
       },
 
       // ── Dean routes ─────────────────────────────
