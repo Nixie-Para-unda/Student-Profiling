@@ -251,11 +251,11 @@ class StudentController extends Controller
     }
 
     /**
-     * Update a student member (for Secretary).
+     * Update a student member (Secretary and Department Chair).
      */
     public function update(Request $request, $id)
     {
-        if (!$request->user()->isSecretary()) {
+        if (!$request->user()->isSecretary() && !$request->user()->isDepartmentChair()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -269,11 +269,6 @@ class StudentController extends Controller
             'course' => 'required|string',
             'year_level' => 'required|integer|min:1|max:4',
             'section_id' => 'required|exists:sections,id',
-            // Guardian fields
-            'guardian_first_name' => 'nullable|string',
-            'guardian_last_name' => 'nullable|string',
-            'guardian_contact_number' => 'nullable|string',
-            'guardian_relationship' => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request, $student, $user) {
@@ -301,19 +296,6 @@ class StudentController extends Controller
                 'last_name' => $request->last_name,
                 'middle_name' => $request->middle_name ?? $student->middle_name,
             ]);
-
-            // Update or create guardian record
-            if ($request->guardian_first_name && $request->guardian_last_name) {
-                Guardian::updateOrCreate(
-                    ['student_id' => $student->id],
-                    [
-                        'first_name' => $request->guardian_first_name,
-                        'last_name' => $request->guardian_last_name,
-                        'contact_number' => $request->guardian_contact_number,
-                        'relationship' => $request->guardian_relationship,
-                    ]
-                );
-            }
 
             return response()->json([
                 'message' => 'Student account updated successfully.',
