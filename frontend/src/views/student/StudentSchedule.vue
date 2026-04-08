@@ -49,39 +49,13 @@
 
     <!-- Right Panel -->
     <div class="right">
-      <!-- Mini Calendar -->
-      <div class="mini-cal">
-        <div class="mini-hdr">
-          <h3>August 2020</h3>
-          <div class="mini-nav">
-            <button>&#8249;</button>
-            <button>&#8250;</button>
-          </div>
-        </div>
-        <div class="mini-days">
-          <span v-for="d in ['M','T','W','T','F','S','S']" :key="d + Math.random()">{{ d }}</span>
-        </div>
-        <div class="mini-grid">
-          <span
-            v-for="(d, i) in MONTH_DATES"
-            :key="i"
-            :class="{
-              empty: d === null,
-              cur: d === currentHighlight,
-              hi: d !== null && weekDates.includes(d) && d !== currentHighlight
-            }"
-            @click="d && (miniSelected = d)"
-          >{{ d }}</span>
-        </div>
-      </div>
-
       <!-- Class List -->
       <div class="class-list">
         <div class="cl-hdr">
           <h3>Class list</h3>
           <a href="#" @click.prevent>View all</a>
         </div>
-        <div class="cl-sub">Today, Aug 14</div>
+        <div class="cl-sub">Today's Classes</div>
         <div
           v-for="ev in todayEvents"
           :key="'card-' + ev.id"
