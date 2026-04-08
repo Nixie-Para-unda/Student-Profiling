@@ -138,9 +138,9 @@
                   </div>
                 </div>
               </td>
-              <td><span class="code-badge" :class="student.course === 'BSIT' ? 'badge-bsit' : 'badge-bscs'">{{ student.student_number }}</span></td>
+              <td><span class="code-badge" :class="student.course === 'BSIT' ? 'badge-bsit' : 'badge-bscs'">{{ student.student_number.replace('-', '') }}</span></td>
               <td>{{ student.course }}</td>
-              <td>{{ student.year_level }}{{ getYearSuffix(student.year_level) }} Year · {{ student.section || '—' }}</td>
+              <td>{{ student.year_level }}-{{ extractSectionLetter(student.section) || '—' }}</td>
               <td><span class="gwa-val" :class="student.gwa <= 1.75 ? 'gwa-good' : 'gwa-ok'">{{ student.gwa || 'N/A' }}</span></td>
               <td><span class="v-count" :class="student.violations_count > 0 ? 'v-danger' : 'v-clear'">{{ student.violations_count || 0 }}</span></td>
               <td>
@@ -150,10 +150,13 @@
               </td>
               <td v-if="isSecretary || authStore.isDean || authStore.isChair" @click.stop>
                 <div class="action-btns">
+                  <button class="action-btn edit" v-if="authStore.isChair" @click="openEditModal(student)" title="Edit Student">
+                    <svg viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2M2 14l2-2 8.5-8.5-2-2-8.5 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
                   <button class="action-btn resend" v-if="student.status === 'pending' && isSecretary" @click="resendSetup(student)" title="Resend setup email">
                     <svg viewBox="0 0 16 16" fill="none"><path d="M2 4l6 4 6-4M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
-                  <button class="action-btn delete" @click="confirmDelete(student)" title="Archive Account">
+                  <button class="action-btn delete" @click="confirmDelete(student)" title="Archive">
                     <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </button>
                 </div>
@@ -197,7 +200,7 @@
     <!-- ═══════════════════════════════════════════════════
          CREATE MODAL (secretary only — fields are editable)
     ═══════════════════════════════════════════════════ -->
-    <div v-if="isSecretary && showCreateModal" class="modal-overlay" @click.self="!saving && (showCreateModal = false)">
+    <div v-if="(isSecretary || authStore.isChair) && showCreateModal" class="modal-overlay" @click.self="!saving && (showCreateModal = false)">
       <div class="modal">
         <div class="modal-header">
           <h3>{{ editingStudent ? 'Edit Student Account' : 'Create Student Account' }}</h3>
@@ -304,7 +307,7 @@
             </div>
             <div>
               <h3>{{ viewingStudent.last_name }}, {{ viewingStudent.first_name }} {{ viewingStudent.middle_name }}</h3>
-              <p class="modal-sub">{{ viewingStudent.student_number }} · {{ viewingStudent.course }} · {{ viewingStudent.section || 'No Section' }}</p>
+              <p class="modal-sub">{{ viewingStudent.student_number.replace('-', '') }} · {{ viewingStudent.course }} · {{ formatYearSection(viewingStudent) }}</p>
             </div>
           </div>
           <button class="close-btn" @click="viewingStudent = null">×</button>
@@ -325,7 +328,7 @@
               <div class="detail-row">
                 <span class="detail-key">Student Number</span>
                 <span class="detail-val">
-                  <span class="code-badge">{{ viewingStudent.student_number }}</span>
+                  <span class="code-badge">{{ viewingStudent.student_number.replace('-', '') }}</span>
                 </span>
               </div>
             </div>
@@ -339,12 +342,8 @@
                 <span class="detail-val">{{ viewingStudent.course }}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-key">Year Level</span>
-                <span class="detail-val">{{ viewingStudent.year_level }}{{ getYearSuffix(viewingStudent.year_level) }} Year</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-key">Section</span>
-                <span class="detail-val">{{ viewingStudent.section || 'N/A' }}</span>
+                <span class="detail-key">Year & Section</span>
+                <span class="detail-val">{{ viewingStudent.year_level }}-{{ extractSectionLetter(viewingStudent.section) || 'N/A' }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-key">Status</span>
@@ -450,6 +449,14 @@
 
         <div class="modal-footer">
           <button class="ghost-btn" @click="viewingStudent = null">Close</button>
+          <button
+            v-if="authStore.isChair"
+            class="secondary-btn"
+            @click="openEditFromView(viewingStudent)"
+          >
+            <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M11.5 2.5l2 2M2 14l2-2 8.5-8.5-2-2-8.5 8.5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Edit
+          </button>
           <!-- DESIGN FIX: Archive/delete button is inside modal, not in the table -->
           <!-- Only visible to secretary, dean, or chair role -->
           <button
@@ -458,7 +465,7 @@
             @click="confirmDelete(viewingStudent)"
           >
             <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Archive Account
+            Archive
           </button>
         </div>
       </div>
@@ -480,7 +487,7 @@
         </div>
         <div class="modal-footer">
           <button class="ghost-btn" @click="showDeleteModal = false">Cancel</button>
-          <button class="danger-btn" @click="deleteStudent">Archive Account</button>
+          <button class="danger-btn" @click="deleteStudent">Archive</button>
         </div>
       </div>
     </div>
@@ -620,6 +627,17 @@ const getYearSuffix = (y) => {
   if (last === 2 && y !== 12) return 'nd'
   if (last === 3 && y !== 13) return 'rd'
   return 'th'
+}
+
+const extractSectionLetter = (section) => {
+  if (!section) return ''
+  const match = section.match(/[- ](\w)$/i)
+  return match ? match[1] : section
+}
+
+const formatYearSection = (student) => {
+  if (!student.year_level || !student.section) return 'No Section'
+  return `${student.year_level}-${extractSectionLetter(student.section)}`
 }
 
 const getResendCount = (studentId) => resendCounts.value[studentId] || 0
@@ -787,6 +805,11 @@ const openEditModal = (student) => {
   showCreateModal.value = true
 }
 
+const openEditFromView = (student) => {
+  viewingStudent.value = null
+  openEditModal(student)
+}
+
 const saveStudent = async () => {
   formErrors.value = {}
   if (!form.value.first_name || !form.value.last_name || !form.value.student_number || !form.value.email || !form.value.course || !form.value.year_level || !form.value.section_id) {
@@ -874,6 +897,11 @@ const handleCSV = async (e) => {
 .primary-btn:hover:not(:disabled) { background: #e85500; }
 .primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .primary-btn svg { width: 15px; height: 15px; }
+
+.secondary-btn { display: flex; align-items: center; gap: 7px; background: #3b82f6; color: #fff; border: none; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
+.secondary-btn:hover:not(:disabled) { background: #2563eb; }
+.secondary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.secondary-btn svg { width: 15px; height: 15px; }
 .ghost-btn { display: flex; align-items: center; gap: 7px; background: #fff; color: #1a0a00; border: 1.5px solid #f0e8e0; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
 .ghost-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
 .ghost-btn svg { width: 15px; height: 15px; }
@@ -958,6 +986,7 @@ const handleCSV = async (e) => {
 .action-btns { display: flex; gap: 8px; }
 .action-btn { background: #fff; border: 1px solid #f0e8e0; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9a8070; cursor: pointer; transition: all 0.2s; }
 .action-btn:hover { border-color: #FF6B1A; color: #FF6B1A; }
+.action-btn.edit:hover { border-color: #3b82f6; color: #3b82f6; }
 .action-btn.delete:hover { border-color: #ef4444; color: #ef4444; }
 .action-btn svg { width: 14px; height: 14px; }
 
