@@ -206,7 +206,7 @@ const routes = [
         path: 'faculty/profile',
         name: 'FacultyProfile',
         component: StudentProfile, // Using shared profile or faculty profile
-        meta: { title: 'My Profile', breadcrumb: 'Faculty Portal > My Profile', role: 'faculty', sidebar: true, icon: 'profile', section: 'Account Settings' }
+        meta: { title: 'My Profile', breadcrumb: 'Faculty Portal > My Profile', role: 'faculty', sidebar: true, icon: 'profile', section: 'My Academic' }
       },
 
       // ── Secretary routes ─────────────────────────
@@ -279,7 +279,7 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         component: Settings,
-        meta: { title: 'Account Settings', breadcrumb: 'Settings > Account Settings', sidebar: true, icon: 'settings', section: 'Account Settings' }
+        meta: { title: 'Account Settings', breadcrumb: 'Settings > Account Settings', sidebar: false, icon: 'settings', section: 'Settings' }
       }
     ]
 

@@ -235,7 +235,7 @@ const menuSections = computed(() => {
   })
 
   // Define section order to ensure Dashboard (Overview) is at the top
-  const sectionOrder = ['Overview', 'My Academic', 'Academics', 'Academic', 'My Classes', 'Accounts', 'Monitoring', 'Management', 'Reports', 'My Activities', 'Account Settings', 'Settings']
+  const sectionOrder = ['Overview', 'My Academic', 'Academics', 'Academic', 'My Classes', 'Accounts', 'Monitoring', 'Management', 'Reports', 'My Activities', 'Settings']
 
   // Return as an array of objects, sorted by sectionOrder
   return Object.keys(sections)
