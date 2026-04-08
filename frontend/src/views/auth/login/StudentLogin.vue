@@ -5,6 +5,11 @@
 
       <!-- LEFT PANEL -->
       <div class="left">
+        <!-- Student Background -->
+        <div class="hero-bg">
+          <img src="/students.jpg" alt="Students" />
+          <div class="hero-overlay"></div>
+        </div>
 
         <!-- Floating icons -->
         <div class="floating-icons">
@@ -232,11 +237,31 @@ const handleLogin = async () => {
   text-align: left; /* Explicitly left align all text */
 }
 
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8) contrast(1.1);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(135deg, rgba(45, 18, 0, 0.95) 0%, rgba(45, 18, 0, 0.7) 100%);
+}
+
 /* ── FLOATING ICONS ── */
 .floating-icons {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -277,6 +302,7 @@ const handleLogin = async () => {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 2;
   background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 36px 36px;
@@ -286,7 +312,7 @@ const handleLogin = async () => {
 /* brand */
 .brand {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -336,7 +362,7 @@ const handleLogin = async () => {
 /* hero - removed 3D rotation for better lining */
 .hero {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
 /* 3D title - removed translateZ for equal lining */
@@ -368,7 +394,7 @@ const handleLogin = async () => {
 /* footer */
 .left-foot {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.2);
 }
