@@ -1,33 +1,3 @@
 {
-  "$schema": "https://schema.railpack.com",
-  "packages": {
-    "php": "8.2",
-    "node": "22"
-  },
-  "steps": {
-    "install": {
-      "commands": [
-        "cd backend && composer install --no-dev --no-interaction",
-        "cd frontend && npm install --legacy-peer-deps"
-      ]
-    },
-    "build": {
-      "inputs": [
-        { "step": "install" }
-      ],
-      "commands": [
-        "cd frontend && npm run build",
-        "cd backend && php artisan migrate --force"
-      ]
-    }
-  },
-  "deploy": {
-    "base": {
-      "image": "ghcr.io/railwayapp/railpack-runtime:mise-2026.2.22"
-    },
-    "startCommand": "cd backend && php artisan serve --host=0.0.0.0 --port=$PORT",
-    "inputs": [
-      { "local": true }
-    ]
-  }
+  "$schema": "https://schema.railpack.com"
 }
